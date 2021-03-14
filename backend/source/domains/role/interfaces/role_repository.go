@@ -13,10 +13,6 @@ type (
 		) error
 
 		List(accountId shared.AccountId) ([]models.Role, error)
-		FindOne(
-			accountId shared.AccountId,
-			roleId shared.RoleId,
-		) (models.Role, error)
 
 		Update(
 			accountId shared.AccountId,

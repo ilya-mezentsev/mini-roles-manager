@@ -56,7 +56,7 @@ create table if not exists role(
 	title character(100),
 	permissions character(32)[],
 	extends character(32)[],
-	account_hash character(32)	
+	account_hash character(32)
 );
 alter table role drop constraint if exists fk_role;
 alter table role
