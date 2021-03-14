@@ -2,17 +2,16 @@ package mock
 
 import (
 	"errors"
-	"mini-roles-backend/source/domains/permission/models"
 	sharedMock "mini-roles-backend/source/domains/shared/mock"
 	shared "mini-roles-backend/source/domains/shared/models"
 )
 
 type PermissionRepository struct {
-	permissions map[shared.AccountId]map[shared.RoleId][]models.Permission
+	permissions map[shared.AccountId]map[shared.RoleId][]shared.Permission
 }
 
 func (p *PermissionRepository) Reset() {
-	p.permissions = map[shared.AccountId]map[shared.RoleId][]models.Permission{
+	p.permissions = map[shared.AccountId]map[shared.RoleId][]shared.Permission{
 		sharedMock.ExistsAccountId: {
 			sharedMock.ExistsRoleId: {
 				{
@@ -50,7 +49,7 @@ func (p *PermissionRepository) Reset() {
 func (p PermissionRepository) List(
 	accountId shared.AccountId,
 	roleId shared.RoleId,
-) ([]models.Permission, error) {
+) ([]shared.Permission, error) {
 	if accountId == sharedMock.BadAccountId {
 		return nil, errors.New("some-error")
 	}

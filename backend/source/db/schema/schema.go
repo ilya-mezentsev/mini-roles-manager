@@ -22,10 +22,11 @@ on delete cascade;
 
 create table if not exists resource(
 	id serial,
-	resource_id character(100) primary key,
+	resource_id character(100),
 	title character(100) not null,
 	links_to character(100)[],
-	account_hash character(32)
+	account_hash character(32),
+	unique(resource_id, account_hash)
 );
 alter table resource drop constraint if exists fk_resource;
 alter table resource
@@ -40,13 +41,14 @@ create table if not exists permission(
 	permission_id character(32) unique,
 	operation character(10),
 	effect character(6) not null,
-	resource_id character(100)
+	resource_id character(100),
+	account_hash character(32)
 );
 alter table permission drop constraint if exists fk_permission;
 alter table permission
 add constraint fk_permission
-foreign key(resource_id)
-references resource(resource_id)
+foreign key(resource_id, account_hash)
+references resource(resource_id, account_hash)
 on delete cascade;
 
 

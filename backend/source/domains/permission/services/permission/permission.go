@@ -44,7 +44,7 @@ func (s Service) HasPermission(request request.PermissionAccessRequest) shared.R
 
 func (s Service) makePermissionsResponse(
 	request request.PermissionAccessRequest,
-	rolePermissions []models.Permission,
+	rolePermissions []sharedModels.Permission,
 ) shared.Response {
 	effect := s.effectForRequestedRole(request, rolePermissions)
 	if effect.IsEmpty() {
@@ -56,7 +56,7 @@ func (s Service) makePermissionsResponse(
 
 func (s Service) effectForRequestedRole(
 	request request.PermissionAccessRequest,
-	rolePermissions []models.Permission,
+	rolePermissions []sharedModels.Permission,
 ) interfaces.Effect {
 	for _, permission := range rolePermissions {
 		if permission.Resource.Id == request.ResourceId &&
@@ -86,7 +86,7 @@ func (s Service) makeResponseFromEffect(effect interfaces.Effect) shared.Respons
 
 func (s Service) checkPermissionsForLinkingResources(
 	request request.PermissionAccessRequest,
-	rolePermissions []models.Permission,
+	rolePermissions []sharedModels.Permission,
 ) shared.Response {
 	linkingResource, resourceFound := s.findLinkingResources(request.ResourceId, rolePermissions)
 	if resourceFound {
@@ -101,7 +101,7 @@ func (s Service) checkPermissionsForLinkingResources(
 
 func (s Service) findLinkingResources(
 	requestedResourceId sharedModels.ResourceId,
-	rolePermissions []models.Permission,
+	rolePermissions []sharedModels.Permission,
 ) (foundResource sharedModels.Resource, resourceFound bool) {
 	for _, permission := range rolePermissions {
 		for _, resourceId := range permission.Resource.LinksTo {

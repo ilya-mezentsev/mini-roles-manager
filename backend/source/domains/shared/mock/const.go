@@ -6,7 +6,8 @@ import (
 )
 
 var (
-	BadAccountId = shared.AccountId(hash.Md5WithTimeAsKey("bad-account-id"))
+	BadAccountId  = shared.AccountId(hash.Md5WithTimeAsKey("bad-account-id"))
+	BadResourceId = shared.ResourceId("bad-resource-id")
 )
 
 var (
