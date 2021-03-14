@@ -1,6 +1,6 @@
 package interfaces
 
-type HttpResponse interface {
+type Response interface {
 	HttpStatus() int
 	ApplicationStatus() string
 	HasData() bool

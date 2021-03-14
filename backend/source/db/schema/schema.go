@@ -24,7 +24,7 @@ create table if not exists resource(
 	id serial,
 	resource_id character(100) primary key,
 	title character(100) not null,
-	links_to character(100)[]
+	links_to character(100)[],
 	account_hash character(32)
 );
 alter table resource drop constraint if exists fk_resource;

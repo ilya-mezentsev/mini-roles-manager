@@ -15,18 +15,18 @@ func New(repository interfaces.RoleRepository) Service {
 	return Service{repository}
 }
 
-func (s Service) Create(request request.CreateRoleRequest) shared.HttpResponse {
+func (s Service) Create(request request.CreateRoleRequest) shared.Response {
 	return response_factory.DefaultResponse()
 }
 
-func (s Service) RolesList(request request.RolesListRequest) shared.HttpResponse {
+func (s Service) RolesList(request request.RolesListRequest) shared.Response {
 	return response_factory.DefaultResponse()
 }
 
-func (s Service) UpdateRole(request request.UpdateRoleRequest) shared.HttpResponse {
+func (s Service) UpdateRole(request request.UpdateRoleRequest) shared.Response {
 	return response_factory.DefaultResponse()
 }
 
-func (s Service) DeleteRole(request request.DeleteRoleRequest) shared.HttpResponse {
+func (s Service) DeleteRole(request request.DeleteRoleRequest) shared.Response {
 	return response_factory.DefaultResponse()
 }
