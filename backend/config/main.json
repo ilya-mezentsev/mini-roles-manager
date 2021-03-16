@@ -1,0 +1,14 @@
+{
+  "server": {
+    "port": 8080,
+    "domain": "localhost",
+    "secure_cookie": false
+  },
+  "db": {
+    "host": "db",
+    "port": 5432,
+    "user": "roles-manager",
+    "password": "password",
+    "db_name": "roles_manager"
+  }
+}

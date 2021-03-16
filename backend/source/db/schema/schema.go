@@ -1,4 +1,4 @@
-package scheme
+package schema
 
 const Schema = `
 create table if not exists account(
@@ -54,11 +54,12 @@ on delete cascade;
 
 create table if not exists role(
 	id serial,
-	role_id character(32) unique,
+	role_id character(32),
 	title character(100),
 	permissions character(32)[],
 	extends character(32)[],
-	account_hash character(32)
+	account_hash character(32),
+	unique(role_id, account_hash)
 );
 alter table role drop constraint if exists fk_role;
 alter table role
