@@ -13,8 +13,8 @@ const (
 	selectRolesQuery = `select trim(role_id) role_id, trim(title) title, permissions, extends from role where account_hash = $1`
 
 	addRoleQuery = `
-	insert into role(role_id, title, permissions, extends, account_hash)
-	values(:role_id, :title, :permissions, :extends, :account_hash)`
+	insert into role(account_hash, role_id, title, permissions, extends)
+	values(:account_hash, :role_id, :title, :permissions, :extends)`
 
 	updateRoleQuery = `
 	update role
