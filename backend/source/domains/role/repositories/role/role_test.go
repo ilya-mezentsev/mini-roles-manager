@@ -6,7 +6,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"mini-roles-backend/source/config"
 	"mini-roles-backend/source/db/connection"
-	"mini-roles-backend/source/domains/role/models"
 	sharedError "mini-roles-backend/source/domains/shared/error"
 	sharedMock "mini-roles-backend/source/domains/shared/mock"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
@@ -30,7 +29,7 @@ func init() {
 
 func TestRepository_ListSuccess(t *testing.T) {
 	defer sharedMock.MustReinstall(db)
-	someRole := models.Role{
+	someRole := sharedModels.Role{
 		Id:    "super-user",
 		Title: "Damn Super User",
 		Permissions: []sharedModels.PermissionId{
@@ -63,7 +62,7 @@ func TestRepository_ListSuccessEmpty(t *testing.T) {
 
 func TestRepository_CreateSuccess(t *testing.T) {
 	defer sharedMock.MustReinstall(db)
-	someRole := models.Role{
+	someRole := sharedModels.Role{
 		Id:    "super-user",
 		Title: "Damn Super User",
 		Permissions: []sharedModels.PermissionId{
@@ -87,7 +86,7 @@ func TestRepository_CreateSuccess(t *testing.T) {
 
 func TestRepository_CreateDuplicateRoleId(t *testing.T) {
 	defer sharedMock.MustReinstall(db)
-	someRole := models.Role{
+	someRole := sharedModels.Role{
 		Id:    "super-user",
 		Title: "Damn Super User",
 		Permissions: []sharedModels.PermissionId{
@@ -113,7 +112,7 @@ func TestRepository_CreateDuplicateRoleId(t *testing.T) {
 
 func TestRepository_CreateDuplicateRoleIdButAnotherAccount(t *testing.T) {
 	defer sharedMock.MustReinstall(db)
-	someRole := models.Role{
+	someRole := sharedModels.Role{
 		Id:    "super-user",
 		Title: "Damn Super User",
 		Permissions: []sharedModels.PermissionId{
@@ -144,7 +143,7 @@ func TestRepository_CreateDuplicateRoleIdButAnotherAccount(t *testing.T) {
 
 func TestRepository_UpdateSuccess(t *testing.T) {
 	defer sharedMock.MustReinstall(db)
-	someRole := models.Role{
+	someRole := sharedModels.Role{
 		Id:    "super-user",
 		Title: "Damn Super User",
 		Permissions: []sharedModels.PermissionId{
@@ -172,7 +171,7 @@ func TestRepository_UpdateSuccess(t *testing.T) {
 
 func TestRepository_DeleteSuccess(t *testing.T) {
 	defer sharedMock.MustReinstall(db)
-	someRole := models.Role{
+	someRole := sharedModels.Role{
 		Id:    "super-user",
 		Title: "Damn Super User",
 		Permissions: []sharedModels.PermissionId{

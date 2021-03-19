@@ -23,8 +23,8 @@ on delete cascade;
 create table if not exists resource(
 	id serial,
 	resource_id character(100),
-	title character(100) not null,
-	links_to character(100)[],
+	title character(100) default '',
+	links_to character(100)[] default array[]::character(100)[],
 	account_hash character(32),
 	unique(resource_id, account_hash)
 );
@@ -55,9 +55,9 @@ on delete cascade;
 create table if not exists role(
 	id serial,
 	role_id character(32),
-	title character(100),
-	permissions character(32)[],
-	extends character(32)[],
+	title character(100) default '',
+	permissions character(32)[] default array[]::character(32)[],
+	extends character(32)[] default array[]::character(32)[],
 	account_hash character(32),
 	unique(role_id, account_hash)
 );

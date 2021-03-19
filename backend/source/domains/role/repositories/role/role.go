@@ -3,7 +3,6 @@ package role
 import (
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
-	"mini-roles-backend/source/domains/role/models"
 	sharedError "mini-roles-backend/source/domains/shared/error"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
 	"strings"
@@ -32,7 +31,7 @@ func New(db *sqlx.DB) Repository {
 	return Repository{db}
 }
 
-func (r Repository) Create(accountId sharedModels.AccountId, role models.Role) error {
+func (r Repository) Create(accountId sharedModels.AccountId, role sharedModels.Role) error {
 	_, err := r.db.NamedExec(addRoleQuery, r.mapFromRole(accountId, role))
 	if err != nil && strings.Contains(err.Error(), "duplicate key value violates unique constraint") {
 		err = sharedError.DuplicateUniqueKey{}
@@ -41,7 +40,7 @@ func (r Repository) Create(accountId sharedModels.AccountId, role models.Role) e
 	return err
 }
 
-func (r Repository) mapFromRole(accountId sharedModels.AccountId, role models.Role) map[string]interface{} {
+func (r Repository) mapFromRole(accountId sharedModels.AccountId, role sharedModels.Role) map[string]interface{} {
 	return map[string]interface{}{
 		"role_id":      role.Id,
 		"title":        role.Title,
@@ -51,17 +50,17 @@ func (r Repository) mapFromRole(accountId sharedModels.AccountId, role models.Ro
 	}
 }
 
-func (r Repository) List(accountId sharedModels.AccountId) ([]models.Role, error) {
+func (r Repository) List(accountId sharedModels.AccountId) ([]sharedModels.Role, error) {
 	var roles []roleProxy
 	err := r.db.Select(&roles, selectRolesQuery, accountId)
 
 	return r.makeRoles(roles), err
 }
 
-func (r Repository) makeRoles(proxies []roleProxy) []models.Role {
-	var roles []models.Role
+func (r Repository) makeRoles(proxies []roleProxy) []sharedModels.Role {
+	var roles []sharedModels.Role
 	for _, proxy := range proxies {
-		roles = append(roles, models.Role{
+		roles = append(roles, sharedModels.Role{
 			Id:          proxy.Id,
 			Title:       proxy.Title,
 			Permissions: proxy.makePermissions(),
@@ -72,7 +71,7 @@ func (r Repository) makeRoles(proxies []roleProxy) []models.Role {
 	return roles
 }
 
-func (r Repository) Update(accountId sharedModels.AccountId, role models.Role) error {
+func (r Repository) Update(accountId sharedModels.AccountId, role sharedModels.Role) error {
 	_, err := r.db.NamedExec(updateRoleQuery, r.mapFromRole(accountId, role))
 
 	return err

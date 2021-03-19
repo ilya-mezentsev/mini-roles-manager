@@ -2,18 +2,17 @@ package mock
 
 import (
 	"errors"
-	"mini-roles-backend/source/domains/role/models"
 	sharedError "mini-roles-backend/source/domains/shared/error"
 	sharedMock "mini-roles-backend/source/domains/shared/mock"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
 )
 
 type RoleRepository struct {
-	roles map[sharedModels.AccountId][]models.Role
+	roles map[sharedModels.AccountId][]sharedModels.Role
 }
 
 func (r *RoleRepository) Reset() {
-	r.roles = map[sharedModels.AccountId][]models.Role{
+	r.roles = map[sharedModels.AccountId][]sharedModels.Role{
 		sharedMock.ExistsAccountId: {
 			{
 				Id:    sharedMock.ExistsRoleId,
@@ -23,7 +22,7 @@ func (r *RoleRepository) Reset() {
 	}
 }
 
-func (r RoleRepository) Has(role models.Role) bool {
+func (r RoleRepository) Has(role sharedModels.Role) bool {
 	for _, roles := range r.roles {
 		for _, existsRole := range roles {
 			if existsRole.Id == role.Id {
@@ -35,7 +34,7 @@ func (r RoleRepository) Has(role models.Role) bool {
 	return false
 }
 
-func (r RoleRepository) Get(roleId sharedModels.RoleId) (role models.Role) {
+func (r RoleRepository) Get(roleId sharedModels.RoleId) (role sharedModels.Role) {
 	for _, roles := range r.roles {
 		for _, existsRole := range roles {
 			if existsRole.Id == roleId {
@@ -47,7 +46,7 @@ func (r RoleRepository) Get(roleId sharedModels.RoleId) (role models.Role) {
 	return
 }
 
-func (r *RoleRepository) Create(accountId sharedModels.AccountId, role models.Role) error {
+func (r *RoleRepository) Create(accountId sharedModels.AccountId, role sharedModels.Role) error {
 	if accountId == sharedMock.BadAccountId {
 		return errors.New("some-error")
 	} else if r.Has(role) {
@@ -59,7 +58,7 @@ func (r *RoleRepository) Create(accountId sharedModels.AccountId, role models.Ro
 	return nil
 }
 
-func (r RoleRepository) List(accountId sharedModels.AccountId) ([]models.Role, error) {
+func (r RoleRepository) List(accountId sharedModels.AccountId) ([]sharedModels.Role, error) {
 	if accountId == sharedMock.BadAccountId {
 		return nil, errors.New("some-error")
 	}
@@ -67,7 +66,7 @@ func (r RoleRepository) List(accountId sharedModels.AccountId) ([]models.Role, e
 	return r.roles[accountId], nil
 }
 
-func (r *RoleRepository) Update(accountId sharedModels.AccountId, role models.Role) error {
+func (r *RoleRepository) Update(accountId sharedModels.AccountId, role sharedModels.Role) error {
 	if accountId == sharedMock.BadAccountId {
 		return errors.New("some-error")
 	}
@@ -86,7 +85,7 @@ func (r *RoleRepository) Delete(accountId sharedModels.AccountId, roleId sharedM
 		return errors.New("some-error")
 	}
 
-	var newRoles []models.Role
+	var newRoles []sharedModels.Role
 	for _, role := range r.roles[accountId] {
 		if role.Id != roleId {
 			newRoles = append(newRoles, role)
