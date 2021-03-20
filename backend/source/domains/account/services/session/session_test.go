@@ -9,6 +9,7 @@ import (
 	"mini-roles-backend/source/domains/account/mock"
 	"mini-roles-backend/source/domains/account/models"
 	"mini-roles-backend/source/domains/account/request"
+	"mini-roles-backend/source/domains/account/services/shared"
 	sharedError "mini-roles-backend/source/domains/shared/error"
 	sharedMock "mini-roles-backend/source/domains/shared/mock"
 	"mini-roles-backend/source/domains/shared/services/response_factory"
@@ -48,7 +49,7 @@ func TestService_CreateSessionSuccess(t *testing.T) {
 	assert.Equal(t, sharedMock.ExistsAccountId, response.GetData().(models.AccountSession).Id)
 	assert.True(t, strings.Contains(
 		w.Header().Get("Set-Cookie"),
-		fmt.Sprintf("%s=%s", cookieTokenKey, sharedMock.ExistsAccountId),
+		fmt.Sprintf("%s=%s", shared.CookieTokenKey, sharedMock.ExistsAccountId),
 	))
 }
 
@@ -108,7 +109,7 @@ func TestService_CreateSessionServerError(t *testing.T) {
 func TestService_CreateSessionSuccessExists(t *testing.T) {
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
-	c.Request = mock.CreateRequestWithCookie(cookieTokenKey, string(sharedMock.ExistsAccountId))
+	c.Request = mock.CreateRequestWithCookie(shared.CookieTokenKey, string(sharedMock.ExistsAccountId))
 
 	response := service.GetSession(request.GetSession{
 		Context: c,
@@ -119,14 +120,14 @@ func TestService_CreateSessionSuccessExists(t *testing.T) {
 	assert.Equal(t, sharedMock.ExistsAccountId, response.GetData().(models.AccountSession).Id)
 	assert.True(t, strings.Contains(
 		w.Header().Get("Set-Cookie"),
-		fmt.Sprintf("%s=%s", cookieTokenKey, sharedMock.ExistsAccountId),
+		fmt.Sprintf("%s=%s", shared.CookieTokenKey, sharedMock.ExistsAccountId),
 	))
 }
 
 func TestService_GetSessionNotExists(t *testing.T) {
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
-	c.Request = mock.CreateRequestWithCookie(cookieTokenKey, "some-token")
+	c.Request = mock.CreateRequestWithCookie(shared.CookieTokenKey, "some-token")
 
 	response := service.GetSession(request.GetSession{
 		Context: c,
@@ -152,7 +153,7 @@ func TestService_GetSessionNoCookie(t *testing.T) {
 func TestService_GetSessionServerError(t *testing.T) {
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
-	c.Request = mock.CreateRequestWithCookie(cookieTokenKey, string(sharedMock.BadAccountId))
+	c.Request = mock.CreateRequestWithCookie(shared.CookieTokenKey, string(sharedMock.BadAccountId))
 
 	response := service.GetSession(request.GetSession{
 		Context: c,
@@ -166,7 +167,7 @@ func TestService_GetSessionServerError(t *testing.T) {
 func TestService_DeleteSessionSuccess(t *testing.T) {
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
-	c.Request = mock.CreateRequestWithCookie(cookieTokenKey, string(sharedMock.ExistsAccountId))
+	c.Request = mock.CreateRequestWithCookie(shared.CookieTokenKey, string(sharedMock.ExistsAccountId))
 
 	response := service.DeleteSession(request.DeleteSession{
 		Context: c,
@@ -176,6 +177,6 @@ func TestService_DeleteSessionSuccess(t *testing.T) {
 	assert.False(t, response.HasData())
 	assert.True(t, strings.Contains(
 		w.Header().Get("Set-Cookie"),
-		fmt.Sprintf("%s=", cookieTokenKey),
+		fmt.Sprintf("%s=", shared.CookieTokenKey),
 	))
 }

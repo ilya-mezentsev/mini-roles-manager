@@ -60,8 +60,22 @@ func TestService_CheckSessionFromCookieNoCookieError(t *testing.T) {
 	})
 
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
-	assert.Equal(t, missedTokenInCookieCode, response.GetData().(sharedError.ServiceError).Code)
-	assert.Equal(t, missedTokenInCookieDescription, response.GetData().(sharedError.ServiceError).Description)
+	assert.Equal(t, missedTokenInCookiesCode, response.GetData().(sharedError.ServiceError).Code)
+	assert.Equal(t, missedTokenInCookiesDescription, response.GetData().(sharedError.ServiceError).Description)
+}
+
+func TestService_CheckSessionFromHeaderNotTokenError(t *testing.T) {
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Request = mock.CreateSimpleRequest()
+
+	response := service.CheckSessionFromHeader(request.SessionExists{
+		Context: c,
+	})
+
+	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.Equal(t, missedTokenInHeadersCode, response.GetData().(sharedError.ServiceError).Code)
+	assert.Equal(t, missedTokenInHeadersDescription, response.GetData().(sharedError.ServiceError).Description)
 }
 
 func TestService_CheckSessionFromCookieNoAccountByToken(t *testing.T) {
