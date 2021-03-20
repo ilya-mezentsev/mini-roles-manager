@@ -87,3 +87,35 @@ func TestRepository_AddResourcePermissionsErrorNoTable(t *testing.T) {
 	)
 	assert.NotNil(t, err)
 }
+
+func TestRepository_AddResourcePermissionsNoConnection(t *testing.T) {
+	defer func() {
+		db = sqlx.MustOpen(
+			"postgres",
+			connection.BuildPostgresString(config.Default()),
+		)
+		sharedMock.MustReinstall(db)
+	}()
+
+	_ = db.Close()
+
+	permissions := []sharedModels.Permission{
+		{
+			Id:        "some-permission-id-1",
+			Operation: "create",
+			Effect:    "permit",
+		},
+		{
+			Id:        "some-permission-id-2",
+			Operation: "delete",
+			Effect:    "deny",
+		},
+	}
+
+	err := repository.AddResourcePermissions(
+		sharedMock.ExistsAccountId,
+		sharedMock.ExistsResourceId,
+		permissions,
+	)
+	assert.NotNil(t, err)
+}

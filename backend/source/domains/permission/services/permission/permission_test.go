@@ -31,7 +31,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestService_HasPermissionPermit(t *testing.T) {
-	response := New(mockRepository).HasPermission(request.PermissionAccessRequest{
+	response := New(mockRepository).HasPermission(request.PermissionAccess{
 		AccountId:  sharedMock.ExistsAccountId,
 		RoleId:     sharedMock.ExistsRoleId,
 		ResourceId: sharedMock.ExistsResourceId,
@@ -44,7 +44,7 @@ func TestService_HasPermissionPermit(t *testing.T) {
 }
 
 func TestService_HasPermissionPermitByLinkingResource(t *testing.T) {
-	response := New(mockRepository).HasPermission(request.PermissionAccessRequest{
+	response := New(mockRepository).HasPermission(request.PermissionAccess{
 		AccountId:  sharedMock.ExistsAccountId,
 		RoleId:     sharedMock.ExistsRoleId,
 		ResourceId: sharedMock.ExistsResourceId,
@@ -57,7 +57,7 @@ func TestService_HasPermissionPermitByLinkingResource(t *testing.T) {
 }
 
 func TestService_HasPermissionDeny(t *testing.T) {
-	response := New(mockRepository).HasPermission(request.PermissionAccessRequest{
+	response := New(mockRepository).HasPermission(request.PermissionAccess{
 		AccountId:  sharedMock.ExistsAccountId,
 		RoleId:     sharedMock.ExistsRoleId,
 		ResourceId: sharedMock.ExistsResourceId,
@@ -70,7 +70,7 @@ func TestService_HasPermissionDeny(t *testing.T) {
 }
 
 func TestService_HasPermissionDenyByUndefinedOperation(t *testing.T) {
-	response := New(mockRepository).HasPermission(request.PermissionAccessRequest{
+	response := New(mockRepository).HasPermission(request.PermissionAccess{
 		AccountId:  sharedMock.ExistsAccountId,
 		RoleId:     sharedMock.ExistsRoleId,
 		ResourceId: sharedMock.ExistsResourceId,
@@ -83,7 +83,7 @@ func TestService_HasPermissionDenyByUndefinedOperation(t *testing.T) {
 }
 
 func TestService_HasPermissionValidationError(t *testing.T) {
-	req := request.PermissionAccessRequest{
+	req := request.PermissionAccess{
 		Operation: "foo",
 	}
 	response := New(mockRepository).HasPermission(req)
@@ -95,7 +95,7 @@ func TestService_HasPermissionValidationError(t *testing.T) {
 }
 
 func TestService_HasPermissionDBError(t *testing.T) {
-	response := New(mockRepository).HasPermission(request.PermissionAccessRequest{
+	response := New(mockRepository).HasPermission(request.PermissionAccess{
 		AccountId:  sharedMock.BadAccountId,
 		RoleId:     sharedMock.ExistsRoleId,
 		ResourceId: sharedMock.ExistsResourceId,

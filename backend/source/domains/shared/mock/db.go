@@ -38,6 +38,12 @@ func createTables(db *sqlx.DB) {
 
 func addAccount(db *sqlx.DB) {
 	db.MustExec(`insert into account(hash) values($1) on conflict do nothing`, ExistsAccountId)
+	db.MustExec(
+		`insert into account_credentials(login, password, account_hash) values($1, $2, $3)`,
+		ExistsLogin,
+		ExistsPassword,
+		ExistsAccountId,
+	)
 }
 
 func MustAddResource(db *sqlx.DB) {

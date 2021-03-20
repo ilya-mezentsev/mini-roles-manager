@@ -37,7 +37,7 @@ func TestService_CreateSuccess(t *testing.T) {
 		Title: "Some New Role Title",
 	}
 
-	response := New(mockRepository).Create(request.CreateRoleRequest{
+	response := New(mockRepository).Create(request.CreateRole{
 		AccountId: sharedMock.ExistsAccountId,
 		Role:      newRole,
 	})
@@ -54,7 +54,7 @@ func TestService_CreateDuplicateKeyError(t *testing.T) {
 	}
 	assert.True(t, mockRepository.Has(newRole))
 
-	response := New(mockRepository).Create(request.CreateRoleRequest{
+	response := New(mockRepository).Create(request.CreateRole{
 		AccountId: sharedMock.ExistsAccountId,
 		Role:      newRole,
 	})
@@ -68,7 +68,7 @@ func TestService_CreateDuplicateKeyError(t *testing.T) {
 func TestService_CreateValidationError(t *testing.T) {
 	defer mockRepository.Reset()
 	newRole := sharedModels.Role{}
-	req := request.CreateRoleRequest{
+	req := request.CreateRole{
 		AccountId: sharedMock.ExistsAccountId,
 		Role:      newRole,
 	}
@@ -89,7 +89,7 @@ func TestService_CreateDBError(t *testing.T) {
 		Title: "Some New Role Title",
 	}
 
-	response := New(mockRepository).Create(request.CreateRoleRequest{
+	response := New(mockRepository).Create(request.CreateRole{
 		AccountId: sharedMock.BadAccountId,
 		Role:      newRole,
 	})
@@ -105,7 +105,7 @@ func TestService_RolesListSuccess(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotEmpty(t, expectedRoles)
 
-	response := New(mockRepository).RolesList(request.RolesListRequest{
+	response := New(mockRepository).RolesList(request.RolesList{
 		AccountId: sharedMock.ExistsAccountId,
 	})
 
@@ -115,7 +115,7 @@ func TestService_RolesListSuccess(t *testing.T) {
 }
 
 func TestService_RolesListEmpty(t *testing.T) {
-	response := New(mockRepository).RolesList(request.RolesListRequest{
+	response := New(mockRepository).RolesList(request.RolesList{
 		AccountId: "some-id",
 	})
 
@@ -125,7 +125,7 @@ func TestService_RolesListEmpty(t *testing.T) {
 }
 
 func TestService_RolesListValidationError(t *testing.T) {
-	req := request.RolesListRequest{}
+	req := request.RolesList{}
 
 	response := New(mockRepository).RolesList(req)
 
@@ -136,7 +136,7 @@ func TestService_RolesListValidationError(t *testing.T) {
 }
 
 func TestService_RolesListDBError(t *testing.T) {
-	response := New(mockRepository).RolesList(request.RolesListRequest{
+	response := New(mockRepository).RolesList(request.RolesList{
 		AccountId: sharedMock.BadAccountId,
 	})
 
@@ -152,7 +152,7 @@ func TestService_UpdateRoleSuccess(t *testing.T) {
 		Title: "some-title",
 	}
 
-	response := New(mockRepository).UpdateRole(request.UpdateRoleRequest{
+	response := New(mockRepository).UpdateRole(request.UpdateRole{
 		AccountId: sharedMock.ExistsAccountId,
 		Role:      updatingRole,
 	})
@@ -167,7 +167,7 @@ func TestService_UpdateRoleValidationError(t *testing.T) {
 		Id:    sharedMock.ExistsRoleId,
 		Title: "some-title",
 	}
-	req := request.UpdateRoleRequest{
+	req := request.UpdateRole{
 		Role: updatingRole,
 	}
 
@@ -185,7 +185,7 @@ func TestService_UpdateRoleDBError(t *testing.T) {
 		Title: "some-title",
 	}
 
-	response := New(mockRepository).UpdateRole(request.UpdateRoleRequest{
+	response := New(mockRepository).UpdateRole(request.UpdateRole{
 		AccountId: sharedMock.BadAccountId,
 		Role:      updatingRole,
 	})
@@ -198,7 +198,7 @@ func TestService_UpdateRoleDBError(t *testing.T) {
 func TestService_DeleteRoleSuccess(t *testing.T) {
 	defer mockRepository.Reset()
 
-	response := New(mockRepository).DeleteRole(request.DeleteRoleRequest{
+	response := New(mockRepository).DeleteRole(request.DeleteRole{
 		AccountId: sharedMock.ExistsAccountId,
 		RoleId:    sharedMock.ExistsRoleId,
 	})
@@ -209,7 +209,7 @@ func TestService_DeleteRoleSuccess(t *testing.T) {
 }
 
 func TestService_DeleteRoleValidationError(t *testing.T) {
-	req := request.DeleteRoleRequest{}
+	req := request.DeleteRole{}
 	response := New(mockRepository).DeleteRole(req)
 
 	assert.True(t, mockRepository.Has(sharedModels.Role{Id: sharedMock.ExistsRoleId}))
@@ -220,7 +220,7 @@ func TestService_DeleteRoleValidationError(t *testing.T) {
 }
 
 func TestService_DeleteRoleDBError(t *testing.T) {
-	response := New(mockRepository).DeleteRole(request.DeleteRoleRequest{
+	response := New(mockRepository).DeleteRole(request.DeleteRole{
 		AccountId: sharedMock.BadAccountId,
 		RoleId:    sharedMock.ExistsRoleId,
 	})
