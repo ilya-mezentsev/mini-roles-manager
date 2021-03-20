@@ -4,21 +4,21 @@ import sharedModels "mini-roles-backend/source/domains/shared/models"
 
 type (
 	CreateResource struct {
-		AccountId sharedModels.AccountId `json:"account_id" validate:"required"`
-		Resource  sharedModels.Resource  `json:"resource" validate:"required"`
+		AccountId sharedModels.AccountId `validate:"required"`
+		Resource  sharedModels.Resource  `validate:"required"`
 	}
 
 	ResourcesList struct {
-		AccountId sharedModels.AccountId `json:"account_id" validate:"required"`
+		AccountId sharedModels.AccountId `validate:"required"`
 	}
 
 	UpdateResource struct {
-		AccountId sharedModels.AccountId `json:"account_id" validate:"required"`
-		Resource  sharedModels.Resource  `json:"resource" validate:"required"`
+		AccountId sharedModels.AccountId `validate:"required"`
+		Resource  sharedModels.Resource  `validate:"required"`
 	}
 
 	DeleteResource struct {
-		AccountId  sharedModels.AccountId  `json:"account_id" validate:"required"`
-		ResourceId sharedModels.ResourceId `json:"resource_id" validate:"required"`
+		AccountId  sharedModels.AccountId  `validate:"required"`
+		ResourceId sharedModels.ResourceId `validate:"required"`
 	}
 )

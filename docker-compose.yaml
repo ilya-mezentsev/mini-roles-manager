@@ -11,3 +11,19 @@ services:
       POSTGRES_USER: roles-manager
       POSTGRES_PASSWORD: password
       POSTGRES_DB: roles_manager
+
+  api:
+    build: backend
+    volumes:
+      - ./backend:/var/www/apps/backend
+    depends_on:
+      - db
+
+  nginx:
+    build: nginx
+    volumes:
+      - ./frontend:/var/www/apps/frontend
+    ports:
+      - 8000:80
+    depends_on:
+      - api

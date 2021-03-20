@@ -30,37 +30,6 @@ func New(
 	}
 }
 
-// used for middleware. nil return result is meaning that request can be processed
-func (s Service) CheckSessionFromCookie(request request.SessionExists) (interceptionResponse sharedInterfaces.Response) {
-	cookieToken, err := request.Context.Cookie(cookieTokenKey)
-	if err != nil {
-		return response_factory.UnauthorizedError(sharedError.ServiceError{
-			Code:        missedTokenInCookieCode,
-			Description: missedTokenInCookieDescription,
-		})
-	}
-
-	accountExists, err := s.repository.SessionExists(models.AccountSession{
-		Id: sharedModels.AccountId(cookieToken),
-	})
-	if err != nil {
-		log.Errorf("Unable to check account existance: %v", err)
-		return response_factory.ServerError(sharedError.ServiceError{
-			Code:        sharedError.ServerErrorCode,
-			Description: sharedError.ServerErrorDescription,
-		})
-	}
-
-	if accountExists {
-		return nil
-	} else {
-		return response_factory.ForbiddenError(sharedError.ServiceError{
-			Code:        noAccountByTokenCode,
-			Description: noAccountByTokenDescription,
-		})
-	}
-}
-
 func (s Service) CreateSession(request request.CreateSession) sharedInterfaces.Response {
 	err := validator.New().Struct(request)
 	if err != nil {

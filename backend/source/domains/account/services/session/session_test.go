@@ -29,60 +29,6 @@ func init() {
 	sessionRepositoryMock.Reset()
 }
 
-func TestService_CheckSessionFromCookieSuccess(t *testing.T) {
-	w := httptest.NewRecorder()
-	c, _ := gin.CreateTestContext(w)
-	c.Request = mock.CreateRequestWithCookie(cookieTokenKey, string(sharedMock.ExistsAccountId))
-
-	response := service.CheckSessionFromCookie(request.SessionExists{
-		Context: c,
-	})
-
-	assert.Nil(t, response)
-}
-
-func TestService_CheckSessionFromCookieNoCookieError(t *testing.T) {
-	w := httptest.NewRecorder()
-	c, _ := gin.CreateTestContext(w)
-	c.Request = mock.CreateSimpleRequest()
-
-	response := service.CheckSessionFromCookie(request.SessionExists{
-		Context: c,
-	})
-
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
-	assert.Equal(t, missedTokenInCookieCode, response.GetData().(sharedError.ServiceError).Code)
-	assert.Equal(t, missedTokenInCookieDescription, response.GetData().(sharedError.ServiceError).Description)
-}
-
-func TestService_CheckSessionFromCookieNoAccountByToken(t *testing.T) {
-	w := httptest.NewRecorder()
-	c, _ := gin.CreateTestContext(w)
-	c.Request = mock.CreateRequestWithCookie(cookieTokenKey, "some-token")
-
-	response := service.CheckSessionFromCookie(request.SessionExists{
-		Context: c,
-	})
-
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
-	assert.Equal(t, noAccountByTokenCode, response.GetData().(sharedError.ServiceError).Code)
-	assert.Equal(t, noAccountByTokenDescription, response.GetData().(sharedError.ServiceError).Description)
-}
-
-func TestService_CheckSessionFromCookieServerError(t *testing.T) {
-	w := httptest.NewRecorder()
-	c, _ := gin.CreateTestContext(w)
-	c.Request = mock.CreateRequestWithCookie(cookieTokenKey, string(sharedMock.BadAccountId))
-
-	response := service.CheckSessionFromCookie(request.SessionExists{
-		Context: c,
-	})
-
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
-	assert.Equal(t, sharedError.ServerErrorCode, response.GetData().(sharedError.ServiceError).Code)
-	assert.Equal(t, sharedError.ServerErrorDescription, response.GetData().(sharedError.ServiceError).Description)
-}
-
 func TestService_CreateSessionSuccess(t *testing.T) {
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
