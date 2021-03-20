@@ -5,21 +5,21 @@ import (
 )
 
 type (
-	CreateRoleRequest struct {
+	CreateRole struct {
 		AccountId sharedModels.AccountId `json:"account_id" validate:"required"`
 		Role      sharedModels.Role      `json:"role" validate:"required"`
 	}
 
-	RolesListRequest struct {
+	RolesList struct {
 		AccountId sharedModels.AccountId `json:"account_id" validate:"required"`
 	}
 
-	UpdateRoleRequest struct {
+	UpdateRole struct {
 		AccountId sharedModels.AccountId `json:"account_id" validate:"required"`
 		Role      sharedModels.Role      `json:"role" validate:"required"`
 	}
 
-	DeleteRoleRequest struct {
+	DeleteRole struct {
 		AccountId sharedModels.AccountId `json:"account_id" validate:"required"`
 		RoleId    sharedModels.RoleId    `json:"role_id" validate:"required"`
 	}

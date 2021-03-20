@@ -12,6 +12,8 @@ var (
 
 var (
 	ExistsAccountId  = shared.AccountId(hash.Md5WithTimeAsKey("exists-account-id"))
+	ExistsLogin      = "ExistsLogin"
+	ExistsPassword   = "exists-password"
 	ExistsRoleId     = shared.RoleId(hash.Md5WithTimeAsKey("exists-role-id"))
 	ExistsResourceId = shared.ResourceId("exists-resource-id")
 )

@@ -44,7 +44,7 @@ func TestService_CreateResourceSuccess(t *testing.T) {
 		Title: "Some-New-Resource",
 	}
 
-	response := service.CreateResource(request.CreateResourceRequest{
+	response := service.CreateResource(request.CreateResource{
 		AccountId: sharedMock.ExistsAccountId,
 		Resource:  newResource,
 	})
@@ -60,7 +60,7 @@ func TestService_CreateResourceValidationError(t *testing.T) {
 		Id:    "new-resource",
 		Title: "Some-New-Resource",
 	}
-	req := request.CreateResourceRequest{
+	req := request.CreateResource{
 		Resource: newResource,
 	}
 
@@ -80,7 +80,7 @@ func TestService_CreateResourceDuplicateKeyError(t *testing.T) {
 	}
 	assert.True(t, mockResourceRepository.Has(newResource))
 
-	response := service.CreateResource(request.CreateResourceRequest{
+	response := service.CreateResource(request.CreateResource{
 		AccountId: sharedMock.ExistsAccountId,
 		Resource:  newResource,
 	})
@@ -97,7 +97,7 @@ func TestService_CreateResourceDBError(t *testing.T) {
 		Title: "Some-New-Resource",
 	}
 
-	response := service.CreateResource(request.CreateResourceRequest{
+	response := service.CreateResource(request.CreateResource{
 		AccountId: sharedMock.BadAccountId,
 		Resource:  newResource,
 	})
@@ -116,7 +116,7 @@ func TestService_CreateResourcePermissionDBError(t *testing.T) {
 		Title: "Some-New-Resource",
 	}
 
-	response := service.CreateResource(request.CreateResourceRequest{
+	response := service.CreateResource(request.CreateResource{
 		AccountId: sharedMock.ExistsAccountId,
 		Resource:  newResource,
 	})
@@ -130,7 +130,7 @@ func TestService_CreateResourcePermissionDBError(t *testing.T) {
 }
 
 func TestService_ResourcesListSuccess(t *testing.T) {
-	response := service.ResourcesList(request.ResourcesListRequest{
+	response := service.ResourcesList(request.ResourcesList{
 		AccountId: sharedMock.ExistsAccountId,
 	})
 
@@ -140,7 +140,7 @@ func TestService_ResourcesListSuccess(t *testing.T) {
 }
 
 func TestService_ResourcesListValidationError(t *testing.T) {
-	req := request.ResourcesListRequest{}
+	req := request.ResourcesList{}
 	response := service.ResourcesList(req)
 
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
@@ -150,7 +150,7 @@ func TestService_ResourcesListValidationError(t *testing.T) {
 }
 
 func TestService_ResourcesListDBError(t *testing.T) {
-	response := service.ResourcesList(request.ResourcesListRequest{
+	response := service.ResourcesList(request.ResourcesList{
 		AccountId: sharedMock.BadAccountId,
 	})
 
@@ -167,7 +167,7 @@ func TestService_UpdateResourceSuccess(t *testing.T) {
 		Title: "Some-New-Title",
 	}
 
-	response := service.UpdateResource(request.UpdateResourceRequest{
+	response := service.UpdateResource(request.UpdateResource{
 		AccountId: sharedMock.ExistsAccountId,
 		Resource:  updatingResource,
 	})
@@ -182,7 +182,7 @@ func TestService_UpdateResourceValidationError(t *testing.T) {
 		Id:    sharedMock.ExistsResourceId,
 		Title: "Some-New-Title",
 	}
-	req := request.UpdateResourceRequest{
+	req := request.UpdateResource{
 		Resource: updatingResource,
 	}
 
@@ -201,7 +201,7 @@ func TestService_UpdateResourceDBError(t *testing.T) {
 		Title: "Some-New-Title",
 	}
 
-	response := service.UpdateResource(request.UpdateResourceRequest{
+	response := service.UpdateResource(request.UpdateResource{
 		AccountId: sharedMock.BadAccountId,
 		Resource:  updatingResource,
 	})
@@ -215,7 +215,7 @@ func TestService_UpdateResourceDBError(t *testing.T) {
 func TestService_DeleteResourceSuccess(t *testing.T) {
 	defer resetRepositories()
 
-	response := service.DeleteResource(request.DeleteResourceRequest{
+	response := service.DeleteResource(request.DeleteResource{
 		AccountId:  sharedMock.ExistsAccountId,
 		ResourceId: sharedMock.ExistsResourceId,
 	})
@@ -228,7 +228,7 @@ func TestService_DeleteResourceSuccess(t *testing.T) {
 }
 
 func TestService_DeleteResourceValidationError(t *testing.T) {
-	req := request.DeleteResourceRequest{
+	req := request.DeleteResource{
 		ResourceId: sharedMock.ExistsResourceId,
 	}
 
@@ -244,7 +244,7 @@ func TestService_DeleteResourceValidationError(t *testing.T) {
 }
 
 func TestService_DeleteResourceDBError(t *testing.T) {
-	response := service.DeleteResource(request.DeleteResourceRequest{
+	response := service.DeleteResource(request.DeleteResource{
 		AccountId:  sharedMock.BadAccountId,
 		ResourceId: sharedMock.ExistsResourceId,
 	})

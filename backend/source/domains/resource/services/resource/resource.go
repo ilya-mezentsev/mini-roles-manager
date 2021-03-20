@@ -29,7 +29,7 @@ func New(
 	}
 }
 
-func (s Service) CreateResource(request request.CreateResourceRequest) shared.Response {
+func (s Service) CreateResource(request request.CreateResource) shared.Response {
 	err := validator.New().Struct(request)
 	if err != nil {
 		return response_factory.ClientError(sharedError.ServiceError{
@@ -67,8 +67,12 @@ func (s Service) CreateResource(request request.CreateResourceRequest) shared.Re
 			"resource": request.Resource,
 		}).Errorf("Unable to create permissions for new resource in DB: %v", err)
 
-		// trying to delete resource (silently)
-		_ = s.resourceRepository.Delete(request.AccountId, request.Resource.Id)
+		// if resource deleting failed - this log will help to find it and delete manually
+		log.Warningf(
+			"Got error while deleting resource (id = %s): %v",
+			s.resourceRepository.Delete(request.AccountId, request.Resource.Id),
+			request.Resource.Id,
+		)
 
 		return response_factory.ServerError(sharedError.ServiceError{
 			Code:        sharedError.ServerErrorCode,
@@ -102,7 +106,7 @@ func (s Service) generateResourcePermissions(resource sharedModels.Resource) []s
 	return permissions
 }
 
-func (s Service) ResourcesList(request request.ResourcesListRequest) shared.Response {
+func (s Service) ResourcesList(request request.ResourcesList) shared.Response {
 	err := validator.New().Struct(request)
 	if err != nil {
 		return response_factory.ClientError(sharedError.ServiceError{
@@ -124,7 +128,7 @@ func (s Service) ResourcesList(request request.ResourcesListRequest) shared.Resp
 	return response_factory.SuccessResponse(resources)
 }
 
-func (s Service) UpdateResource(request request.UpdateResourceRequest) shared.Response {
+func (s Service) UpdateResource(request request.UpdateResource) shared.Response {
 	err := validator.New().Struct(request)
 	if err != nil {
 		return response_factory.ClientError(sharedError.ServiceError{
@@ -148,7 +152,7 @@ func (s Service) UpdateResource(request request.UpdateResourceRequest) shared.Re
 	return response_factory.DefaultResponse()
 }
 
-func (s Service) DeleteResource(request request.DeleteResourceRequest) shared.Response {
+func (s Service) DeleteResource(request request.DeleteResource) shared.Response {
 	err := validator.New().Struct(request)
 	if err != nil {
 		return response_factory.ClientError(sharedError.ServiceError{

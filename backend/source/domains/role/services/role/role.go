@@ -19,7 +19,7 @@ func New(repository interfaces.RoleRepository) Service {
 	return Service{repository}
 }
 
-func (s Service) Create(request request.CreateRoleRequest) shared.Response {
+func (s Service) Create(request request.CreateRole) shared.Response {
 	err := validator.New().Struct(request)
 	if err != nil {
 		return response_factory.ClientError(sharedError.ServiceError{
@@ -50,7 +50,7 @@ func (s Service) Create(request request.CreateRoleRequest) shared.Response {
 	return response_factory.DefaultResponse()
 }
 
-func (s Service) RolesList(request request.RolesListRequest) shared.Response {
+func (s Service) RolesList(request request.RolesList) shared.Response {
 	err := validator.New().Struct(request)
 	if err != nil {
 		return response_factory.ClientError(sharedError.ServiceError{
@@ -72,7 +72,7 @@ func (s Service) RolesList(request request.RolesListRequest) shared.Response {
 	return response_factory.SuccessResponse(roles)
 }
 
-func (s Service) UpdateRole(request request.UpdateRoleRequest) shared.Response {
+func (s Service) UpdateRole(request request.UpdateRole) shared.Response {
 	err := validator.New().Struct(request)
 	if err != nil {
 		return response_factory.ClientError(sharedError.ServiceError{
@@ -96,7 +96,7 @@ func (s Service) UpdateRole(request request.UpdateRoleRequest) shared.Response {
 	return response_factory.DefaultResponse()
 }
 
-func (s Service) DeleteRole(request request.DeleteRoleRequest) shared.Response {
+func (s Service) DeleteRole(request request.DeleteRole) shared.Response {
 	err := validator.New().Struct(request)
 	if err != nil {
 		return response_factory.ClientError(sharedError.ServiceError{
