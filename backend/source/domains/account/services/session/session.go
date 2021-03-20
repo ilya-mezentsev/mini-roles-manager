@@ -9,6 +9,7 @@ import (
 	"mini-roles-backend/source/domains/account/interfaces"
 	"mini-roles-backend/source/domains/account/models"
 	"mini-roles-backend/source/domains/account/request"
+	"mini-roles-backend/source/domains/account/services/shared"
 	sharedError "mini-roles-backend/source/domains/shared/error"
 	sharedInterfaces "mini-roles-backend/source/domains/shared/interfaces"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
@@ -61,7 +62,7 @@ func (s Service) CreateSession(request request.CreateSession) sharedInterfaces.R
 
 func (s Service) setCookie(c *gin.Context, value sharedModels.AccountId) {
 	c.SetCookie(
-		cookieTokenKey,
+		shared.CookieTokenKey,
 		string(value),
 		cookieMaxAge,
 		cookiePath,
@@ -72,7 +73,7 @@ func (s Service) setCookie(c *gin.Context, value sharedModels.AccountId) {
 }
 
 func (s Service) GetSession(request request.GetSession) sharedInterfaces.Response {
-	cookieToken, err := request.Context.Cookie(cookieTokenKey)
+	cookieToken, err := request.Context.Cookie(shared.CookieTokenKey)
 	if err != nil {
 		return response_factory.DefaultResponse()
 	}
@@ -104,7 +105,7 @@ func (s Service) DeleteSession(request request.DeleteSession) sharedInterfaces.R
 
 func (s Service) unsetCookie(c *gin.Context) {
 	c.SetCookie(
-		cookieTokenKey,
+		shared.CookieTokenKey,
 		cookieUnsetValue,
 		cookieUnsetMaxAge,
 		cookiePath,

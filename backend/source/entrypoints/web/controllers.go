@@ -46,20 +46,20 @@ func Init(
 	cookieTokenAuthorized := r.Group("/")
 	cookieTokenAuthorized.Use(checkCookieMiddleware.HasSessionInCookie())
 	{
-		r.GET("/resources", resourceController.ResourcesList)
-		r.POST("/resource", resourceController.CreateResource)
-		r.PATCH("/resource", resourceController.UpdateResource)
-		r.DELETE("/resource/:resource_id", resourceController.DeleteResource)
+		cookieTokenAuthorized.GET("/resources", resourceController.ResourcesList)
+		cookieTokenAuthorized.POST("/resource", resourceController.CreateResource)
+		cookieTokenAuthorized.PATCH("/resource", resourceController.UpdateResource)
+		cookieTokenAuthorized.DELETE("/resource/:resource_id", resourceController.DeleteResource)
 
-		r.GET("/roles", roleController.RolesList)
-		r.POST("/role", roleController.CreateRole)
-		r.PATCH("/role", roleController.UpdateRole)
-		r.DELETE("/role/:role_id", roleController.DeleteRole)
+		cookieTokenAuthorized.GET("/roles", roleController.RolesList)
+		cookieTokenAuthorized.POST("/role", roleController.CreateRole)
+		cookieTokenAuthorized.PATCH("/role", roleController.UpdateRole)
+		cookieTokenAuthorized.DELETE("/role/:role_id", roleController.DeleteRole)
 	}
 
 	headerTokenAuthorized := r.Group("/")
 	headerTokenAuthorized.Use(checkHeaderMiddleware.HasSessionInHeader())
 	{
-		r.POST("/permissions", permissionController.ResolveResourceAccessEffect)
+		headerTokenAuthorized.POST("/permissions", permissionController.ResolveResourceAccessEffect)
 	}
 }

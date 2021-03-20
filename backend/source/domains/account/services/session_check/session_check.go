@@ -30,8 +30,8 @@ func (s Service) CheckSessionFromCookie(request request.SessionExists) sharedInt
 	cookieToken, err := request.Context.Cookie(shared.CookieTokenKey)
 	if err != nil {
 		return response_factory.UnauthorizedError(sharedError.ServiceError{
-			Code:        missedTokenInCookieCode,
-			Description: missedTokenInCookieDescription,
+			Code:        missedTokenInCookiesCode,
+			Description: missedTokenInCookiesDescription,
 		})
 	}
 
@@ -63,5 +63,13 @@ func (s Service) checkSession(request request.SessionExists, token string) share
 
 // used for middleware. nil return result is meaning that request can be processed
 func (s Service) CheckSessionFromHeader(request request.SessionExists) sharedInterfaces.Response {
-	return s.checkSession(request, request.Context.GetHeader(headerTokenKey))
+	tokenFromHeader := request.Context.GetHeader(headerTokenKey)
+	if tokenFromHeader == "" {
+		return response_factory.UnauthorizedError(sharedError.ServiceError{
+			Code:        missedTokenInHeadersCode,
+			Description: missedTokenInHeadersDescription,
+		})
+	}
+
+	return s.checkSession(request, tokenFromHeader)
 }
