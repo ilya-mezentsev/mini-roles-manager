@@ -31,12 +31,14 @@ func TestMain(m *testing.M) {
 }
 
 func TestService_HasPermissionPermit(t *testing.T) {
-	response := New(mockRepository).HasPermission(request.PermissionAccess{
-		AccountId:  sharedMock.ExistsAccountId,
-		RoleId:     sharedMock.ExistsRoleId,
-		ResourceId: sharedMock.ExistsResourceId,
-		Operation:  mock.PermittedOperation,
-	})
+	response := New(mockRepository).HasPermission(
+		sharedMock.ExistsAccountId,
+		request.PermissionAccess{
+			RoleId:     sharedMock.ExistsRoleId,
+			ResourceId: sharedMock.ExistsResourceId,
+			Operation:  mock.PermittedOperation,
+		},
+	)
 
 	assert.Equal(t, expectedOkStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
@@ -44,12 +46,14 @@ func TestService_HasPermissionPermit(t *testing.T) {
 }
 
 func TestService_HasPermissionPermitByLinkingResource(t *testing.T) {
-	response := New(mockRepository).HasPermission(request.PermissionAccess{
-		AccountId:  sharedMock.ExistsAccountId,
-		RoleId:     sharedMock.ExistsRoleId,
-		ResourceId: sharedMock.ExistsResourceId,
-		Operation:  mock.DefinedOnLinkingOperation,
-	})
+	response := New(mockRepository).HasPermission(
+		sharedMock.ExistsAccountId,
+		request.PermissionAccess{
+			RoleId:     sharedMock.ExistsRoleId,
+			ResourceId: sharedMock.ExistsResourceId,
+			Operation:  mock.DefinedOnLinkingOperation,
+		},
+	)
 
 	assert.Equal(t, expectedOkStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
@@ -57,12 +61,14 @@ func TestService_HasPermissionPermitByLinkingResource(t *testing.T) {
 }
 
 func TestService_HasPermissionDeny(t *testing.T) {
-	response := New(mockRepository).HasPermission(request.PermissionAccess{
-		AccountId:  sharedMock.ExistsAccountId,
-		RoleId:     sharedMock.ExistsRoleId,
-		ResourceId: sharedMock.ExistsResourceId,
-		Operation:  mock.DeniedOperation,
-	})
+	response := New(mockRepository).HasPermission(
+		sharedMock.ExistsAccountId,
+		request.PermissionAccess{
+			RoleId:     sharedMock.ExistsRoleId,
+			ResourceId: sharedMock.ExistsResourceId,
+			Operation:  mock.DeniedOperation,
+		},
+	)
 
 	assert.Equal(t, expectedOkStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
@@ -70,12 +76,14 @@ func TestService_HasPermissionDeny(t *testing.T) {
 }
 
 func TestService_HasPermissionDenyByUndefinedOperation(t *testing.T) {
-	response := New(mockRepository).HasPermission(request.PermissionAccess{
-		AccountId:  sharedMock.ExistsAccountId,
-		RoleId:     sharedMock.ExistsRoleId,
-		ResourceId: sharedMock.ExistsResourceId,
-		Operation:  mock.UndefinedOperation,
-	})
+	response := New(mockRepository).HasPermission(
+		sharedMock.ExistsAccountId,
+		request.PermissionAccess{
+			RoleId:     sharedMock.ExistsRoleId,
+			ResourceId: sharedMock.ExistsResourceId,
+			Operation:  mock.UndefinedOperation,
+		},
+	)
 
 	assert.Equal(t, expectedOkStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
@@ -86,7 +94,7 @@ func TestService_HasPermissionValidationError(t *testing.T) {
 	req := request.PermissionAccess{
 		Operation: "foo",
 	}
-	response := New(mockRepository).HasPermission(req)
+	response := New(mockRepository).HasPermission(sharedMock.BadAccountId, req)
 
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
@@ -95,12 +103,14 @@ func TestService_HasPermissionValidationError(t *testing.T) {
 }
 
 func TestService_HasPermissionDBError(t *testing.T) {
-	response := New(mockRepository).HasPermission(request.PermissionAccess{
-		AccountId:  sharedMock.BadAccountId,
-		RoleId:     sharedMock.ExistsRoleId,
-		ResourceId: sharedMock.ExistsResourceId,
-		Operation:  mock.DeniedOperation,
-	})
+	response := New(mockRepository).HasPermission(
+		sharedMock.BadAccountId,
+		request.PermissionAccess{
+			RoleId:     sharedMock.ExistsRoleId,
+			ResourceId: sharedMock.ExistsResourceId,
+			Operation:  mock.DeniedOperation,
+		},
+	)
 
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())

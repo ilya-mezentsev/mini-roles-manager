@@ -8,6 +8,12 @@ BACKEND_LIBS_PATH := $(BACKEND_DIR)/libs
 BACKEND_SOURCE_PATH := $(BACKEND_DIR)/source
 BACKEND_CONFIG_PATH := $(BACKEND_DIR)/config/main.json
 
+build: backend-build containers-build
+
+run: containers-run
+
+stop: containers-stop
+
 tests: backend-tests
 
 check: backend-check

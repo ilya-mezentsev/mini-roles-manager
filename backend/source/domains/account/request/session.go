@@ -8,7 +8,7 @@ import (
 type (
 	CreateSession struct {
 		Context     *gin.Context
-		Credentials models.AccountCredentials `json:"credentials" validate:"required"`
+		Credentials models.AccountCredentials `validate:"required"`
 	}
 
 	GetSession struct {

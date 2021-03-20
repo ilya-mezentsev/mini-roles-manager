@@ -37,6 +37,18 @@ func CreateRequestWithCookie(key, value string) *http.Request {
 	return req
 }
 
+func CreateRequestWithHeader(key, value string) *http.Request {
+	req := httptest.NewRequest(
+		http.MethodGet,
+		"localhost:8080",
+		nil,
+	)
+
+	req.Header.Set(key, value)
+
+	return req
+}
+
 func CreateSimpleRequest() *http.Request {
 	return httptest.NewRequest(
 		http.MethodGet,

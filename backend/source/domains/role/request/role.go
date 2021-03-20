@@ -6,21 +6,21 @@ import (
 
 type (
 	CreateRole struct {
-		AccountId sharedModels.AccountId `json:"account_id" validate:"required"`
-		Role      sharedModels.Role      `json:"role" validate:"required"`
+		AccountId sharedModels.AccountId `validate:"required"`
+		Role      sharedModels.Role      `validate:"required"`
 	}
 
 	RolesList struct {
-		AccountId sharedModels.AccountId `json:"account_id" validate:"required"`
+		AccountId sharedModels.AccountId `validate:"required"`
 	}
 
 	UpdateRole struct {
-		AccountId sharedModels.AccountId `json:"account_id" validate:"required"`
-		Role      sharedModels.Role      `json:"role" validate:"required"`
+		AccountId sharedModels.AccountId `validate:"required"`
+		Role      sharedModels.Role      `validate:"required"`
 	}
 
 	DeleteRole struct {
-		AccountId sharedModels.AccountId `json:"account_id" validate:"required"`
-		RoleId    sharedModels.RoleId    `json:"role_id" validate:"required"`
+		AccountId sharedModels.AccountId `validate:"required"`
+		RoleId    sharedModels.RoleId    `validate:"required"`
 	}
 )

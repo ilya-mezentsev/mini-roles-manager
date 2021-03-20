@@ -20,7 +20,10 @@ func New(repository interfaces.PermissionRepository) Service {
 	return Service{repository}
 }
 
-func (s Service) HasPermission(request request.PermissionAccess) shared.Response {
+func (s Service) HasPermission(
+	accountId sharedModels.AccountId,
+	request request.PermissionAccess,
+) shared.Response {
 	err := validator.New().Struct(request)
 	if err != nil {
 		return response_factory.ClientError(sharedError.ServiceError{
@@ -29,7 +32,7 @@ func (s Service) HasPermission(request request.PermissionAccess) shared.Response
 		})
 	}
 
-	permissions, err := s.repository.List(request.AccountId, request.RoleId)
+	permissions, err := s.repository.List(accountId, request.RoleId)
 	if err != nil {
 		log.Errorf("Unable to fetch permissions from DB: %v", err)
 
