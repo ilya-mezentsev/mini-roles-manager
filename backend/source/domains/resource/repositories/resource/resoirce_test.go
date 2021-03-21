@@ -46,11 +46,66 @@ func TestRepository_ListSuccess(t *testing.T) {
 	assert.Contains(t, resources, someResource)
 }
 
+func TestRepository_ListSuccessWithPermissions(t *testing.T) {
+	defer sharedMock.MustReinstall(db)
+	someResource := sharedModels.Resource{
+		Id:      "some-resource-id-1",
+		Title:   "Some-Resource-Title",
+		LinksTo: nil,
+		Permissions: []sharedModels.Permission{
+			{
+				Id:        "permission-id-1",
+				Operation: "create",
+				Effect:    "deny",
+			},
+			{
+				Id:        "permission-id-2",
+				Operation: "read",
+				Effect:    "permit",
+			},
+		},
+	}
+	_, err := db.NamedExec(
+		`insert into resource(account_hash, resource_id, title, links_to) values(:account_hash, :resource_id, :title, :links_to)`,
+		repository.mapFromResource(sharedMock.ExistsAccountId, someResource),
+	)
+	assert.Nil(t, err)
+	for _, permission := range someResource.Permissions {
+		_, err = db.NamedExec(
+			`
+			insert into permission(account_hash, resource_id, permission_id, operation, effect)
+			values(:account_hash, :resource_id, :permission_id, :operation, :effect)`,
+			map[string]interface{}{
+				"account_hash":  sharedMock.ExistsAccountId,
+				"resource_id":   someResource.Id,
+				"permission_id": permission.Id,
+				"operation":     permission.Operation,
+				"effect":        permission.Effect,
+			},
+		)
+		assert.Nil(t, err)
+	}
+
+	resources, err := repository.List(sharedMock.ExistsAccountId)
+
+	assert.Nil(t, err)
+	assert.Contains(t, resources, someResource)
+}
+
 func TestRepository_ListEmpty(t *testing.T) {
 	resources, err := repository.List(sharedMock.ExistsAccountId)
 
 	assert.Nil(t, err)
 	assert.Empty(t, resources)
+}
+
+func TestRepository_ListNoResourceTable(t *testing.T) {
+	defer sharedMock.MustReinstall(db)
+	sharedMock.MustDropResourceTable(db)
+
+	_, err := repository.List(sharedMock.ExistsAccountId)
+
+	assert.NotNil(t, err)
 }
 
 func TestRepository_CreateSuccess(t *testing.T) {

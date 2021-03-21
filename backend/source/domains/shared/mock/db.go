@@ -63,3 +63,7 @@ func MustAddResource(db *sqlx.DB) {
 func MustDropPermissionTable(db *sqlx.DB) {
 	db.MustExec(fmt.Sprintf("drop table if exists %s cascade", permissionTable))
 }
+
+func MustDropResourceTable(db *sqlx.DB) {
+	db.MustExec(fmt.Sprintf("drop table if exists %s cascade", resourceTable))
+}

@@ -23,3 +23,10 @@ func (r resourceProxy) makeLinksTo() []sharedModels.ResourceId {
 
 	return linksTo
 }
+
+type permissionProxy struct {
+	Id         sharedModels.PermissionId `db:"permission_id"`
+	ResourceId sharedModels.ResourceId   `db:"resource_id"`
+	Operation  string                    `db:"operation"`
+	Effect     string                    `db:"effect"`
+}

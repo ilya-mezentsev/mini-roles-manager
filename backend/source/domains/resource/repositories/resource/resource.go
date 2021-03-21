@@ -12,6 +12,14 @@ const (
 	selectResourcesQuery = `
 	select trim(resource_id) resource_id, trim(title) title, links_to from resource
 	where account_hash = $1`
+	selectResourcePermissionsQuery = `
+	select
+		trim(permission_id) permission_id,
+		trim(operation) operation,
+		trim(effect) effect,
+		trim(resource_id) resource_id
+	from permission
+	where resource_id = any($1) and account_hash = $2`
 
 	createResourceQuery = `
 	insert into resource(account_hash, resource_id, title, links_to)
@@ -57,21 +65,56 @@ func (r Repository) mapFromResource(
 func (r Repository) List(accountId sharedModels.AccountId) ([]sharedModels.Resource, error) {
 	var resources []resourceProxy
 	err := r.db.Select(&resources, selectResourcesQuery, accountId)
+	if err != nil {
+		return nil, err
+	}
 
-	return r.makeResources(resources), err
+	var permissions []permissionProxy
+	err = r.db.Select(&permissions, selectResourcePermissionsQuery, pq.Array(r.makeResourceIds(resources)), accountId)
+
+	return r.makeResources(resources, permissions), err
 }
 
-func (r Repository) makeResources(resourcesProxies []resourceProxy) []sharedModels.Resource {
+func (r Repository) makeResourceIds(resourcesProxies []resourceProxy) []sharedModels.ResourceId {
+	var ids []sharedModels.ResourceId
+	for _, proxy := range resourcesProxies {
+		ids = append(ids, proxy.Id)
+	}
+
+	return ids
+}
+
+func (r Repository) makeResources(
+	resourcesProxies []resourceProxy,
+	permissionsProxies []permissionProxy,
+) []sharedModels.Resource {
+	permissionsMap := r.makePermissionsMap(permissionsProxies)
 	var resources []sharedModels.Resource
 	for _, proxy := range resourcesProxies {
 		resources = append(resources, sharedModels.Resource{
-			Id:      proxy.Id,
-			Title:   proxy.Title,
-			LinksTo: proxy.makeLinksTo(),
+			Id:          proxy.Id,
+			Title:       proxy.Title,
+			LinksTo:     proxy.makeLinksTo(),
+			Permissions: permissionsMap[proxy.Id],
 		})
 	}
 
 	return resources
+}
+
+func (r Repository) makePermissionsMap(
+	permissionsProxies []permissionProxy,
+) map[sharedModels.ResourceId][]sharedModels.Permission {
+	permissionsMap := make(map[sharedModels.ResourceId][]sharedModels.Permission)
+	for _, permission := range permissionsProxies {
+		permissionsMap[permission.ResourceId] = append(permissionsMap[permission.ResourceId], sharedModels.Permission{
+			Id:        permission.Id,
+			Operation: permission.Operation,
+			Effect:    permission.Effect,
+		})
+	}
+
+	return permissionsMap
 }
 
 func (r Repository) Update(accountId sharedModels.AccountId, resource sharedModels.Resource) error {
