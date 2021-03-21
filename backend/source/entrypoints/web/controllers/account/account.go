@@ -2,7 +2,6 @@ package account
 
 import (
 	"github.com/gin-gonic/gin"
-	"mini-roles-backend/source/domains/account/models"
 	"mini-roles-backend/source/domains/account/request"
 	"mini-roles-backend/source/domains/account/services/registration"
 	"mini-roles-backend/source/domains/account/services/session"
@@ -47,18 +46,16 @@ func (c Controller) Login(context *gin.Context) {
 }
 
 func (c Controller) SignIn(context *gin.Context) {
-	var credentials models.AccountCredentials
-	if err := context.ShouldBindJSON(&credentials); err != nil {
+	var r request.CreateSession
+	if err := context.ShouldBindJSON(&r.Credentials); err != nil {
 		presenter.MakeInvalidJsonResponse(context)
 		return
 	}
 
+	r.Context = context
 	presenter.MakeJsonResponse(
 		context,
-		c.sessionService.CreateSession(request.CreateSession{
-			Context:     context,
-			Credentials: credentials,
-		}),
+		c.sessionService.CreateSession(r),
 	)
 }
 
