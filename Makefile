@@ -42,6 +42,12 @@ backend-calc-lines:
 frontend-build:
 	cd $(FRONTEND_DIR) && npm i && npm run build
 
+frontend-build-static:
+	cd $(FRONTEND_DIR) && npm run build
+
+frontend-run:
+	cd $(FRONTEND_DIR) && npm start
+
 frontend-tests:
 	cd $(FRONTEND_DIR) && npm run test -- --watchAll=false --silent
 
@@ -50,7 +56,8 @@ frontend-tests-coverage:
 	--watchAll=false --coverage --silent --collectCoverageFrom=src/**/*.ts \
 	--collectCoverageFrom=!src/reportWebVitals.ts \
 	--collectCoverageFrom=!src/index.ts \
-	--collectCoverageFrom=!src/services/api/shared/request.ts
+	--collectCoverageFrom=!src/services/api/shared/request.ts \
+	--collectCoverageFrom=!src/services/log/log.ts
 
 frontend-check:
 	cd $(FRONTEND_DIR) && npm run lint

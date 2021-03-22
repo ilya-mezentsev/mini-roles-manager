@@ -1,15 +1,19 @@
-import React from 'react';
 import { Container } from '@material-ui/core';
+import { BrowserRouter as Router } from 'react-router-dom';
+import { Provider } from 'react-redux';
 
 import './App.css';
-import { Navigation as PublicNavigation } from "./containers/public/navigation/navigation";
+import { store } from './store';
+import Entrypoint from './containers/entrypoint';
 
-function App() {
-    return (
-        <Container>
-            <PublicNavigation />
-        </Container>
-    );
-}
+const App = () => (
+    <Provider store={store}>
+        <Router>
+            <Container>
+                <Entrypoint/>
+            </Container>
+        </Router>
+    </Provider>
+);
 
 export default App;

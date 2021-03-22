@@ -47,7 +47,7 @@ func (c Controller) Login(context *gin.Context) {
 
 func (c Controller) SignIn(context *gin.Context) {
 	var r request.CreateSession
-	if err := context.ShouldBindJSON(&r.Credentials); err != nil {
+	if err := context.ShouldBindJSON(&r); err != nil {
 		presenter.MakeInvalidJsonResponse(context)
 		return
 	}
