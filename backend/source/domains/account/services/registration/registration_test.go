@@ -6,6 +6,7 @@ import (
 	"mini-roles-backend/source/domains/account/mock"
 	"mini-roles-backend/source/domains/account/models"
 	"mini-roles-backend/source/domains/account/request"
+	"mini-roles-backend/source/domains/account/services/shared"
 	sharedError "mini-roles-backend/source/domains/shared/error"
 	"mini-roles-backend/source/domains/shared/services/response_factory"
 	"testing"
@@ -31,6 +32,7 @@ func TestService_RegisterSuccess(t *testing.T) {
 	response := New(mockRegistrationRepository).Register(request.Registration{
 		Credentials: credentials,
 	})
+	credentials.Password = shared.MakePassword(credentials)
 
 	assert.Contains(t, mockRegistrationRepository.GetAll(), credentials)
 	assert.Equal(t, expectedOkStatus, response.ApplicationStatus())

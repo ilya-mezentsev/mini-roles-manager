@@ -4,14 +4,14 @@ import MuiAlert from '@material-ui/lab/Alert';
 import { AlertProps } from './alert.types';
 
 export const Alert = (props: AlertProps) => {
+    const transitionDuration = 200;
     const [open, setOpen] = React.useState(false);
 
     props.setOpenEmitter.on(props.setOpenEventName, () => setOpen(true));
 
     const handleClose = () => {
         setOpen(false);
-        // fixme - если делать без тайм-аута, то на какой-то момент алерт станет зеленым
-        setTimeout(() => props.onCloseCb(), 100);
+        setTimeout(() => props.onCloseCb(), transitionDuration + 50);
     };
 
     return (
@@ -22,6 +22,7 @@ export const Alert = (props: AlertProps) => {
                     vertical: 'top',
                     horizontal: 'right',
                 }}
+                transitionDuration={transitionDuration}
             >
                 <MuiAlert
                     elevation={6}
