@@ -15,7 +15,7 @@ import {
 } from '../shared';
 import { AccountCredentials, AccountSession } from './account.types';
 
-export async function register(credentials: AccountCredentials): Promise<ParsedAPIResponse<APIError | null>> {
+export async function signUp(credentials: AccountCredentials): Promise<ParsedAPIResponse<APIError | null>> {
     const response = await POST<ErrorAPIResponse | EmptyAPIResponse>(
         '/registration/user',
         { credentials },

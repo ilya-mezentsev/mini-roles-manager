@@ -50,13 +50,10 @@ async function request<T>(params: RequestParams): Promise<T | null> {
         `/api/${params.path}`,
         options,
     );
-    const resHasText = !!res.body;
-    if (resHasText) {
-        return await res.json();
-    } else if (
-        !res.ok &&
-        !resHasText
-    ) {
+    const responseText = await res.text();
+    if (responseText) {
+        return JSON.parse(responseText);
+    } else if (!res.ok) {
         throw Error(`Response status (${res.status}) is unsuccessful and no body is present`);
     }
 

@@ -1,7 +1,7 @@
 import * as request from '../shared/request';
 import {
     login,
-    register,
+    signUp,
     signIn,
     signOut,
 } from './account';
@@ -16,7 +16,7 @@ describe('account api tests', () => {
         // @ts-ignore
         request.POST = jest.fn().mockResolvedValue(null);
 
-        const response = await register(d);
+        const response = await signUp(d);
 
         expect(request.POST).toBeCalledWith('/registration/user', { credentials: d });
         expect(response).toBeInstanceOf(SuccessResponse);
@@ -32,7 +32,7 @@ describe('account api tests', () => {
             data: 'some-error',
         });
 
-        const response = await register(d);
+        const response = await signUp(d);
 
         expect(request.POST).toBeCalledWith('/registration/user', { credentials: d });
         expect(response).toBeInstanceOf(ErrorResponse);
