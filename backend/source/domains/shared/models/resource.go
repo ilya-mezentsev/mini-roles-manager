@@ -2,9 +2,9 @@ package models
 
 type (
 	Resource struct {
-		Id          ResourceId   `json:"resource_id"`
+		Id          ResourceId   `json:"id" validate:"required"`
 		Title       string       `json:"title"`
-		LinksTo     []ResourceId `json:"links_to"`
+		LinksTo     []ResourceId `json:"linksTo"`
 		Permissions []Permission `json:"permissions"`
 	}
 )

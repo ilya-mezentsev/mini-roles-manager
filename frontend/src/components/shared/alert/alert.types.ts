@@ -6,7 +6,4 @@ export interface AlertProps {
     severity: Color;
     shouldShow: boolean;
     onCloseCb: () => void;
-
-    setOpenEventName: string;
-    setOpenEmitter: EventEmitter;
 }

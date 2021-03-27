@@ -1,28 +1,24 @@
-import React from 'react';
+import { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { EntrypointState, EntrypointActions, EntrypointProps } from './entrypoint.types';
-import { PrivateNavigation } from './private';
-import { PublicNavigation } from './public';
 import { DispatchToPropsFn, StateToPropsFn } from '../shared/types';
 import { login } from '../store/session/actions';
+import { PublicNavigation } from './public';
+import { PrivateNavigation } from './private';
 
-class Entrypoint extends React.Component<EntrypointProps, any> {
-    componentDidMount() {
-        this.props.login();
-    }
+const Entrypoint = (props: EntrypointProps) => {
+    useEffect(() => props.login(), []);
 
-    render() {
-        return (
-            <>
-                {
-                    !!this.props?.userSession?.session?.id
-                        ? <PrivateNavigation/>
-                        : <PublicNavigation/>
-                }
-            </>
-        );
-    }
+    return (
+        <>
+            {
+                !!props.userSession?.session?.id
+                    ? <PrivateNavigation />
+                    : <PublicNavigation />
+            }
+        </>
+    );
 }
 
 const mapStateToProps: StateToPropsFn<EntrypointState> = () => state => ({

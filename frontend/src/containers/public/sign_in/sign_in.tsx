@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
     TextField,
     Box,
@@ -9,20 +9,18 @@ import { bindActionCreators } from 'redux';
 import { SignInActions, SignInProps, SignInState } from './sign_in.types';
 import { cleanSignIn, signIn } from '../../../store/session/actions';
 import { Alert } from '../../../components/shared';
-import { EventEmitter } from 'events';
 import { DispatchToPropsFn, StateToPropsFn } from '../../../shared/types';
 import { APIError } from '../../../services/api/shared';
 
 export const SignIn = (props: SignInProps) => {
     const [login, setLogin] = useState('');
     const [password, setPassword] = useState('');
-    const setOpenEventName = 'set:open';
-    const e = new EventEmitter();
+
+    useEffect(() => () => props.cleanSignInAction(), [])
 
     const trySignIn = () => {
         props.cleanSignInAction();
         props.signInAction({ login, password });
-        e.emit(setOpenEventName);
     };
 
     return (
@@ -60,8 +58,6 @@ export const SignIn = (props: SignInProps) => {
                 severity={'error'}
                 message={(props.userSession?.error as APIError)?.description || 'Unknown error'}
                 onCloseCb={() => props.cleanSignInAction()}
-                setOpenEmitter={e}
-                setOpenEventName={setOpenEventName}
             />
         </Box>
     )

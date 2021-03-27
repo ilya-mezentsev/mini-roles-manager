@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import {
     Box,
@@ -9,23 +9,22 @@ import { bindActionCreators } from 'redux';
 import { signUp, cleanSignUp } from '../../../store/registration/actions';
 import { SignUpActions, SignUpProps, SignUpState } from './sign_up.types';
 import { Alert } from '../../../components/shared/';
-import { EventEmitter } from 'events';
 import { DispatchToPropsFn, StateToPropsFn } from '../../../shared/types';
 import { APIError } from '../../../services/api/shared';
 
 export const SignUp = (props: SignUpProps) => {
     const [login, setLogin] = useState('');
     const [password, setPassword] = useState('');
-    const setOpenEventName = 'set:open';
-    const e = new EventEmitter();
     const history = useHistory();
 
+    useEffect(() => () => props.cleanSignUpAction(), []);
+
     const onCLoseAlert = () => {
+        props.cleanSignUpAction();
+
         if (!props.registrationResult?.error) {
             history.push('/sign-in');
         }
-
-        props.cleanSignUpAction();
     };
 
     const alertMessage = () => {
@@ -39,7 +38,6 @@ export const SignUp = (props: SignUpProps) => {
     const trySignUp = () => {
         props.cleanSignUpAction();
         props.signUpAction({ login, password });
-        e.emit(setOpenEventName);
     };
 
     return (
@@ -77,8 +75,6 @@ export const SignUp = (props: SignUpProps) => {
                 severity={!props.registrationResult?.error ? 'success' : 'error'}
                 message={alertMessage()}
                 onCloseCb={() => onCLoseAlert()}
-                setOpenEmitter={e}
-                setOpenEventName={setOpenEventName}
             />
         </Box>
     )

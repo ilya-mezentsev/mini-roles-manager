@@ -13,6 +13,13 @@ import {
 import { NavigationProps } from './navigation.types';
 
 export const Navigation = (props: NavigationProps) => {
+    let size: 'sm' | 'xl';
+    if (props.size === 'large') {
+        size = 'xl';
+    } else {
+        size = 'sm';
+    }
+
     return (
         <>
             <AppBar position="static">
@@ -32,7 +39,7 @@ export const Navigation = (props: NavigationProps) => {
                 </Toolbar>
             </AppBar>
 
-            <Container maxWidth="sm">
+            <Container maxWidth={size}>
                 <Switch>
                     {
                         props.routes.map((route, index) =>

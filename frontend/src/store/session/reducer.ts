@@ -24,11 +24,18 @@ export function sessionReducer(
         case ACTIONS.FAILED_TO_PERFORM_SIGN_IN_ACTION:
             log.error((action.userSession.error as unknown as Error)?.toString() || 'Unknown error');
             return {
+                ...(state || {}),
                 error: {
                     code: UnknownErrorCode,
                     description: UnknownErrorDescription,
                 },
             }
+
+        case ACTIONS.CLEAN_SIGN_IN:
+            return {
+                ...(state || {}),
+                error: null,
+            };
 
         default:
             return state;

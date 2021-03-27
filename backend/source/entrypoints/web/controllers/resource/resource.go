@@ -19,7 +19,7 @@ func New(service resource.Service) Controller {
 
 func (c Controller) CreateResource(context *gin.Context) {
 	var r request.CreateResource
-	if err := context.ShouldBindJSON(&r.Resource); err != nil {
+	if err := context.ShouldBindJSON(&r); err != nil {
 		presenter.MakeInvalidJsonResponse(context)
 		return
 	}
@@ -44,7 +44,7 @@ func (c Controller) ResourcesList(context *gin.Context) {
 
 func (c Controller) UpdateResource(context *gin.Context) {
 	var r request.UpdateResource
-	if err := context.ShouldBindJSON(&r.Resource); err != nil {
+	if err := context.ShouldBindJSON(&r); err != nil {
 		presenter.MakeInvalidJsonResponse(context)
 		return
 	}
