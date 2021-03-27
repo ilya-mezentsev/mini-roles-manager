@@ -40,6 +40,7 @@ func (s Service) CreateSession(request request.CreateSession) sharedInterfaces.R
 		})
 	}
 
+	request.Credentials.Password = shared.MakePassword(request.Credentials)
 	accountSession, err := s.repository.GetSession(request.Credentials)
 	if err != nil {
 		if errors.As(err, &sharedError.EntryNotFound{}) {

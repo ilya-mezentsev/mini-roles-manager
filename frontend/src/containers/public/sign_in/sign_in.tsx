@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
     TextField,
     Box,
@@ -13,7 +14,8 @@ import { DispatchToPropsFn, StateToPropsFn } from '../../../shared/types';
 import { APIError } from '../../../services/api/shared';
 
 export const SignIn = (props: SignInProps) => {
-    let login: string, password: string;
+    const [login, setLogin] = useState('');
+    const [password, setPassword] = useState('');
     const setOpenEventName = 'set:open';
     const e = new EventEmitter();
 
@@ -32,7 +34,8 @@ export const SignIn = (props: SignInProps) => {
                 required
                 fullWidth={true}
                 margin="normal"
-                onInput={e => login = (e.target as HTMLInputElement).value}
+                value={login}
+                onChange={e => setLogin((e.target as HTMLInputElement).value)}
             />
             <TextField
                 label="Password"
@@ -40,7 +43,8 @@ export const SignIn = (props: SignInProps) => {
                 fullWidth={true}
                 margin="normal"
                 type="password"
-                onInput={e => password = (e.target as HTMLInputElement).value}
+                value={password}
+                onChange={e => setPassword((e.target as HTMLInputElement).value)}
             />
 
             <Button

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import {
     Box,
@@ -13,8 +14,8 @@ import { DispatchToPropsFn, StateToPropsFn } from '../../../shared/types';
 import { APIError } from '../../../services/api/shared';
 
 export const SignUp = (props: SignUpProps) => {
-    let login = '';
-    let password = '';
+    const [login, setLogin] = useState('');
+    const [password, setPassword] = useState('');
     const setOpenEventName = 'set:open';
     const e = new EventEmitter();
     const history = useHistory();
@@ -50,7 +51,8 @@ export const SignUp = (props: SignUpProps) => {
                 required
                 fullWidth={true}
                 margin="normal"
-                onInput={e => login = (e.target as HTMLInputElement).value}
+                value={login}
+                onChange={e => setLogin((e.target as HTMLInputElement).value)}
             />
             <TextField
                 label="Password"
@@ -58,7 +60,8 @@ export const SignUp = (props: SignUpProps) => {
                 fullWidth={true}
                 type="password"
                 margin="normal"
-                onInput={e => password = (e.target as HTMLInputElement).value}
+                value={password}
+                onChange={e => setPassword((e.target as HTMLInputElement).value)}
             />
 
             <Button
