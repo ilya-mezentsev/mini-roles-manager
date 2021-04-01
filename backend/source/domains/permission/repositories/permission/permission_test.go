@@ -87,17 +87,19 @@ func TestRepository_ListTwoDepthLevelExtending(t *testing.T) {
 }
 
 func TestRepository_ListError(t *testing.T) {
-	db.MustExec(`drop function recursive_permissions(entry_point_role_id character(32), _account_hash character(32))`)
+	dropFunctionQuery := `
+	drop function recursive_permissions(entry_point_role_id character(32), _account_hash character(32), depth int)`
+	db.MustExec(dropFunctionQuery)
 	db.MustExec(`
-	create or replace function recursive_permissions(a character(32), b character(32))
+	create or replace function recursive_permissions(a character(32), b character(32), c int)
 	returns void
 	language plpgsql
 	as $$
 	    begin
-	        raise log 'hello, % %', a, b;
+	        raise log 'hello, % % %', a, b, c;
 		end
 	$$`)
-	defer db.MustExec(`drop function recursive_permissions(entry_point_role_id character(32), _account_hash character(32))`)
+	defer db.MustExec(dropFunctionQuery)
 
 	_, err := repository.List(sharedMock.ExistsAccountId, sharedMock.ExistsRoleId)
 

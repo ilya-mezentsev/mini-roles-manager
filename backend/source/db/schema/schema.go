@@ -3,7 +3,8 @@ package schema
 const Schema = `
 create table if not exists account(
 	id serial,
-	hash character(32) primary key
+	hash character(32) primary key,
+	created_at timestamp default current_timestamp
 );
 
 create table if not exists account_credentials(
@@ -26,6 +27,7 @@ create table if not exists resource(
 	title character(100) default '',
 	links_to character(100)[] default array[]::character(100)[],
 	account_hash character(32),
+	created_at timestamp default current_timestamp,
 	unique(resource_id, account_hash)
 );
 alter table resource drop constraint if exists fk_resource;
@@ -59,6 +61,7 @@ create table if not exists role(
 	permissions character(32)[] default array[]::character(32)[],
 	extends character(32)[] default array[]::character(32)[],
 	account_hash character(32),
+	created_at timestamp default current_timestamp,
 	unique(role_id, account_hash)
 );
 alter table role drop constraint if exists fk_role;

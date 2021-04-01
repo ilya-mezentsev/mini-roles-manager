@@ -7,19 +7,30 @@ import (
 
 const (
 	createRecursivePermissionsFunctionQuery = `
-	create or replace function recursive_permissions(entry_point_role_id character(32), _account_hash character(32))
-	returns table(permissions character(32)[])
+	create or replace function recursive_permissions(
+		entry_point_role_id character(32),
+		_account_hash character(32),
+		depth int
+	)
+	returns table(permissions character(32)[], permissions_depth int)
 	language plpgsql
 	as $$
 	declare
 	    extended_role_id character(32);
 	begin
-		return query select r.permissions from role r where role_id = entry_point_role_id and account_hash = _account_hash;
+		return query select
+			r.permissions permissions,
+			depth permissions_depth
+		from role r where role_id = entry_point_role_id and account_hash = _account_hash;
 
 		for extended_role_id in
 			(select unnest(extends) from role where role_id = entry_point_role_id and account_hash = _account_hash)
 		loop
-			return query select rp.permissions from recursive_permissions(trim(extended_role_id), _account_hash) rp;
+			return query select * from recursive_permissions(
+			    trim(extended_role_id),
+			    _account_hash,
+			    depth + 1
+			) rp;
 		end loop;
 	end $$;`
 
@@ -31,9 +42,10 @@ const (
 	       trim(r.resource_id) resource_id,
 	       r.links_to links_to
 	from permission p
-	inner join resource r
-	on r.resource_id = p.resource_id
-	where permission_id in (select unnest(permissions) from recursive_permissions($2, $1))`
+	inner join resource r on r.resource_id = p.resource_id
+	cross join lateral (select * from recursive_permissions($2, $1, 1)) rp
+	where permission_id = any(rp.permissions)
+	order by rp.permissions_depth`
 )
 
 type Repository struct {
