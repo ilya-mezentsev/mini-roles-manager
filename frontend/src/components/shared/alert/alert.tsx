@@ -1,13 +1,16 @@
-import React from 'react';
+import { useState, useEffect } from 'react';
 import { Snackbar } from '@material-ui/core'
 import MuiAlert from '@material-ui/lab/Alert';
 import { AlertProps } from './alert.types';
 
 export const Alert = (props: AlertProps) => {
     const transitionDuration = 200;
-    const [open, setOpen] = React.useState(false);
+    const [open, setOpen] = useState(false);
 
-    props.setOpenEmitter.on(props.setOpenEventName, () => setOpen(true));
+    useEffect(
+        () => setOpen(props.shouldShow),
+        [props.shouldShow],
+    );
 
     const handleClose = () => {
         setOpen(false);

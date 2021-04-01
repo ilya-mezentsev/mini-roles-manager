@@ -19,7 +19,7 @@ func New(service role.Service) Controller {
 
 func (c Controller) CreateRole(context *gin.Context) {
 	var r request.CreateRole
-	if err := context.ShouldBindJSON(&r.Role); err != nil {
+	if err := context.ShouldBindJSON(&r); err != nil {
 		presenter.MakeInvalidJsonResponse(context)
 		return
 	}
@@ -44,7 +44,7 @@ func (c Controller) RolesList(context *gin.Context) {
 
 func (c Controller) UpdateRole(context *gin.Context) {
 	var r request.UpdateRole
-	if err := context.ShouldBindJSON(&r.Role); err != nil {
+	if err := context.ShouldBindJSON(&r); err != nil {
 		presenter.MakeInvalidJsonResponse(context)
 		return
 	}

@@ -1,5 +1,5 @@
 import { About, SharedNavigation, NavigationRoute } from '../../../components/shared';
-import { Resources } from '../resources/resources';
+import { Resources } from '../connected';
 import { Roles } from '../roles/roles';
 
 const routes: NavigationRoute[] = [
@@ -24,5 +24,6 @@ export const Navigation = () => (
     <SharedNavigation
         routes={routes}
         fallbackPath={'/resources'}
+        size="large"
     />
 );

@@ -3,5 +3,5 @@ import { AccountSession } from '../../services/api';
 
 export interface SessionResult {
     session?: AccountSession;
-    error?: APIError | Error;
+    error?: APIError | Error | null;
 }

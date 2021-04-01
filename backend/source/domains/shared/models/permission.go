@@ -2,9 +2,9 @@ package models
 
 type (
 	Permission struct {
-		Id        PermissionId `json:"permission_id"`
-		Resource  Resource     `json:"resource"`
+		Id        PermissionId `json:"id"`
 		Operation string       `json:"operation"` // create|read|update|delete
 		Effect    string       `json:"effect"`    // permit|deny
+		Resource  Resource     `json:"-"`
 	}
 )

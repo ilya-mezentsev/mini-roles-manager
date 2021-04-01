@@ -4,19 +4,17 @@ import {
     resourcesList,
     updateResource,
     deleteResource,
-    requestBodyFromResource,
 } from './resource';
-import { Resource } from './resource.types';
+import { EditableResource } from './resource.types';
 import { APIResponseStatus, ErrorResponse, SuccessResponse } from '../shared';
 
 jest.mock('../shared/request');
 
 describe('resource api tests', () => {
     it('create resource success', async () => {
-        const d: Resource = {
+        const d: EditableResource = {
             id: 'some-resource-id-1',
             title: 'SomeResourceTitle',
-            linksTo: ['some-resource-id-2'],
         };
         // @ts-ignore
         request.POST = jest.fn().mockResolvedValue(null);
@@ -26,7 +24,7 @@ describe('resource api tests', () => {
         expect(request.POST).toBeCalledWith(
             '/resource',
             {
-                resource: requestBodyFromResource(d),
+                resource: d
             },
         );
         expect(response).toBeInstanceOf(SuccessResponse);
@@ -35,10 +33,9 @@ describe('resource api tests', () => {
     });
 
     it('create resource error', async () => {
-        const d: Resource = {
+        const d: EditableResource = {
             id: 'some-resource-id-1',
             title: 'SomeResourceTitle',
-            linksTo: ['some-resource-id-2'],
         };
         // @ts-ignore
         request.POST = jest.fn().mockResolvedValue({
@@ -51,7 +48,7 @@ describe('resource api tests', () => {
         expect(request.POST).toBeCalledWith(
             '/resource',
             {
-                resource: requestBodyFromResource(d),
+                resource: d
             },
         );
         expect(response).toBeInstanceOf(ErrorResponse);
@@ -60,7 +57,7 @@ describe('resource api tests', () => {
     });
 
     it('resources list success', async () => {
-        const d: Resource[] = [
+        const d: EditableResource[] = [
             { id: 'some-resource-1' },
             { id: 'some-resource-2' },
         ];
@@ -94,10 +91,9 @@ describe('resource api tests', () => {
     });
 
     it('update resource success', async () => {
-        const d: Resource = {
+        const d: EditableResource = {
             id: 'some-resource-id-1',
             title: 'SomeResourceTitle',
-            linksTo: ['some-resource-id-2'],
         };
         // @ts-ignore
         request.PATCH = jest.fn().mockResolvedValue(null);
@@ -107,7 +103,7 @@ describe('resource api tests', () => {
         expect(request.PATCH).toBeCalledWith(
             '/resource',
             {
-                resource: requestBodyFromResource(d),
+                resource: d
             },
         );
         expect(response).toBeInstanceOf(SuccessResponse);
@@ -116,10 +112,9 @@ describe('resource api tests', () => {
     });
 
     it('update resource error', async () => {
-        const d: Resource = {
+        const d: EditableResource = {
             id: 'some-resource-id-1',
             title: 'SomeResourceTitle',
-            linksTo: ['some-resource-id-2'],
         };
         // @ts-ignore
         request.PATCH = jest.fn().mockResolvedValue({
@@ -132,7 +127,7 @@ describe('resource api tests', () => {
         expect(request.PATCH).toBeCalledWith(
             '/resource',
             {
-                resource: requestBodyFromResource(d),
+                resource: d
             },
         );
         expect(response).toBeInstanceOf(ErrorResponse);

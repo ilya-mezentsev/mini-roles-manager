@@ -7,4 +7,5 @@ export interface Route {
 export interface NavigationProps {
     routes: Route[];
     fallbackPath: string;
+    size?: 'small' | 'large';
 }
