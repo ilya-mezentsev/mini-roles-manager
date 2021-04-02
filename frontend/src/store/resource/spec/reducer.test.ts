@@ -1,7 +1,7 @@
 import { ACTIONS } from '../action_types';
 import { actionToErrorType, resourceReducer } from '../reducer';
 import { Resource } from '../../../services/api';
-import {UnknownErrorCode, UnknownErrorDescription} from "../../shared/const";
+import { UnknownErrorCode, UnknownErrorDescription } from '../../shared/const';
 
 describe('resources reducer tests', () => {
     it('reduce success resource creation', () => {

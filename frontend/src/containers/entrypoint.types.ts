@@ -1,7 +1,7 @@
-import { SessionResult } from '../store/session/session.types';
+import { SessionActionResult } from '../store/session/session.types';
 
 export interface EntrypointState {
-    userSession?: SessionResult;
+    userSession?: SessionActionResult;
 }
 
 export interface EntrypointActions {

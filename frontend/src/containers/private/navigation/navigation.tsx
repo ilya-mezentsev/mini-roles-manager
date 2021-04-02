@@ -1,6 +1,8 @@
-import { About, SharedNavigation, NavigationRoute } from '../../../components/shared';
-import { Resources } from '../connected';
+import { About, SharedAppNavigation, NavigationRoute } from '../../../components/shared';
+import { Resources, SignOut } from '../connected';
 import { Roles } from '../roles/roles';
+import { SecondaryButton } from '../../../components/shared/navigation/navigation.types';
+import { Account } from '../account/account';
 
 const routes: NavigationRoute[] = [
     {
@@ -14,15 +16,27 @@ const routes: NavigationRoute[] = [
         component: () => <Roles/>
     },
     {
+        path: '/account',
+        name: 'Account',
+        component: () => <Account/>
+    },
+    {
         path: '/about',
         name: 'About',
         component: () => <About/>
     },
 ];
 
+const secondaryButtons: SecondaryButton[] = [
+    {
+        component: () => <SignOut/>
+    }
+];
+
 export const Navigation = () => (
-    <SharedNavigation
+    <SharedAppNavigation
         routes={routes}
+        secondaryButtons={secondaryButtons}
         fallbackPath={'/resources'}
         size="large"
     />

@@ -1,5 +1,5 @@
 import { SignUp, SignIn } from '../connected';
-import { About, SharedNavigation } from '../../../components/shared';
+import { About, SharedAppNavigation } from '../../../components/shared';
 
 const routes = [
     {
@@ -20,7 +20,7 @@ const routes = [
 ];
 
 export const Navigation = () => (
-    <SharedNavigation
+    <SharedAppNavigation
         routes={routes}
         fallbackPath={'/sign-in'}
     />

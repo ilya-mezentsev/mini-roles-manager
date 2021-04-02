@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { bindActionCreators } from 'redux';
-import { Container } from '@material-ui/core';
+import { Box } from '@material-ui/core';
 import { Add } from '@material-ui/icons';
 import EventEmitter from 'events';
 
@@ -27,7 +27,7 @@ export const Resources = (props: ResourceProps) => {
 
     return (
         <>
-            <Container>
+            <Box>
                 <h1>
                     Resources
                     <Add
@@ -38,10 +38,10 @@ export const Resources = (props: ResourceProps) => {
                         onClick={() => e.emit(openDialogueEventName)}
                     />
                 </h1>
-            </Container>
-            <Container>
+            </Box>
+            <Box>
                 <ResourcesList />
-            </Container>
+            </Box>
 
             <CreateResource
                 eventEmitter={e}
