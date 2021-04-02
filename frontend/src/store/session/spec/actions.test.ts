@@ -4,7 +4,13 @@ import thunk from 'redux-thunk';
 import * as api from '../../../services/api';
 import { SuccessResponse, ErrorResponse } from '../../../services/api/shared';
 import { AccountCredentials } from '../../../services/api';
-import { login, signIn, cleanSignIn } from '../actions';
+import {
+    login,
+    signIn,
+    cleanSignInError,
+    signOut,
+    cleanSignOutError,
+} from '../actions';
 import { ACTIONS } from '../action_types';
 
 jest.mock('../../../services/api');
@@ -73,15 +79,82 @@ describe('session actions tests', () => {
         ]);
     });
 
-    it('clean sign-in', () => {
+    it('clean sign-in error', () => {
         const store = mockStore({ userSession: null });
 
         // @ts-ignore
-        store.dispatch(cleanSignIn());
+        store.dispatch(cleanSignInError());
 
         expect(store.getActions()).toEqual([
             {
-                type: ACTIONS.CLEAN_SIGN_IN,
+                type: ACTIONS.CLEAN_SIGN_IN_ERROR,
+            },
+        ]);
+    });
+
+    it('sign-out success', async () => {
+        const store = mockStore({ userSession: null });
+        // @ts-ignore
+        api.signOut = jest.fn().mockResolvedValue(new SuccessResponse(null));
+
+        // @ts-ignore
+        await store.dispatch(signOut());
+
+        expect(api.signOut).toBeCalled();
+        expect(store.getActions()).toEqual([
+            {
+                type: ACTIONS.SUCCESS_SIGN_OUT,
+            },
+        ]);
+    });
+
+    it('sign-out parsed error', async () => {
+        const store = mockStore({ userSession: null });
+        // @ts-ignore
+        api.signOut = jest.fn().mockResolvedValue(new ErrorResponse('some-error'));
+
+        // @ts-ignore
+        await store.dispatch(signOut());
+
+        expect(api.signOut).toBeCalled();
+        expect(store.getActions()).toEqual([
+            {
+                type: ACTIONS.FAILED_SIGN_OUT,
+                userSession: {
+                    error: 'some-error',
+                },
+            },
+        ]);
+    });
+
+    it('sign-out unknown error', async () => {
+        const store = mockStore({ userSession: null });
+        // @ts-ignore
+        api.signOut = jest.fn().mockRejectedValue('some-error');
+
+        // @ts-ignore
+        await store.dispatch(signOut());
+
+        expect(api.signOut).toBeCalled();
+        expect(store.getActions()).toEqual([
+            {
+                type: ACTIONS.FAILED_TO_PERFORM_SIGN_OUT_ACTION,
+                userSession: {
+                    error: 'some-error',
+                },
+            },
+        ]);
+    });
+
+    it('clean sign-out error', () => {
+        const store = mockStore({ userSession: null });
+
+        // @ts-ignore
+        store.dispatch(cleanSignOutError());
+
+        expect(store.getActions()).toEqual([
+            {
+                type: ACTIONS.CLEAN_SIGN_OUT_ERROR,
             },
         ]);
     });

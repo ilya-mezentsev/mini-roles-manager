@@ -4,7 +4,7 @@ import { APIError } from '../../services/api/shared';
 import { Dispatch } from 'redux';
 
 export function signUp(credentials: AccountCredentials): (dispatch: Dispatch) => Promise<void> {
-    return async (dispatch: Dispatch) => {
+    return async dispatch => {
         try {
             const response = await signUpAPI(credentials);
 
@@ -37,7 +37,7 @@ export function signUp(credentials: AccountCredentials): (dispatch: Dispatch) =>
 }
 
 export function cleanSignUp(): (dispatch: Dispatch) => void {
-    return (dispatch: Dispatch) => {
+    return dispatch => {
         dispatch({
             type: ACTIONS.CLEAN_REGISTRATION,
         });

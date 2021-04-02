@@ -1,7 +1,11 @@
 import { APIError } from '../../services/api/shared';
 import { AccountSession } from '../../services/api';
 
-export interface SessionResult {
+interface _SessionResult<T> {
     session?: AccountSession;
-    error?: APIError | Error | null;
+    error?: T | null;
 }
+
+export interface SessionActionResult extends _SessionResult<APIError | Error> {}
+
+export interface SessionResult extends _SessionResult<APIError> {}

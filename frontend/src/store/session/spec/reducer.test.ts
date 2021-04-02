@@ -1,11 +1,11 @@
-import { ACTIONS } from '../action_types';
-import { sessionReducer } from '../reducer';
-import { SessionResult } from '../session.types';
-import { UnknownErrorCode, UnknownErrorDescription } from '../../shared/const';
+import {ACTIONS} from '../action_types';
+import {sessionReducer} from '../reducer';
+import {SessionActionResult} from '../session.types';
+import {UnknownErrorCode, UnknownErrorDescription} from '../../shared/const';
 
 describe('session reducer tests', () => {
     it('reduce set session result action', () => {
-        const userSession: SessionResult = {
+        const userSession: SessionActionResult = {
             session: {
                 id: 'some-id',
             },
@@ -15,6 +15,7 @@ describe('session reducer tests', () => {
             ACTIONS.SUCCESS_LOGIN,
             ACTIONS.SUCCESS_SIGN_IN,
             ACTIONS.FAILED_SIGN_IN,
+            ACTIONS.FAILED_SIGN_OUT,
         ]) {
             expect(sessionReducer(undefined, {
                 type: actionType,
@@ -24,7 +25,7 @@ describe('session reducer tests', () => {
     });
 
     it('reduce failed login actions', () => {
-        const userSession: SessionResult = {
+        const userSession: SessionActionResult = {
             session: {
                 id: 'some-id',
             },
@@ -37,40 +38,66 @@ describe('session reducer tests', () => {
             expect(sessionReducer(undefined, {
                 type: actionType,
                 userSession,
-            })).toBeNull();
+            })).toEqual({});
         }
     });
 
-    it('reduce failed to perform sign-in action', () => {
-        const userSession: SessionResult = {
-            error: new Error('foo'),
+    it('reduce success sign-out action', () => {
+        const userSession: SessionActionResult = {
+            session: {
+                id: 'some-id',
+            },
         };
 
         expect(sessionReducer(undefined, {
-            type: ACTIONS.FAILED_TO_PERFORM_SIGN_IN_ACTION,
+            type: ACTIONS.SUCCESS_SIGN_OUT,
             userSession,
         })).toEqual({
-            error: {
-                code: UnknownErrorCode,
-                description: UnknownErrorDescription,
-            },
+            session: {
+                id: '',
+            }
         });
+    });
 
-        expect(sessionReducer(undefined, {
-            type: ACTIONS.FAILED_TO_PERFORM_SIGN_IN_ACTION,
-            userSession: { error: null as any },
-        })).toEqual({
-            error: {
-                code: UnknownErrorCode,
-                description: UnknownErrorDescription,
-            },
-        });
+    it('reduce failed to perform sign-in/out action', () => {
+        for (const actionType of [
+            ACTIONS.FAILED_TO_PERFORM_SIGN_IN_ACTION,
+            ACTIONS.FAILED_TO_PERFORM_SIGN_OUT_ACTION,
+        ]) {
+            for (const error of [
+                new Error('foo'),
+                null,
+            ]) {
+                expect(sessionReducer(undefined, {
+                    type: actionType,
+                    userSession: { error },
+                })).toEqual({
+                    error: {
+                        code: UnknownErrorCode,
+                        description: UnknownErrorDescription,
+                    },
+                });
+            }
+        }
+    });
+
+    it('reduce clean actions', () => {
+        for (const actionType of [
+            ACTIONS.CLEAN_SIGN_IN_ERROR,
+            ACTIONS.CLEAN_SIGN_OUT_ERROR,
+        ]) {
+            expect(sessionReducer(undefined, {
+                type: actionType,
+            })).toEqual({
+                error: null,
+            });
+        }
     });
 
     it('reduce unknown action', () => {
         expect(sessionReducer(undefined, {
             type: 'foo',
             userSession: {},
-        })).toBeNull();
+        })).toEqual({});
     });
 });

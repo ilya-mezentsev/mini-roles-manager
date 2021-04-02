@@ -12,6 +12,12 @@ import {
     mapStateToProps as ResourcesListContainerMapStateToProps,
 } from '../resources/list';
 
+import {
+    SignOut as SignOutContainer,
+    mapDispatchToProps as SignOutMapDispatchToProps,
+    mapStateToProps as SignOutContainerMapStateToProps,
+} from '../sign_out/sign_out';
+
 export const Resources = connect(
     ResourcesContainerMapStateToProps(),
     ResourcesContainerMapDispatchToProps(),
@@ -21,3 +27,8 @@ export const ResourcesList = connect(
     ResourcesListContainerMapStateToProps(),
     ResourcesListMapDispatchToProps(),
 )(ResourcesListContainer);
+
+export const SignOut = connect(
+    SignOutContainerMapStateToProps(),
+    SignOutMapDispatchToProps(),
+)(SignOutContainer);

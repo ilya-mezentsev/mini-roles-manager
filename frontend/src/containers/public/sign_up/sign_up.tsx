@@ -10,7 +10,6 @@ import { signUp, cleanSignUp } from '../../../store/registration/actions';
 import { SignUpActions, SignUpProps, SignUpState } from './sign_up.types';
 import { Alert } from '../../../components/shared/';
 import { DispatchToPropsFn, StateToPropsFn } from '../../../shared/types';
-import { APIError } from '../../../services/api/shared';
 
 export const SignUp = (props: SignUpProps) => {
     const [login, setLogin] = useState('');
@@ -29,7 +28,7 @@ export const SignUp = (props: SignUpProps) => {
 
     const alertMessage = () => {
         if (props.registrationResult?.error) {
-            return (props.registrationResult.error as APIError).description || 'Unknown error';
+            return props.registrationResult.error.description || 'Unknown error';
         } else {
             return 'Registration performed successfully';
         }

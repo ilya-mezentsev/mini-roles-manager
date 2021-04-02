@@ -4,6 +4,7 @@ import thunk from 'redux-thunk';
 import { registrationReducer } from './registration/reducer';
 import { sessionReducer } from './session/reducer';
 import { resourceReducer } from './resource/reducer';
+import { userSessionMiddleware, getPreloadedUserSessionId } from './middleware/user_session';
 
 const reducer = combineReducers({
     registrationResult: registrationReducer,
@@ -11,4 +12,12 @@ const reducer = combineReducers({
     resourcesResult: resourceReducer,
 });
 
-export const store = createStore(reducer, applyMiddleware(thunk));
+const preloadedState = {
+    userSession: getPreloadedUserSessionId(),
+};
+
+export const store = createStore(
+    reducer,
+    preloadedState,
+    applyMiddleware(thunk, userSessionMiddleware),
+);

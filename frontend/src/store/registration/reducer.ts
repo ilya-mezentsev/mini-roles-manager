@@ -1,12 +1,12 @@
 import * as log from '../../services/log';
-import { RegistrationResult } from './registration.types';
+import { RegistrationActionResult, RegistrationResult } from './registration.types';
 import { ACTIONS } from './action_types';
 import { Action } from 'redux';
 import { UnknownErrorCode, UnknownErrorDescription } from '../shared/const';
 
 export function registrationReducer(
     state = null,
-    action: Action & { registrationResult?: RegistrationResult },
+    action: Action & { registrationResult?: RegistrationActionResult },
 ): RegistrationResult | null {
     switch (action.type) {
         case ACTIONS.SUCCESS_REGISTRATION:

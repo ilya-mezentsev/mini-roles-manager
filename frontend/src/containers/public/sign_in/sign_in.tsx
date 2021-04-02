@@ -7,10 +7,9 @@ import {
 import { bindActionCreators } from 'redux';
 
 import { SignInActions, SignInProps, SignInState } from './sign_in.types';
-import { cleanSignIn, signIn } from '../../../store/session/actions';
+import { cleanSignInError, signIn } from '../../../store/session/actions';
 import { Alert } from '../../../components/shared';
 import { DispatchToPropsFn, StateToPropsFn } from '../../../shared/types';
-import { APIError } from '../../../services/api/shared';
 
 export const SignIn = (props: SignInProps) => {
     const [login, setLogin] = useState('');
@@ -56,7 +55,7 @@ export const SignIn = (props: SignInProps) => {
             <Alert
                 shouldShow={!!props.userSession?.error}
                 severity={'error'}
-                message={(props.userSession?.error as APIError)?.description || 'Unknown error'}
+                message={props.userSession?.error?.description || 'Unknown error'}
                 onCloseCb={() => props.cleanSignInAction()}
             />
         </Box>
@@ -65,7 +64,7 @@ export const SignIn = (props: SignInProps) => {
 
 export const mapDispatchToProps: DispatchToPropsFn<SignInActions> = () => dispatch => ({
     signInAction: bindActionCreators(signIn, dispatch),
-    cleanSignInAction: bindActionCreators(cleanSignIn, dispatch),
+    cleanSignInAction: bindActionCreators(cleanSignInError, dispatch),
 });
 
 export const mapStateToProps: StateToPropsFn<SignInState> = () => state => ({
