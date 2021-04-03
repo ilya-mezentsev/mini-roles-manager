@@ -46,7 +46,7 @@ export function cleanCreateResourceError(): (dispatch: Dispatch) => void {
     };
 }
 
-export function loadResources(): (dispatch: Dispatch) => Promise<void> {
+export function fetchResources(): (dispatch: Dispatch) => Promise<void> {
     return async dispatch => {
         try {
             const response = await resourcesList();

@@ -15,7 +15,7 @@ import {
     cleanLoadResourcesError,
     cleanUpdateResourceError,
     deleteResource,
-    loadResources,
+    fetchResources,
     updateResource,
 } from '../../../store/resource/actions';
 import { ResourcesListActions, ResourcesListState, ResourcesListProps } from './list.types';
@@ -100,8 +100,7 @@ export const ResourcesList = (props: ResourcesListProps) => {
                 openDialogueEventName={openEditResourceEventName}
                 eventEmitter={e}
                 save={r => props.updateResourceAction(r)}
-                initialResourceId={editingResource?.id}
-                initialResourceTitle={editingResource?.title}
+                initialResource={editingResource}
             />
 
             <Prompter
@@ -130,7 +129,7 @@ export const mapDispatchToProps: DispatchToPropsFn<ResourcesListActions> = () =>
     deleteResourceAction: bindActionCreators(deleteResource, dispatch),
     cleanDeleteResourceErrorAction: bindActionCreators(cleanDeleteResourceError, dispatch),
 
-    loadResourcesAction: bindActionCreators(loadResources, dispatch),
+    loadResourcesAction: bindActionCreators(fetchResources, dispatch),
     cleanLoadResourcesError: bindActionCreators(cleanLoadResourcesError, dispatch),
 });
 

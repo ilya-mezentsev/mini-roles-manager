@@ -11,6 +11,11 @@ import {
 } from '@material-ui/core';
 
 export const EditResource = (props: EditResourceProps) => {
+    const { id: initialResourceId, title: initialResourceTitle } = props.initialResource || {
+        id: '',
+        title: '',
+    };
+
     const [open, setOpen] = useState(false);
 
     const openDialogue = () => setOpen(true);
@@ -26,10 +31,10 @@ export const EditResource = (props: EditResourceProps) => {
 
     useEffect(
         () => {
-            setResourceId(props.initialResourceId || '');
-            setResourceTitle(props.initialResourceTitle || '');
+            setResourceId(initialResourceId || '');
+            setResourceTitle(initialResourceTitle || '');
         },
-        [props.initialResourceId, props.initialResourceTitle],
+        [initialResourceId, initialResourceTitle],
     );
 
     const handleClose = () => {
@@ -39,11 +44,11 @@ export const EditResource = (props: EditResourceProps) => {
     };
 
     const handleSave = () => {
-        handleClose();
         props.save({
             id: resourceId,
             title: resourceTitle,
         });
+        handleClose();
     };
 
     return (
@@ -58,7 +63,7 @@ export const EditResource = (props: EditResourceProps) => {
                     margin="dense"
                     label="Resource Id"
                     fullWidth
-                    disabled={!!props.initialResourceId}
+                    disabled={!!initialResourceId}
                     value={resourceId}
                     onChange={e => setResourceId((e.target as HTMLInputElement).value)}
                 />

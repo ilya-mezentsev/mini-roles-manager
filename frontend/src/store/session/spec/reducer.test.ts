@@ -1,7 +1,7 @@
-import {ACTIONS} from '../action_types';
-import {sessionReducer} from '../reducer';
-import {SessionActionResult} from '../session.types';
-import {UnknownErrorCode, UnknownErrorDescription} from '../../shared/const';
+import { ACTIONS } from '../action_types';
+import { sessionReducer } from '../reducer';
+import { SessionActionResult } from '../session.types';
+import { UnknownErrorCode, UnknownErrorDescription } from '../../shared/const';
 
 describe('session reducer tests', () => {
     it('reduce set session result action', () => {
@@ -68,15 +68,18 @@ describe('session reducer tests', () => {
                 new Error('foo'),
                 null,
             ]) {
-                expect(sessionReducer(undefined, {
-                    type: actionType,
-                    userSession: { error },
-                })).toEqual({
-                    error: {
-                        code: UnknownErrorCode,
-                        description: UnknownErrorDescription,
-                    },
-                });
+                for (const state of [undefined, {x: 10}]) {
+                    expect(sessionReducer(state, {
+                        type: actionType,
+                        userSession: { error },
+                    })).toEqual({
+                        ...(state || {}),
+                        error: {
+                            code: UnknownErrorCode,
+                            description: UnknownErrorDescription,
+                        },
+                    });
+                }
             }
         }
     });
@@ -86,11 +89,14 @@ describe('session reducer tests', () => {
             ACTIONS.CLEAN_SIGN_IN_ERROR,
             ACTIONS.CLEAN_SIGN_OUT_ERROR,
         ]) {
-            expect(sessionReducer(undefined, {
-                type: actionType,
-            })).toEqual({
-                error: null,
-            });
+            for (const state of [undefined, {x: 10}]) {
+                expect(sessionReducer(state, {
+                    type: actionType,
+                })).toEqual({
+                    ...(state || {}),
+                    error: null,
+                });
+            }
         }
     });
 

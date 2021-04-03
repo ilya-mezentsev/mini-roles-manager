@@ -3,12 +3,14 @@ package role
 import (
 	"errors"
 	"github.com/jmoiron/sqlx"
+	"github.com/lib/pq"
 	"github.com/stretchr/testify/assert"
 	"mini-roles-backend/source/config"
 	"mini-roles-backend/source/db/connection"
 	sharedError "mini-roles-backend/source/domains/shared/error"
 	sharedMock "mini-roles-backend/source/domains/shared/mock"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
+	"strings"
 	"testing"
 )
 
@@ -194,4 +196,50 @@ func TestRepository_DeleteSuccess(t *testing.T) {
 	_ = db.Get(&roleExists, `select 1 from role where role_id = $1 and account_hash = $2`, someRole.Id, sharedMock.ExistsAccountId)
 
 	assert.False(t, roleExists)
+}
+
+func TestRepository_DeleteFromExtendsSuccess(t *testing.T) {
+	defer sharedMock.MustReinstall(db)
+	user := sharedModels.Role{
+		Id:    "user",
+		Title: "Damn Super User",
+		Permissions: []sharedModels.PermissionId{
+			"permission-id-3",
+		},
+	}
+	superUser := sharedModels.Role{
+		Id:    "super-user",
+		Title: "Damn Super User",
+		Permissions: []sharedModels.PermissionId{
+			"permission-id-1",
+			"permission-id-2",
+		},
+		Extends: []sharedModels.RoleId{
+			"user",
+			"guest",
+		},
+	}
+
+	assert.Nil(t, repository.Create(sharedMock.ExistsAccountId, user))
+	assert.Nil(t, repository.Create(sharedMock.ExistsAccountId, superUser))
+
+	err := repository.Delete(sharedMock.ExistsAccountId, user.Id)
+	assert.Nil(t, err)
+
+	var superUserExtends pq.StringArray
+	_ = db.Get(&superUserExtends, `select extends from role where role_id = $1`, superUser.Id)
+	for id, extends := range superUserExtends {
+		superUserExtends[id] = strings.TrimSpace(extends)
+	}
+
+	assert.Contains(t, superUserExtends, "guest")
+	assert.NotContains(t, superUserExtends, "user")
+}
+
+func TestRepository_DeleteError(t *testing.T) {
+	sharedMock.MustDropRoleTable(db)
+	defer sharedMock.MustReinstall(db)
+
+	err := repository.Delete(sharedMock.ExistsAccountId, "user")
+	assert.NotNil(t, err)
 }

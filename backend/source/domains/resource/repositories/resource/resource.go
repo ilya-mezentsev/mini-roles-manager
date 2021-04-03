@@ -11,7 +11,8 @@ import (
 const (
 	selectResourcesQuery = `
 	select trim(resource_id) resource_id, trim(title) title, links_to from resource
-	where account_hash = $1`
+	where account_hash = $1
+	order by created_at`
 	selectResourcePermissionsQuery = `
 	select
 		trim(permission_id) permission_id,
