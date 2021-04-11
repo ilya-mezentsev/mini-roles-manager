@@ -5,7 +5,7 @@ import (
 	"github.com/lib/pq"
 	sharedError "mini-roles-backend/source/domains/shared/error"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
-	"strings"
+	sharedRepositories "mini-roles-backend/source/domains/shared/repositories"
 )
 
 const (
@@ -44,7 +44,7 @@ func New(db *sqlx.DB) Repository {
 
 func (r Repository) Create(accountId sharedModels.AccountId, resource sharedModels.Resource) error {
 	_, err := r.db.NamedExec(createResourceQuery, r.mapFromResource(accountId, resource))
-	if err != nil && strings.Contains(err.Error(), "duplicate key value violates unique constraint") {
+	if sharedRepositories.IsDuplicateKey(err) {
 		err = sharedError.DuplicateUniqueKey{}
 	}
 

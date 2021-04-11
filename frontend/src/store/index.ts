@@ -5,6 +5,9 @@ import { registrationReducer } from './registration/reducer';
 import { sessionReducer } from './session/reducer';
 import { resourceReducer } from './resource/reducer';
 import { roleReducer } from './role/reducer';
+import { accountInfoReducer } from './account_info/reducer';
+import { fetchPermissionReducer } from './permission/reducer';
+
 import { userSessionMiddleware, getPreloadedUserSessionId } from './middleware/user_session';
 
 const reducer = combineReducers({
@@ -12,6 +15,8 @@ const reducer = combineReducers({
     userSession: sessionReducer,
     resourcesResult: resourceReducer,
     rolesResult: roleReducer,
+    accountInfoResult: accountInfoReducer,
+    fetchPermissionResult: fetchPermissionReducer,
 });
 
 const preloadedState = {

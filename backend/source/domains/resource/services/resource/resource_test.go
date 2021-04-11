@@ -69,8 +69,8 @@ func TestService_CreateResourceValidationError(t *testing.T) {
 	assert.False(t, mockResourceRepository.Has(newResource))
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
-	assert.Equal(t, sharedError.ValidationErrorCode, response.GetData().(sharedError.ServiceError).Code)
-	assert.Equal(t, validator.New().Struct(req).Error(), response.GetData().(sharedError.ServiceError).Description)
+	assert.Equal(t, sharedError.ValidationErrorCode, response.Data().(sharedError.ServiceError).Code)
+	assert.Equal(t, validator.New().Struct(req).Error(), response.Data().(sharedError.ServiceError).Description)
 }
 
 func TestService_CreateResourceDuplicateKeyError(t *testing.T) {
@@ -87,8 +87,8 @@ func TestService_CreateResourceDuplicateKeyError(t *testing.T) {
 
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
-	assert.Equal(t, resourceExistsCode, response.GetData().(sharedError.ServiceError).Code)
-	assert.Equal(t, resourceExistsDescription, response.GetData().(sharedError.ServiceError).Description)
+	assert.Equal(t, resourceExistsCode, response.Data().(sharedError.ServiceError).Code)
+	assert.Equal(t, resourceExistsDescription, response.Data().(sharedError.ServiceError).Description)
 }
 
 func TestService_CreateResourceDBError(t *testing.T) {
@@ -104,8 +104,8 @@ func TestService_CreateResourceDBError(t *testing.T) {
 
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
-	assert.Equal(t, sharedError.ServerErrorCode, response.GetData().(sharedError.ServiceError).Code)
-	assert.Equal(t, sharedError.ServerErrorDescription, response.GetData().(sharedError.ServiceError).Description)
+	assert.Equal(t, sharedError.ServerErrorCode, response.Data().(sharedError.ServiceError).Code)
+	assert.Equal(t, sharedError.ServerErrorDescription, response.Data().(sharedError.ServiceError).Description)
 	assert.False(t, mockResourceRepository.Has(newResource))
 	assert.Empty(t, mockPermissionRepository.Get(sharedMock.ExistsAccountId, newResource.Id))
 }
@@ -123,8 +123,8 @@ func TestService_CreateResourcePermissionDBError(t *testing.T) {
 
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
-	assert.Equal(t, sharedError.ServerErrorCode, response.GetData().(sharedError.ServiceError).Code)
-	assert.Equal(t, sharedError.ServerErrorDescription, response.GetData().(sharedError.ServiceError).Description)
+	assert.Equal(t, sharedError.ServerErrorCode, response.Data().(sharedError.ServiceError).Code)
+	assert.Equal(t, sharedError.ServerErrorDescription, response.Data().(sharedError.ServiceError).Description)
 	assert.False(t, mockResourceRepository.Has(newResource))
 	assert.Empty(t, mockPermissionRepository.Get(sharedMock.ExistsAccountId, newResource.Id))
 }
@@ -136,7 +136,7 @@ func TestService_ResourcesListSuccess(t *testing.T) {
 
 	assert.Equal(t, expectedOkStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
-	assert.Equal(t, mockResourceRepository.Get(sharedMock.ExistsAccountId), response.GetData())
+	assert.Equal(t, mockResourceRepository.Get(sharedMock.ExistsAccountId), response.Data())
 }
 
 func TestService_ResourcesListValidationError(t *testing.T) {
@@ -145,8 +145,8 @@ func TestService_ResourcesListValidationError(t *testing.T) {
 
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
-	assert.Equal(t, sharedError.ValidationErrorCode, response.GetData().(sharedError.ServiceError).Code)
-	assert.Equal(t, validator.New().Struct(req).Error(), response.GetData().(sharedError.ServiceError).Description)
+	assert.Equal(t, sharedError.ValidationErrorCode, response.Data().(sharedError.ServiceError).Code)
+	assert.Equal(t, validator.New().Struct(req).Error(), response.Data().(sharedError.ServiceError).Description)
 }
 
 func TestService_ResourcesListDBError(t *testing.T) {
@@ -156,8 +156,8 @@ func TestService_ResourcesListDBError(t *testing.T) {
 
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
-	assert.Equal(t, sharedError.ServerErrorCode, response.GetData().(sharedError.ServiceError).Code)
-	assert.Equal(t, sharedError.ServerErrorDescription, response.GetData().(sharedError.ServiceError).Description)
+	assert.Equal(t, sharedError.ServerErrorCode, response.Data().(sharedError.ServiceError).Code)
+	assert.Equal(t, sharedError.ServerErrorDescription, response.Data().(sharedError.ServiceError).Description)
 }
 
 func TestService_UpdateResourceSuccess(t *testing.T) {
@@ -190,8 +190,8 @@ func TestService_UpdateResourceValidationError(t *testing.T) {
 
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
-	assert.Equal(t, sharedError.ValidationErrorCode, response.GetData().(sharedError.ServiceError).Code)
-	assert.Equal(t, validator.New().Struct(req).Error(), response.GetData().(sharedError.ServiceError).Description)
+	assert.Equal(t, sharedError.ValidationErrorCode, response.Data().(sharedError.ServiceError).Code)
+	assert.Equal(t, validator.New().Struct(req).Error(), response.Data().(sharedError.ServiceError).Description)
 	assert.NotContains(t, mockResourceRepository.Get(sharedMock.ExistsAccountId), updatingResource)
 }
 
@@ -208,8 +208,8 @@ func TestService_UpdateResourceDBError(t *testing.T) {
 
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
-	assert.Equal(t, sharedError.ServerErrorCode, response.GetData().(sharedError.ServiceError).Code)
-	assert.Equal(t, sharedError.ServerErrorDescription, response.GetData().(sharedError.ServiceError).Description)
+	assert.Equal(t, sharedError.ServerErrorCode, response.Data().(sharedError.ServiceError).Code)
+	assert.Equal(t, sharedError.ServerErrorDescription, response.Data().(sharedError.ServiceError).Description)
 }
 
 func TestService_DeleteResourceSuccess(t *testing.T) {
@@ -236,8 +236,8 @@ func TestService_DeleteResourceValidationError(t *testing.T) {
 
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
-	assert.Equal(t, sharedError.ValidationErrorCode, response.GetData().(sharedError.ServiceError).Code)
-	assert.Equal(t, validator.New().Struct(req).Error(), response.GetData().(sharedError.ServiceError).Description)
+	assert.Equal(t, sharedError.ValidationErrorCode, response.Data().(sharedError.ServiceError).Code)
+	assert.Equal(t, validator.New().Struct(req).Error(), response.Data().(sharedError.ServiceError).Description)
 	assert.True(t, mockResourceRepository.Has(sharedModels.Resource{
 		Id: sharedMock.ExistsResourceId,
 	}))
@@ -251,8 +251,8 @@ func TestService_DeleteResourceDBError(t *testing.T) {
 
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
-	assert.Equal(t, sharedError.ServerErrorCode, response.GetData().(sharedError.ServiceError).Code)
-	assert.Equal(t, sharedError.ServerErrorDescription, response.GetData().(sharedError.ServiceError).Description)
+	assert.Equal(t, sharedError.ServerErrorCode, response.Data().(sharedError.ServiceError).Code)
+	assert.Equal(t, sharedError.ServerErrorDescription, response.Data().(sharedError.ServiceError).Description)
 	assert.True(t, mockResourceRepository.Has(sharedModels.Resource{
 		Id: sharedMock.ExistsResourceId,
 	}))

@@ -11,7 +11,7 @@ func MakeJsonResponse(c *gin.Context, r interfaces.Response) {
 	if r.HasData() {
 		c.JSON(r.HttpStatus(), gin.H{
 			"status": r.ApplicationStatus(),
-			"data":   r.GetData(),
+			"data":   r.Data(),
 		})
 	}
 }

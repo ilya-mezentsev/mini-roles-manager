@@ -1,15 +1,5 @@
+import { Effect, Operation } from '../shared/types';
 
-export enum Operation {
-    CREATE = 'create',
-    READ = 'read',
-    UPDATE = 'update',
-    DELETE = 'delete',
-}
-
-export enum Effect {
-    PERMIT = 'permit',
-    DENY = 'deny',
-}
 
 export interface Role {
     id: string;

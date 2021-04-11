@@ -42,7 +42,7 @@ func TestService_HasPermissionPermit(t *testing.T) {
 
 	assert.Equal(t, expectedOkStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
-	assert.Equal(t, permitEffectCode, response.GetData().(models.EffectResponse).Effect)
+	assert.Equal(t, permitEffectCode, response.Data().(models.EffectResponse).Effect)
 }
 
 func TestService_HasPermissionPermitByLinkingResource(t *testing.T) {
@@ -57,7 +57,7 @@ func TestService_HasPermissionPermitByLinkingResource(t *testing.T) {
 
 	assert.Equal(t, expectedOkStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
-	assert.Equal(t, permitEffectCode, response.GetData().(models.EffectResponse).Effect)
+	assert.Equal(t, permitEffectCode, response.Data().(models.EffectResponse).Effect)
 }
 
 func TestService_HasPermissionDeny(t *testing.T) {
@@ -72,7 +72,7 @@ func TestService_HasPermissionDeny(t *testing.T) {
 
 	assert.Equal(t, expectedOkStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
-	assert.Equal(t, denyEffectCode, response.GetData().(models.EffectResponse).Effect)
+	assert.Equal(t, denyEffectCode, response.Data().(models.EffectResponse).Effect)
 }
 
 func TestService_HasPermissionDenyByUndefinedOperation(t *testing.T) {
@@ -87,7 +87,7 @@ func TestService_HasPermissionDenyByUndefinedOperation(t *testing.T) {
 
 	assert.Equal(t, expectedOkStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
-	assert.Equal(t, denyEffectCode, response.GetData().(models.EffectResponse).Effect)
+	assert.Equal(t, denyEffectCode, response.Data().(models.EffectResponse).Effect)
 }
 
 func TestService_HasPermissionValidationError(t *testing.T) {
@@ -98,8 +98,8 @@ func TestService_HasPermissionValidationError(t *testing.T) {
 
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
-	assert.Equal(t, sharedError.ValidationErrorCode, response.GetData().(sharedError.ServiceError).Code)
-	assert.Equal(t, validator.New().Struct(req).Error(), response.GetData().(sharedError.ServiceError).Description)
+	assert.Equal(t, sharedError.ValidationErrorCode, response.Data().(sharedError.ServiceError).Code)
+	assert.Equal(t, validator.New().Struct(req).Error(), response.Data().(sharedError.ServiceError).Description)
 }
 
 func TestService_HasPermissionDBError(t *testing.T) {
@@ -114,6 +114,6 @@ func TestService_HasPermissionDBError(t *testing.T) {
 
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
-	assert.Equal(t, sharedError.ServerErrorCode, response.GetData().(sharedError.ServiceError).Code)
-	assert.Equal(t, sharedError.ServerErrorDescription, response.GetData().(sharedError.ServiceError).Description)
+	assert.Equal(t, sharedError.ServerErrorCode, response.Data().(sharedError.ServiceError).Code)
+	assert.Equal(t, sharedError.ServerErrorDescription, response.Data().(sharedError.ServiceError).Description)
 }

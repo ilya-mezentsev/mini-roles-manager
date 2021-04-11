@@ -1,3 +1,4 @@
+import { Effect, Operation } from '../shared/types';
 
 export interface EditableResource {
     id: string;
@@ -7,18 +8,6 @@ export interface EditableResource {
 
 export interface Resource extends EditableResource {
     permissions: Permission[];
-}
-
-enum Operation {
-    CREATE = 'create',
-    READ = 'read',
-    UPDATE = 'update',
-    DELETE = 'delete',
-}
-
-enum Effect {
-    PERMIT = 'permit',
-    DENY = 'deny',
 }
 
 interface Permission {
