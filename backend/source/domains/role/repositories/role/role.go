@@ -9,7 +9,10 @@ import (
 )
 
 const (
-	selectRolesQuery = `select trim(role_id) role_id, trim(title) title, permissions, extends from role where account_hash = $1`
+	selectRolesQuery = `
+	select trim(role_id) role_id, trim(title) title, permissions, extends
+	from role where account_hash = $1
+	order by created_at`
 
 	addRoleQuery = `
 	insert into role(account_hash, role_id, title, permissions, extends)
@@ -20,7 +23,8 @@ const (
 	set title = :title, permissions = :permissions, extends = :extends
 	where account_hash = :account_hash and role_id = :role_id`
 
-	deleteRoleQuery = `delete from role where account_hash = $1 and role_id = $2`
+	deleteRoleQuery       = `delete from role where account_hash = $1 and role_id = $2`
+	deleteRoleFromExtends = `update role set extends = array_remove(extends, $2) where account_hash = $1`
 )
 
 type Repository struct {
@@ -79,6 +83,11 @@ func (r Repository) Update(accountId sharedModels.AccountId, role sharedModels.R
 
 func (r Repository) Delete(accountId sharedModels.AccountId, roleId sharedModels.RoleId) error {
 	_, err := r.db.Exec(deleteRoleQuery, accountId, roleId)
+	if err != nil {
+		return err
+	}
+
+	_, err = r.db.Exec(deleteRoleFromExtends, accountId, roleId)
 
 	return err
 }

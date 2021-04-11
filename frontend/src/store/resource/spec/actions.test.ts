@@ -8,7 +8,7 @@ import {
     createResource,
     cleanCreateResourceError,
 
-    loadResources,
+    fetchResources,
     cleanLoadResourcesError,
 
     updateResource,
@@ -113,7 +113,7 @@ describe('resources actions tests', () => {
         api.resourcesList = jest.fn().mockResolvedValue(new SuccessResponse('some-data'));
 
         // @ts-ignore
-        await store.dispatch(loadResources());
+        await store.dispatch(fetchResources());
 
         expect(api.resourcesList).toBeCalled();
         expect(store.getActions()).toEqual([
@@ -132,7 +132,7 @@ describe('resources actions tests', () => {
         api.resourcesList = jest.fn().mockResolvedValue(new ErrorResponse('some-error'));
 
         // @ts-ignore
-        await store.dispatch(loadResources());
+        await store.dispatch(fetchResources());
 
         expect(api.resourcesList).toBeCalled();
         expect(store.getActions()).toEqual([
@@ -151,7 +151,7 @@ describe('resources actions tests', () => {
         api.resourcesList = jest.fn().mockRejectedValue('some-error');
 
         // @ts-ignore
-        await store.dispatch(loadResources());
+        await store.dispatch(fetchResources());
 
         expect(api.resourcesList).toBeCalled();
         expect(store.getActions()).toEqual([

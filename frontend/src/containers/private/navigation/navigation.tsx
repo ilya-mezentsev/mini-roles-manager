@@ -1,6 +1,5 @@
 import { About, SharedAppNavigation, NavigationRoute } from '../../../components/shared';
-import { Resources, SignOut } from '../connected';
-import { Roles } from '../roles/roles';
+import { Resources, Roles, SignOut } from '../connected';
 import { SecondaryButton } from '../../../components/shared/navigation/navigation.types';
 import { Account } from '../account/account';
 

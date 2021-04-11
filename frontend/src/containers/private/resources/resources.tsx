@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { bindActionCreators } from 'redux';
 import { Box } from '@material-ui/core';
 import { Add } from '@material-ui/icons';
@@ -9,19 +8,12 @@ import { Alert } from '../../../components/shared/';
 import {
     cleanCreateResourceError,
     createResource,
-    loadResources,
 } from '../../../store/resource/actions';
 import { ResourcesActions, ResourceState, ResourceProps } from './resources.types';
 import { ResourcesList } from '../connected';
 import { EditResource as CreateResource } from '../../../components/private/resource';
 
 export const Resources = (props: ResourceProps) => {
-    useEffect(() => {
-        if (!props.resourcesResult.list) {
-            props.loadResourcesAction();
-        }
-    }, []);
-
     const e = new EventEmitter();
     const openDialogueEventName = 'new-resource-dialogue:open';
 
@@ -62,8 +54,6 @@ export const Resources = (props: ResourceProps) => {
 export const mapDispatchToProps: DispatchToPropsFn<ResourcesActions> = () => dispatch => ({
     createResourceAction: bindActionCreators(createResource, dispatch),
     cleanCreateResourceErrorAction: bindActionCreators(cleanCreateResourceError, dispatch),
-
-    loadResourcesAction: bindActionCreators(loadResources, dispatch),
 });
 
 export const mapStateToProps: StateToPropsFn<ResourceState> = () => state => ({

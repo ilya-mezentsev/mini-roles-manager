@@ -4,8 +4,8 @@ import { bindActionCreators } from 'redux';
 import { EntrypointState, EntrypointActions, EntrypointProps } from './entrypoint.types';
 import { DispatchToPropsFn, StateToPropsFn } from '../shared/types';
 import { login } from '../store/session/actions';
-import { PublicNavigation } from './public';
-import { PrivateNavigation } from './private';
+import { PublicNavigation as PublicEntryPoint } from './public';
+import { PrivateEntrypoint } from './private';
 
 const Entrypoint = (props: EntrypointProps) => {
     useEffect(() => props.login(), []);
@@ -14,8 +14,8 @@ const Entrypoint = (props: EntrypointProps) => {
         <>
             {
                 !!props.userSession?.session?.id
-                    ? <PrivateNavigation />
-                    : <PublicNavigation />
+                    ? <PrivateEntrypoint />
+                    : <PublicEntryPoint />
             }
         </>
     );

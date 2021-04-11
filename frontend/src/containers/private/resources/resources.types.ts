@@ -4,8 +4,6 @@ import { ResourcesResult } from '../../../store/resource/resource.types';
 export interface ResourcesActions {
     createResourceAction: (resource: EditableResource) => void;
     cleanCreateResourceErrorAction: () => void;
-
-    loadResourcesAction: () => void;
 }
 
 export interface ResourceState {

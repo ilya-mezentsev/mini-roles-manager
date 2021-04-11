@@ -1,2 +1,2 @@
 
-export { Navigation as PrivateNavigation } from './navigation/navigation';
+export { Entrypoint as PrivateEntrypoint } from './connected';
