@@ -46,8 +46,8 @@ func TestService_RegisterValidationError(t *testing.T) {
 
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
-	assert.Equal(t, sharedError.ValidationErrorCode, response.GetData().(sharedError.ServiceError).Code)
-	assert.Equal(t, validator.New().Struct(req).Error(), response.GetData().(sharedError.ServiceError).Description)
+	assert.Equal(t, sharedError.ValidationErrorCode, response.Data().(sharedError.ServiceError).Code)
+	assert.Equal(t, validator.New().Struct(req).Error(), response.Data().(sharedError.ServiceError).Description)
 }
 
 func TestService_RegisterLoginExistsError(t *testing.T) {
@@ -60,8 +60,8 @@ func TestService_RegisterLoginExistsError(t *testing.T) {
 
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
-	assert.Equal(t, loginAlreadyExistsCode, response.GetData().(sharedError.ServiceError).Code)
-	assert.Equal(t, loginAlreadyExistsDescription, response.GetData().(sharedError.ServiceError).Description)
+	assert.Equal(t, shared.LoginAlreadyExistsCode, response.Data().(sharedError.ServiceError).Code)
+	assert.Equal(t, shared.LoginAlreadyExistsDescription, response.Data().(sharedError.ServiceError).Description)
 }
 
 func TestService_RegisterServerError(t *testing.T) {
@@ -74,6 +74,6 @@ func TestService_RegisterServerError(t *testing.T) {
 
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
-	assert.Equal(t, sharedError.ServerErrorCode, response.GetData().(sharedError.ServiceError).Code)
-	assert.Equal(t, sharedError.ServerErrorDescription, response.GetData().(sharedError.ServiceError).Description)
+	assert.Equal(t, sharedError.ServerErrorCode, response.Data().(sharedError.ServiceError).Code)
+	assert.Equal(t, sharedError.ServerErrorDescription, response.Data().(sharedError.ServiceError).Description)
 }

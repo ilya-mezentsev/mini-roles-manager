@@ -2,6 +2,7 @@ package web
 
 import (
 	"github.com/gin-gonic/gin"
+	"mini-roles-backend/source/domains/account/services/info"
 	"mini-roles-backend/source/domains/account/services/registration"
 	"mini-roles-backend/source/domains/account/services/session"
 	"mini-roles-backend/source/domains/account/services/session_check"
@@ -22,6 +23,7 @@ func Init(
 	registrationService registration.Service,
 	sessionService session.Service,
 	sessionCheckService session_check.Service,
+	accountInfoService info.Service,
 
 	permissionService permission.Service,
 
@@ -32,7 +34,7 @@ func Init(
 	checkCookieMiddleware := cookie.New(sessionCheckService)
 	checkHeaderMiddleware := header.New(sessionCheckService)
 
-	accountController := account.New(registrationService, sessionService)
+	accountController := account.New(registrationService, sessionService, accountInfoService)
 	permissionController := permissionControllerConstructor.New(permissionService)
 	resourceController := resourceControllerConstructor.New(resourceService)
 	roleController := roleControllerConstructor.New(roleService)
@@ -46,6 +48,11 @@ func Init(
 	cookieTokenAuthorized := r.Group("/")
 	cookieTokenAuthorized.Use(checkCookieMiddleware.HasSessionInCookie())
 	{
+		cookieTokenAuthorized.GET("/account/info", accountController.GetAccountInfo)
+		cookieTokenAuthorized.PATCH("/account/credentials", accountController.UpdateCredentials)
+
+		cookieTokenAuthorized.POST("/check-permissions", permissionController.ResolveResourceAccessEffect)
+
 		cookieTokenAuthorized.GET("/resources", resourceController.ResourcesList)
 		cookieTokenAuthorized.POST("/resource", resourceController.CreateResource)
 		cookieTokenAuthorized.PATCH("/resource", resourceController.UpdateResource)

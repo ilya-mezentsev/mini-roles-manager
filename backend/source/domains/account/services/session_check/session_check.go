@@ -25,7 +25,7 @@ func New(
 	}
 }
 
-// used for middleware. nil return result is meaning that request can be processed
+// CheckSessionFromCookie used for middleware. nil return result is meaning that request can be processed
 func (s Service) CheckSessionFromCookie(request request.SessionExists) sharedInterfaces.Response {
 	cookieToken, err := request.Context.Cookie(shared.CookieTokenKey)
 	if err != nil {
@@ -61,7 +61,7 @@ func (s Service) checkSession(request request.SessionExists, token string) share
 	}
 }
 
-// used for middleware. nil return result is meaning that request can be processed
+// CheckSessionFromHeader used for middleware. nil return result is meaning that request can be processed
 func (s Service) CheckSessionFromHeader(request request.SessionExists) sharedInterfaces.Response {
 	tokenFromHeader := request.Context.GetHeader(headerTokenKey)
 	if tokenFromHeader == "" {

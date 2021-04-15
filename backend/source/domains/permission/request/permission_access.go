@@ -4,8 +4,8 @@ import shared "mini-roles-backend/source/domains/shared/models"
 
 type (
 	PermissionAccess struct {
-		RoleId     shared.RoleId     `json:"role_id" validate:"required"`
-		ResourceId shared.ResourceId `json:"resource_id" validate:"required"`
+		RoleId     shared.RoleId     `json:"roleId" validate:"required"`
+		ResourceId shared.ResourceId `json:"resourceId" validate:"required"`
 		Operation  string            `json:"operation" validate:"required,oneof=create read update delete"`
 	}
 )

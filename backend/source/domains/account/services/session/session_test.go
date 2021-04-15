@@ -46,7 +46,7 @@ func TestService_CreateSessionSuccess(t *testing.T) {
 
 	assert.Equal(t, expectedOkStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
-	assert.Equal(t, sharedMock.ExistsAccountId, response.GetData().(models.AccountSession).Id)
+	assert.Equal(t, sharedMock.ExistsAccountId, response.Data().(models.AccountSession).Id)
 	assert.True(t, strings.Contains(
 		w.Header().Get("Set-Cookie"),
 		fmt.Sprintf("%s=%s", shared.CookieTokenKey, sharedMock.ExistsAccountId),
@@ -64,8 +64,8 @@ func TestService_CreateSessionValidationError(t *testing.T) {
 	response := service.CreateSession(req)
 
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
-	assert.Equal(t, sharedError.ValidationErrorCode, response.GetData().(sharedError.ServiceError).Code)
-	assert.Equal(t, validator.New().Struct(req).Error(), response.GetData().(sharedError.ServiceError).Description)
+	assert.Equal(t, sharedError.ValidationErrorCode, response.Data().(sharedError.ServiceError).Code)
+	assert.Equal(t, validator.New().Struct(req).Error(), response.Data().(sharedError.ServiceError).Description)
 }
 
 func TestService_CreateSessionMissedLoginError(t *testing.T) {
@@ -83,8 +83,8 @@ func TestService_CreateSessionMissedLoginError(t *testing.T) {
 	})
 
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
-	assert.Equal(t, credentialsNotFoundCode, response.GetData().(sharedError.ServiceError).Code)
-	assert.Equal(t, credentialsNotFoundDescription, response.GetData().(sharedError.ServiceError).Description)
+	assert.Equal(t, credentialsNotFoundCode, response.Data().(sharedError.ServiceError).Code)
+	assert.Equal(t, credentialsNotFoundDescription, response.Data().(sharedError.ServiceError).Description)
 }
 
 func TestService_CreateSessionServerError(t *testing.T) {
@@ -102,8 +102,8 @@ func TestService_CreateSessionServerError(t *testing.T) {
 	})
 
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
-	assert.Equal(t, sharedError.ServerErrorCode, response.GetData().(sharedError.ServiceError).Code)
-	assert.Equal(t, sharedError.ServerErrorDescription, response.GetData().(sharedError.ServiceError).Description)
+	assert.Equal(t, sharedError.ServerErrorCode, response.Data().(sharedError.ServiceError).Code)
+	assert.Equal(t, sharedError.ServerErrorDescription, response.Data().(sharedError.ServiceError).Description)
 }
 
 func TestService_CreateSessionSuccessExists(t *testing.T) {
@@ -117,7 +117,7 @@ func TestService_CreateSessionSuccessExists(t *testing.T) {
 
 	assert.Equal(t, expectedOkStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
-	assert.Equal(t, sharedMock.ExistsAccountId, response.GetData().(models.AccountSession).Id)
+	assert.Equal(t, sharedMock.ExistsAccountId, response.Data().(models.AccountSession).Id)
 	assert.True(t, strings.Contains(
 		w.Header().Get("Set-Cookie"),
 		fmt.Sprintf("%s=%s", shared.CookieTokenKey, sharedMock.ExistsAccountId),
@@ -160,8 +160,8 @@ func TestService_GetSessionServerError(t *testing.T) {
 	})
 
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
-	assert.Equal(t, sharedError.ServerErrorCode, response.GetData().(sharedError.ServiceError).Code)
-	assert.Equal(t, sharedError.ServerErrorDescription, response.GetData().(sharedError.ServiceError).Description)
+	assert.Equal(t, sharedError.ServerErrorCode, response.Data().(sharedError.ServiceError).Code)
+	assert.Equal(t, sharedError.ServerErrorDescription, response.Data().(sharedError.ServiceError).Description)
 }
 
 func TestService_DeleteSessionSuccess(t *testing.T) {

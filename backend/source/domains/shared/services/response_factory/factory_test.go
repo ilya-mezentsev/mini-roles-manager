@@ -12,7 +12,7 @@ func TestDefaultResponse(t *testing.T) {
 	assert.Equal(t, statusOk, response.ApplicationStatus())
 	assert.False(t, response.HasData())
 	assert.Equal(t, http.StatusNoContent, response.HttpStatus())
-	assert.Nil(t, response.GetData())
+	assert.Nil(t, response.Data())
 }
 
 func TestSuccessResponse(t *testing.T) {
@@ -22,7 +22,7 @@ func TestSuccessResponse(t *testing.T) {
 	assert.Equal(t, statusOk, response.ApplicationStatus())
 	assert.True(t, response.HasData())
 	assert.Equal(t, http.StatusOK, response.HttpStatus())
-	assert.Equal(t, someData, response.GetData())
+	assert.Equal(t, someData, response.Data())
 }
 
 func TestServerErrorResponse(t *testing.T) {
@@ -32,7 +32,7 @@ func TestServerErrorResponse(t *testing.T) {
 	assert.Equal(t, statusError, response.ApplicationStatus())
 	assert.True(t, response.HasData())
 	assert.Equal(t, http.StatusInternalServerError, response.HttpStatus())
-	assert.Equal(t, someData, response.GetData())
+	assert.Equal(t, someData, response.Data())
 }
 
 func TestClientErrorResponse(t *testing.T) {
@@ -42,7 +42,7 @@ func TestClientErrorResponse(t *testing.T) {
 	assert.Equal(t, statusError, response.ApplicationStatus())
 	assert.True(t, response.HasData())
 	assert.Equal(t, http.StatusBadRequest, response.HttpStatus())
-	assert.Equal(t, someData, response.GetData())
+	assert.Equal(t, someData, response.Data())
 }
 
 func TestForbiddenErrorResponse(t *testing.T) {
@@ -52,7 +52,7 @@ func TestForbiddenErrorResponse(t *testing.T) {
 	assert.Equal(t, statusError, response.ApplicationStatus())
 	assert.True(t, response.HasData())
 	assert.Equal(t, http.StatusForbidden, response.HttpStatus())
-	assert.Equal(t, someData, response.GetData())
+	assert.Equal(t, someData, response.Data())
 }
 
 func TestUnauthorizedErrorResponse(t *testing.T) {
@@ -62,5 +62,5 @@ func TestUnauthorizedErrorResponse(t *testing.T) {
 	assert.Equal(t, statusError, response.ApplicationStatus())
 	assert.True(t, response.HasData())
 	assert.Equal(t, http.StatusUnauthorized, response.HttpStatus())
-	assert.Equal(t, someData, response.GetData())
+	assert.Equal(t, someData, response.Data())
 }

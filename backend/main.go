@@ -9,8 +9,10 @@ import (
 	"mini-roles-backend/source/db/connection"
 	"mini-roles-backend/source/db/schema"
 	accountInterfaces "mini-roles-backend/source/domains/account/interfaces"
+	accountInfoRepositoryConstructor "mini-roles-backend/source/domains/account/repositories/info"
 	registrationRepositoryConstructor "mini-roles-backend/source/domains/account/repositories/registration"
 	sessionRepositoryConstructor "mini-roles-backend/source/domains/account/repositories/session"
+	"mini-roles-backend/source/domains/account/services/info"
 	"mini-roles-backend/source/domains/account/services/registration"
 	"mini-roles-backend/source/domains/account/services/session"
 	"mini-roles-backend/source/domains/account/services/session_check"
@@ -33,6 +35,7 @@ var (
 
 	registrationRepository      accountInterfaces.RegistrationRepository
 	sessionRepository           accountInterfaces.SessionRepository
+	accountInfoRepository       accountInfoRepositoryConstructor.Repository
 	permissionListRepository    permissionInterfaces.PermissionRepository
 	permissionCreatorRepository resourceInterfaces.PermissionRepository
 	resourceRepository          resourceInterfaces.ResourceRepository
@@ -40,6 +43,7 @@ var (
 
 	registrationService registration.Service
 	sessionService      session.Service
+	accountInfoService  info.Service
 	sessionCheckService session_check.Service
 	permissionService   permission.Service
 	resourceService     resource.Service
@@ -56,6 +60,7 @@ func init() {
 
 	registrationRepository = registrationRepositoryConstructor.New(db)
 	sessionRepository = sessionRepositoryConstructor.New(db)
+	accountInfoRepository = accountInfoRepositoryConstructor.New(db)
 	permissionListRepository = permissionListRepositoryConstructor.New(db)
 	permissionCreatorRepository = permissionCreatorRepositoryConstructor.New(db)
 	resourceRepository = resourceRepositoryConstructor.New(db)
@@ -63,6 +68,7 @@ func init() {
 
 	registrationService = registration.New(registrationRepository)
 	sessionService = session.New(sessionRepository, configsRepository)
+	accountInfoService = info.New(accountInfoRepository)
 	sessionCheckService = session_check.New(sessionRepository)
 	permissionService = permission.New(permissionListRepository)
 	resourceService = resource.New(resourceRepository, permissionCreatorRepository)
@@ -78,6 +84,7 @@ func main() {
 		registrationService,
 		sessionService,
 		sessionCheckService,
+		accountInfoService,
 
 		permissionService,
 

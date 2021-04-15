@@ -18,6 +18,6 @@ func (r defaultResponse) HasData() bool {
 	return r.data != nil
 }
 
-func (r defaultResponse) GetData() interface{} {
+func (r defaultResponse) Data() interface{} {
 	return r.data
 }

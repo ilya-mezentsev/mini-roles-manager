@@ -61,8 +61,8 @@ func TestService_CreateDuplicateKeyError(t *testing.T) {
 
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
-	assert.Equal(t, roleExistsCode, response.GetData().(sharedError.ServiceError).Code)
-	assert.Equal(t, roleExistsDescription, response.GetData().(sharedError.ServiceError).Description)
+	assert.Equal(t, roleExistsCode, response.Data().(sharedError.ServiceError).Code)
+	assert.Equal(t, roleExistsDescription, response.Data().(sharedError.ServiceError).Description)
 }
 
 func TestService_CreateValidationError(t *testing.T) {
@@ -78,8 +78,8 @@ func TestService_CreateValidationError(t *testing.T) {
 	assert.False(t, mockRepository.Has(newRole))
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
-	assert.Equal(t, sharedError.ValidationErrorCode, response.GetData().(sharedError.ServiceError).Code)
-	assert.Equal(t, validator.New().Struct(req).Error(), response.GetData().(sharedError.ServiceError).Description)
+	assert.Equal(t, sharedError.ValidationErrorCode, response.Data().(sharedError.ServiceError).Code)
+	assert.Equal(t, validator.New().Struct(req).Error(), response.Data().(sharedError.ServiceError).Description)
 }
 
 func TestService_CreateDBError(t *testing.T) {
@@ -96,8 +96,8 @@ func TestService_CreateDBError(t *testing.T) {
 
 	assert.False(t, mockRepository.Has(newRole))
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
-	assert.Equal(t, sharedError.ServerErrorCode, response.GetData().(sharedError.ServiceError).Code)
-	assert.Equal(t, sharedError.ServerErrorDescription, response.GetData().(sharedError.ServiceError).Description)
+	assert.Equal(t, sharedError.ServerErrorCode, response.Data().(sharedError.ServiceError).Code)
+	assert.Equal(t, sharedError.ServerErrorDescription, response.Data().(sharedError.ServiceError).Description)
 }
 
 func TestService_RolesListSuccess(t *testing.T) {
@@ -111,7 +111,7 @@ func TestService_RolesListSuccess(t *testing.T) {
 
 	assert.Equal(t, expectedOkStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
-	assert.Equal(t, expectedRoles, response.GetData())
+	assert.Equal(t, expectedRoles, response.Data())
 }
 
 func TestService_RolesListEmpty(t *testing.T) {
@@ -121,7 +121,7 @@ func TestService_RolesListEmpty(t *testing.T) {
 
 	assert.Equal(t, expectedOkStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
-	assert.Empty(t, response.GetData())
+	assert.Empty(t, response.Data())
 }
 
 func TestService_RolesListValidationError(t *testing.T) {
@@ -131,8 +131,8 @@ func TestService_RolesListValidationError(t *testing.T) {
 
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
-	assert.Equal(t, sharedError.ValidationErrorCode, response.GetData().(sharedError.ServiceError).Code)
-	assert.Equal(t, validator.New().Struct(req).Error(), response.GetData().(sharedError.ServiceError).Description)
+	assert.Equal(t, sharedError.ValidationErrorCode, response.Data().(sharedError.ServiceError).Code)
+	assert.Equal(t, validator.New().Struct(req).Error(), response.Data().(sharedError.ServiceError).Description)
 }
 
 func TestService_RolesListDBError(t *testing.T) {
@@ -141,8 +141,8 @@ func TestService_RolesListDBError(t *testing.T) {
 	})
 
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
-	assert.Equal(t, sharedError.ServerErrorCode, response.GetData().(sharedError.ServiceError).Code)
-	assert.Equal(t, sharedError.ServerErrorDescription, response.GetData().(sharedError.ServiceError).Description)
+	assert.Equal(t, sharedError.ServerErrorCode, response.Data().(sharedError.ServiceError).Code)
+	assert.Equal(t, sharedError.ServerErrorDescription, response.Data().(sharedError.ServiceError).Description)
 }
 
 func TestService_UpdateRoleSuccess(t *testing.T) {
@@ -175,8 +175,8 @@ func TestService_UpdateRoleValidationError(t *testing.T) {
 
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
-	assert.Equal(t, sharedError.ValidationErrorCode, response.GetData().(sharedError.ServiceError).Code)
-	assert.Equal(t, validator.New().Struct(req).Error(), response.GetData().(sharedError.ServiceError).Description)
+	assert.Equal(t, sharedError.ValidationErrorCode, response.Data().(sharedError.ServiceError).Code)
+	assert.Equal(t, validator.New().Struct(req).Error(), response.Data().(sharedError.ServiceError).Description)
 }
 
 func TestService_UpdateRoleDBError(t *testing.T) {
@@ -191,8 +191,8 @@ func TestService_UpdateRoleDBError(t *testing.T) {
 	})
 
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
-	assert.Equal(t, sharedError.ServerErrorCode, response.GetData().(sharedError.ServiceError).Code)
-	assert.Equal(t, sharedError.ServerErrorDescription, response.GetData().(sharedError.ServiceError).Description)
+	assert.Equal(t, sharedError.ServerErrorCode, response.Data().(sharedError.ServiceError).Code)
+	assert.Equal(t, sharedError.ServerErrorDescription, response.Data().(sharedError.ServiceError).Description)
 }
 
 func TestService_DeleteRoleSuccess(t *testing.T) {
@@ -215,8 +215,8 @@ func TestService_DeleteRoleValidationError(t *testing.T) {
 	assert.True(t, mockRepository.Has(sharedModels.Role{Id: sharedMock.ExistsRoleId}))
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
-	assert.Equal(t, sharedError.ValidationErrorCode, response.GetData().(sharedError.ServiceError).Code)
-	assert.Equal(t, validator.New().Struct(req).Error(), response.GetData().(sharedError.ServiceError).Description)
+	assert.Equal(t, sharedError.ValidationErrorCode, response.Data().(sharedError.ServiceError).Code)
+	assert.Equal(t, validator.New().Struct(req).Error(), response.Data().(sharedError.ServiceError).Description)
 }
 
 func TestService_DeleteRoleDBError(t *testing.T) {
@@ -228,6 +228,6 @@ func TestService_DeleteRoleDBError(t *testing.T) {
 	assert.True(t, mockRepository.Has(sharedModels.Role{Id: sharedMock.ExistsRoleId}))
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
-	assert.Equal(t, sharedError.ServerErrorCode, response.GetData().(sharedError.ServiceError).Code)
-	assert.Equal(t, sharedError.ServerErrorDescription, response.GetData().(sharedError.ServiceError).Description)
+	assert.Equal(t, sharedError.ServerErrorCode, response.Data().(sharedError.ServiceError).Code)
+	assert.Equal(t, sharedError.ServerErrorDescription, response.Data().(sharedError.ServiceError).Description)
 }

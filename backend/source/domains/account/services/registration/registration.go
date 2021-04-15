@@ -41,8 +41,8 @@ func (s Service) Register(request request.Registration) sharedInterfaces.Respons
 	if err != nil {
 		if errors.As(err, &sharedError.DuplicateUniqueKey{}) {
 			return response_factory.ClientError(sharedError.ServiceError{
-				Code:        loginAlreadyExistsCode,
-				Description: loginAlreadyExistsDescription,
+				Code:        shared.LoginAlreadyExistsCode,
+				Description: shared.LoginAlreadyExistsDescription,
 			})
 		}
 

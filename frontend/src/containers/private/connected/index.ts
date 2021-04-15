@@ -31,6 +31,34 @@ import {
 } from '../role/list';
 
 import {
+    Account as AccountContainer,
+    mapDispatchToProps as AccountContainerMapDispatchToProps,
+    mapStateToProps as AccountContainerMapStateToProps,
+} from '../account/account';
+
+import {
+    Info as InfoContainer,
+    mapStateToProps as InfoContainerMapStateToProps,
+} from '../account/info';
+
+import {
+    ApiKey as ApiKeyContainer,
+    mapStateToProps as ApiKeyContainerMapStateToProps,
+} from '../account/api_key';
+
+import {
+    Credentials as CredentialsContainer,
+    mapDispatchToProps as CredentialsContainerMapDispatchToProps,
+    mapStateToProps as CredentialsContainerMapStateToProps,
+} from '../account/credentials';
+
+import {
+    CheckPermissions as CheckPermissionsContainer,
+    mapDispatchToProps as CheckPermissionsContainerMapDispatchToProps,
+    mapStateToProps as CheckPermissionsContainerMapStateToProps,
+} from '../account/check_permissions';
+
+import {
     SignOut as SignOutContainer,
     mapDispatchToProps as SignOutMapDispatchToProps,
     mapStateToProps as SignOutContainerMapStateToProps,
@@ -60,6 +88,29 @@ export const RolesList = connect(
     RolesListContainerMapStateToProps(),
     RolesListContainerMapDispatchToProps(),
 )(RolesListContainer);
+
+export const Account = connect(
+    AccountContainerMapStateToProps(),
+    AccountContainerMapDispatchToProps(),
+)(AccountContainer);
+
+export const AccountInfo = connect(
+    InfoContainerMapStateToProps(),
+)(InfoContainer);
+
+export const AccountApiKey = connect(
+    ApiKeyContainerMapStateToProps(),
+)(ApiKeyContainer);
+
+export const AccountCredentials = connect(
+    CredentialsContainerMapStateToProps(),
+    CredentialsContainerMapDispatchToProps(),
+)(CredentialsContainer);
+
+export const CheckPermissions = connect(
+    CheckPermissionsContainerMapStateToProps(),
+    CheckPermissionsContainerMapDispatchToProps(),
+)(CheckPermissionsContainer);
 
 export const SignOut = connect(
     SignOutContainerMapStateToProps(),

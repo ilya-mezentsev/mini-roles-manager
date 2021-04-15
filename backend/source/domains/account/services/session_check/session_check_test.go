@@ -60,8 +60,8 @@ func TestService_CheckSessionFromCookieNoCookieError(t *testing.T) {
 	})
 
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
-	assert.Equal(t, missedTokenInCookiesCode, response.GetData().(sharedError.ServiceError).Code)
-	assert.Equal(t, missedTokenInCookiesDescription, response.GetData().(sharedError.ServiceError).Description)
+	assert.Equal(t, missedTokenInCookiesCode, response.Data().(sharedError.ServiceError).Code)
+	assert.Equal(t, missedTokenInCookiesDescription, response.Data().(sharedError.ServiceError).Description)
 }
 
 func TestService_CheckSessionFromHeaderNotTokenError(t *testing.T) {
@@ -74,8 +74,8 @@ func TestService_CheckSessionFromHeaderNotTokenError(t *testing.T) {
 	})
 
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
-	assert.Equal(t, missedTokenInHeadersCode, response.GetData().(sharedError.ServiceError).Code)
-	assert.Equal(t, missedTokenInHeadersDescription, response.GetData().(sharedError.ServiceError).Description)
+	assert.Equal(t, missedTokenInHeadersCode, response.Data().(sharedError.ServiceError).Code)
+	assert.Equal(t, missedTokenInHeadersDescription, response.Data().(sharedError.ServiceError).Description)
 }
 
 func TestService_CheckSessionFromCookieNoAccountByToken(t *testing.T) {
@@ -88,8 +88,8 @@ func TestService_CheckSessionFromCookieNoAccountByToken(t *testing.T) {
 	})
 
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
-	assert.Equal(t, noAccountByTokenCode, response.GetData().(sharedError.ServiceError).Code)
-	assert.Equal(t, noAccountByTokenDescription, response.GetData().(sharedError.ServiceError).Description)
+	assert.Equal(t, noAccountByTokenCode, response.Data().(sharedError.ServiceError).Code)
+	assert.Equal(t, noAccountByTokenDescription, response.Data().(sharedError.ServiceError).Description)
 }
 
 func TestService_CheckSessionFromCookieServerError(t *testing.T) {
@@ -102,6 +102,6 @@ func TestService_CheckSessionFromCookieServerError(t *testing.T) {
 	})
 
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
-	assert.Equal(t, sharedError.ServerErrorCode, response.GetData().(sharedError.ServiceError).Code)
-	assert.Equal(t, sharedError.ServerErrorDescription, response.GetData().(sharedError.ServiceError).Description)
+	assert.Equal(t, sharedError.ServerErrorCode, response.Data().(sharedError.ServiceError).Code)
+	assert.Equal(t, sharedError.ServerErrorDescription, response.Data().(sharedError.ServiceError).Description)
 }

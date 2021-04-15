@@ -1,7 +1,11 @@
 import { About, SharedAppNavigation, NavigationRoute } from '../../../components/shared';
-import { Resources, Roles, SignOut } from '../connected';
+import {
+    Resources,
+    Roles,
+    Account,
+    SignOut,
+} from '../connected';
 import { SecondaryButton } from '../../../components/shared/navigation/navigation.types';
-import { Account } from '../account/account';
 
 const routes: NavigationRoute[] = [
     {

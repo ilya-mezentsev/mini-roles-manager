@@ -16,7 +16,8 @@ import {
 import { Add, Delete } from '@material-ui/icons';
 import { Autocomplete } from '@material-ui/lab';
 
-import { Effect, Operation, Permission } from '../../../../services/api';
+import { Permission } from '../../../../services/api';
+import { Effect, Operation } from '../../../../services/api/shared/types';
 import { PermissionsProps, ResourcePermission } from './permissions.types';
 
 const operations = [

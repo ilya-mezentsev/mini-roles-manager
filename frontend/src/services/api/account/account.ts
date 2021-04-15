@@ -12,8 +12,15 @@ import {
     POST,
     GET,
     DELETE,
+    PATCH,
 } from '../shared';
-import { AccountCredentials, AccountSession } from './account.types';
+import {
+    AccountCredentials,
+    AccountInfo,
+    AccountSession,
+    PermissionAccessRequest,
+    PermissionAccessResponse,
+} from './account.types';
 
 export async function signUp(credentials: AccountCredentials): Promise<ParsedAPIResponse<APIError | null>> {
     const response = await POST<ErrorAPIResponse | EmptyAPIResponse>(
@@ -42,5 +49,29 @@ export async function signIn(credentials: AccountCredentials): Promise<ParsedAPI
 export async function signOut(): Promise<ParsedAPIResponse<APIError | null>> {
     const response = await DELETE<ErrorAPIResponse | EmptyAPIResponse>('/session');
 
-    return errorResponseOrDefault(response)
+    return errorResponseOrDefault(response);
+}
+
+export async function fetchInfo(): Promise<ParsedAPIResponse<ResponseData<AccountInfo>>> {
+    const response = await GET<APIResponse<AccountInfo>>('/account/info');
+
+    return parseResponse(response);
+}
+
+export async function updateCredentials(credentials: AccountCredentials): Promise<ParsedAPIResponse<APIError | null>> {
+    const response = await PATCH<ErrorAPIResponse | EmptyAPIResponse>(
+        '/account/credentials',
+        { credentials },
+    );
+
+    return errorResponseOrDefault(response);
+}
+
+export async function fetchPermission(request: PermissionAccessRequest): Promise<ParsedAPIResponse<ResponseData<PermissionAccessResponse>>> {
+    const response = await POST<APIResponse<PermissionAccessResponse>>(
+        '/check-permissions',
+        { ...request },
+    );
+
+    return parseResponse(response);
 }

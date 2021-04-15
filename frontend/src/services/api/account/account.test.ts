@@ -1,12 +1,20 @@
 import * as request from '../shared/request';
 import {
+    fetchInfo,
+    fetchPermission,
     login,
-    signUp,
     signIn,
     signOut,
+    signUp,
+    updateCredentials,
 } from './account';
-import { AccountCredentials } from './account.types';
-import { APIResponseStatus, ErrorResponse, SuccessResponse } from '../shared';
+import { AccountCredentials, PermissionAccessRequest } from './account.types';
+import {
+    APIResponseStatus,
+    ErrorResponse,
+    SuccessResponse,
+} from '../shared';
+import { Operation } from '../shared/types';
 
 jest.mock('../shared/request');
 
@@ -132,5 +140,53 @@ describe('account api tests', () => {
         expect(response).toBeInstanceOf(SuccessResponse);
         expect(response.isOk()).toBeTruthy();
         expect(response.data()).toBeNull();
+    });
+
+    it('fetch info success', async () => {
+        // @ts-ignore
+        request.GET = jest.fn().mockResolvedValue({
+            status: APIResponseStatus.OK,
+            data: 'some-data',
+        });
+
+        const response = await fetchInfo();
+
+        expect(request.GET).toBeCalledWith('/account/info');
+        expect(response).toBeInstanceOf(SuccessResponse);
+        expect(response.isOk()).toBeTruthy();
+        expect(response.data()).toEqual('some-data');
+    });
+
+    it('update password success', async () => {
+        const d: AccountCredentials = {login: 'new-login', password: 'some-password'};
+        // @ts-ignore
+        request.PATCH = jest.fn().mockResolvedValue(null);
+
+        const response = await updateCredentials(d);
+
+        expect(request.PATCH).toBeCalledWith('/account/credentials', { credentials: d });
+        expect(response).toBeInstanceOf(SuccessResponse);
+        expect(response.isOk()).toBeTruthy();
+        expect(response.data()).toBeNull();
+    });
+
+    it('check permissions success', async () => {
+        const d: PermissionAccessRequest = {
+            roleId: 'role-1',
+            operation: Operation.CREATE,
+            resourceId: 'resource-1',
+        }
+        // @ts-ignore
+        request.POST = jest.fn().mockResolvedValue({
+            status: APIResponseStatus.OK,
+            data: 'some-data',
+        });
+
+        const response = await fetchPermission(d);
+
+        expect(request.POST).toBeCalledWith('/check-permissions', { ...d });
+        expect(response).toBeInstanceOf(SuccessResponse);
+        expect(response.isOk()).toBeTruthy();
+        expect(response.data()).toEqual('some-data');
     });
 });

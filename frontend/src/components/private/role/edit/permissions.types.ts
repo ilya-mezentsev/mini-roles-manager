@@ -1,9 +1,8 @@
 import {
-    Effect,
-    Operation,
     Permission,
     Resource,
 } from '../../../../services/api';
+import { Effect, Operation } from '../../../../services/api/shared/types';
 
 export interface PermissionsProps {
     resources: Resource[];
