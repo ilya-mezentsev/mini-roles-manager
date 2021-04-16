@@ -10,7 +10,8 @@ const (
 	create or replace function recursive_permissions(
 		entry_point_role_id character(32),
 		_account_hash character(32),
-		depth int
+		depth int,
+		exclude character(32)[]
 	)
 	returns table(permissions character(32)[], permissions_depth int)
 	language plpgsql
@@ -26,11 +27,14 @@ const (
 		for extended_role_id in
 			(select unnest(extends) from role where role_id = entry_point_role_id and account_hash = _account_hash)
 		loop
-			return query select * from recursive_permissions(
-			    trim(extended_role_id),
-			    _account_hash,
-			    depth + 1
-			) rp;
+		    if not extended_role_id = any(exclude) then
+				return query select * from recursive_permissions(
+					trim(extended_role_id),
+					_account_hash,
+					depth + 1,
+					array_append(exclude, extended_role_id)
+				) rp;
+		    end if;
 		end loop;
 	end $$;`
 
@@ -43,7 +47,7 @@ const (
 	       r.links_to links_to
 	from permission p
 	inner join resource r on r.resource_id = p.resource_id
-	cross join lateral (select * from recursive_permissions($2, $1, 1)) rp
+	cross join lateral (select * from recursive_permissions($2, $1, 1, array[]::character(32)[])) rp
 	where permission_id = any(rp.permissions)
 	order by rp.permissions_depth`
 )

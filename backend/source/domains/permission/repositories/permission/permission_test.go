@@ -8,6 +8,7 @@ import (
 	"mini-roles-backend/source/db/connection"
 	"mini-roles-backend/source/domains/permission/mock"
 	sharedMock "mini-roles-backend/source/domains/shared/mock"
+	sharedModels "mini-roles-backend/source/domains/shared/models"
 	"testing"
 )
 
@@ -86,17 +87,33 @@ func TestRepository_ListTwoDepthLevelExtending(t *testing.T) {
 	}
 }
 
+func TestRepository_ListRecursiveRolesExtending(t *testing.T) {
+	initTestData()
+	addTestRecursiveExtendingRoles()
+	defer sharedMock.MustReinstall(db)
+
+	permissions, err := repository.List(sharedMock.ExistsAccountId, mock.RecursiveExtendingRoleId1)
+
+	assert.Nil(t, err)
+	for _, expectedPermission := range append(
+		mock.MakeRecursiveExtendingRole1Permissions(),
+		mock.MakeRecursiveExtendingRole2Permissions()...,
+	) {
+		assert.Contains(t, permissions, expectedPermission)
+	}
+}
+
 func TestRepository_ListError(t *testing.T) {
 	dropFunctionQuery := `
-	drop function recursive_permissions(entry_point_role_id character(32), _account_hash character(32), depth int)`
+	drop function recursive_permissions(entry_point_role_id character(32), _account_hash character(32), depth int, exclude character(32)[])`
 	db.MustExec(dropFunctionQuery)
 	db.MustExec(`
-	create or replace function recursive_permissions(a character(32), b character(32), c int)
+	create or replace function recursive_permissions(a character(32), b character(32), c int, e character(32)[])
 	returns void
 	language plpgsql
 	as $$
 	    begin
-	        raise log 'hello, % % %', a, b, c;
+	        raise log 'hello, % % % %', a, b, c, e;
 		end
 	$$`)
 	defer db.MustExec(dropFunctionQuery)
@@ -176,26 +193,29 @@ func addTestFlatRoles() {
 }
 
 func addTestOneLevelDepthExtendingRole() {
-	_, err := db.NamedExec(
-		`insert into role(role_id, permissions, extends, account_hash) values(:role_id, :permissions, :extends, :account_hash)`,
-		map[string]interface{}{
-			"role_id":      mock.OneDepthLevelExtendingRole.Id,
-			"permissions":  pq.Array(mock.OneDepthLevelExtendingRole.Permissions),
-			"extends":      pq.Array(mock.OneDepthLevelExtendingRole.Extends),
-			"account_hash": sharedMock.ExistsAccountId,
-		},
-	)
-	if err != nil {
-		panic(err)
-	}
+	mustAddRole(mock.OneDepthLevelExtendingRole)
 }
 
 func addTestTwoLevelDepthExtendingRole() {
+	mustAddRole(mock.TwoDepthLevelExtendingRole)
+}
+
+func addTestRecursiveExtendingRoles() {
+	for _, role := range []sharedModels.Role{
+		mock.RecursiveExtendingRole1,
+		mock.RecursiveExtendingRole2,
+	} {
+		mustAddRole(role)
+	}
+}
+
+func mustAddRole(role sharedModels.Role) {
 	_, err := db.NamedExec(
-		`insert into role(role_id, extends, account_hash) values(:role_id, :extends, :account_hash)`,
+		`insert into role(role_id, permissions, extends, account_hash) values(:role_id, :permissions, :extends, :account_hash)`,
 		map[string]interface{}{
-			"role_id":      mock.TwoDepthLevelExtendingRole.Id,
-			"extends":      pq.Array(mock.TwoDepthLevelExtendingRole.Extends),
+			"role_id":      role.Id,
+			"permissions":  pq.Array(role.Permissions),
+			"extends":      pq.Array(role.Extends),
 			"account_hash": sharedMock.ExistsAccountId,
 		},
 	)
