@@ -2,7 +2,7 @@ import {
     Card,
     CardContent,
     Typography,
-} from "@material-ui/core";
+} from '@material-ui/core';
 
 import { StateToPropsFn } from '../../../shared/types';
 import { AccountInfoProps, AccountInfoState } from './info.types';

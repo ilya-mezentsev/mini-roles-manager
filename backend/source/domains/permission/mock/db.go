@@ -11,6 +11,8 @@ const (
 	FlatRoleId2                  = "role-2"
 	OneDepthLevelExtendingRoleId = "role-3"
 	TwoDepthLevelExtendingRoleId = "role-4"
+	RecursiveExtendingRoleId1    = "role-5"
+	RecursiveExtendingRoleId2    = "role-6"
 
 	DenyCreatePermissionId1 = "deny-create-resource-1"
 	PermitReadPermissionId1 = "permit-read-resource-1"
@@ -65,7 +67,23 @@ var (
 		},
 	}
 
-	// flat - meaning that it extends no another role
+	RecursiveExtendingRole1 = sharedModels.Role{
+		Id:          RecursiveExtendingRoleId1,
+		Permissions: FlatRoles[0].Permissions,
+		Extends: []sharedModels.RoleId{
+			RecursiveExtendingRoleId2,
+		},
+	}
+
+	RecursiveExtendingRole2 = sharedModels.Role{
+		Id:          RecursiveExtendingRoleId2,
+		Permissions: FlatRoles[1].Permissions,
+		Extends: []sharedModels.RoleId{
+			RecursiveExtendingRoleId1,
+		},
+	}
+
+	// FlatRoles flat - meaning that it extends no another role
 	FlatRoles = []sharedModels.Role{
 		{
 			Id: FlatRoleId1,
@@ -211,4 +229,12 @@ func MakeRole2Permissions() []sharedModels.Permission {
 
 func MakeExtendingRolePermissions() []sharedModels.Permission {
 	return Permissions[8:]
+}
+
+func MakeRecursiveExtendingRole1Permissions() []sharedModels.Permission {
+	return MakeRole1Permissions()
+}
+
+func MakeRecursiveExtendingRole2Permissions() []sharedModels.Permission {
+	return MakeRole2Permissions()
 }
