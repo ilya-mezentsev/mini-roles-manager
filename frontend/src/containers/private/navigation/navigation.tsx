@@ -40,7 +40,6 @@ export const Navigation = () => (
     <SharedAppNavigation
         routes={routes}
         secondaryButtons={secondaryButtons}
-        fallbackPath={'/resources'}
-        size="large"
+        fallbackPath="/resources"
     />
 );

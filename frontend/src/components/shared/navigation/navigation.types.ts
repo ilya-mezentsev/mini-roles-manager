@@ -18,6 +18,5 @@ export interface SecondaryButton {
 export interface NavigationProps<T> {
     routes: T[];
     fallbackPath?: string;
-    size?: 'small' | 'large';
     secondaryButtons?: SecondaryButton[];
 }
