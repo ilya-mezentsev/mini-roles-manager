@@ -39,6 +39,7 @@ export const ResourcesList = (props: ResourcesListProps) => {
 
             resourcesListRef.current = props.resourcesResult.list;
         }
+        // eslint-disable-next-line
     }, [props.resourcesResult.list]);
 
     const [deletingResource, setDeletingResource] = useState<Resource | null>(null);

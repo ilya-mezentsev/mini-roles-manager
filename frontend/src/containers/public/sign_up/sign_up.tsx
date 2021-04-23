@@ -15,6 +15,7 @@ export const SignUp = (props: SignUpProps) => {
     const [password, setPassword] = useState('');
     const history = useHistory();
 
+    // eslint-disable-next-line
     useEffect(() => () => props.cleanSignUpAction(), []);
 
     const onCLoseAlert = () => {

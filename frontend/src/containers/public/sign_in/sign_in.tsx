@@ -14,6 +14,7 @@ export const SignIn = (props: SignInProps) => {
     const [login, setLogin] = useState('');
     const [password, setPassword] = useState('');
 
+    // eslint-disable-next-line
     useEffect(() => () => props.cleanSignInAction(), [])
 
     const trySignIn = () => {
