@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import {
-    Box,
-    Button,
+    Button, Container,
     TextField,
 } from '@material-ui/core';
 import { bindActionCreators } from 'redux';
@@ -40,7 +39,7 @@ export const SignUp = (props: SignUpProps) => {
     };
 
     return (
-        <Box>
+        <Container maxWidth="sm">
             <h1>Sign-Up</h1>
 
             <TextField
@@ -75,7 +74,7 @@ export const SignUp = (props: SignUpProps) => {
                 message={alertMessage()}
                 onCloseCb={() => onCLoseAlert()}
             />
-        </Box>
+        </Container>
     )
 }
 

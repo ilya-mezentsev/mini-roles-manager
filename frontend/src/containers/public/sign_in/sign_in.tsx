@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
     TextField,
-    Box,
-    Button,
+    Button, Container,
 } from '@material-ui/core';
 import { bindActionCreators } from 'redux';
 
@@ -23,7 +22,7 @@ export const SignIn = (props: SignInProps) => {
     };
 
     return (
-        <Box>
+        <Container maxWidth="sm">
             <h1>Sign-In</h1>
 
             <TextField
@@ -58,8 +57,8 @@ export const SignIn = (props: SignInProps) => {
                 message={props.userSession?.error?.description || 'Unknown error'}
                 onCloseCb={() => props.cleanSignInAction()}
             />
-        </Box>
-    )
+        </Container>
+    );
 }
 
 export const mapDispatchToProps: DispatchToPropsFn<SignInActions> = () => dispatch => ({

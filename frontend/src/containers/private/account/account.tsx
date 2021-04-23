@@ -54,40 +54,38 @@ const routes: (ListItemRoute & { component: () => JSX.Element })[] = [
     },
 ];
 
-export const Account = (props: AccountProps) => {
-    return (
-        <>
-            <Grid container spacing={3}>
-                <Grid item xs={4}>
-                    <SharedListNavigation routes={routes}/>
-                </Grid>
-
-                <Grid item xs={8}>
-                    <Switch>
-                        {
-                            routes.map((r, index) => (
-                                <Route path={r.path} key={`account_route_${index}`}>
-                                    { <r.component/> }
-                                </Route>
-                            ))
-                        }
-
-                        <Route path={"*"}>
-                            <Redirect to={fallbackPath} />
-                        </Route>
-                    </Switch>
-                </Grid>
+export const Account = (props: AccountProps) => (
+    <>
+        <Grid container spacing={3}>
+            <Grid item xs={4}>
+                <SharedListNavigation routes={routes}/>
             </Grid>
 
-            <Alert
-                shouldShow={!!props.accountInfoResult?.fetchInfoError}
-                severity="error"
-                message={props.accountInfoResult?.fetchInfoError?.description || 'Unknown error'}
-                onCloseCb={() => props.cleanFetchInfoErrorAction()}
-            />
-        </>
-    );
-};
+            <Grid item xs={8}>
+                <Switch>
+                    {
+                        routes.map((r, index) => (
+                            <Route path={r.path} key={`account_route_${index}`}>
+                                { <r.component/> }
+                            </Route>
+                        ))
+                    }
+
+                    <Route path={"*"}>
+                        <Redirect to={fallbackPath} />
+                    </Route>
+                </Switch>
+            </Grid>
+        </Grid>
+
+        <Alert
+            shouldShow={!!props.accountInfoResult?.fetchInfoError}
+            severity="error"
+            message={props.accountInfoResult?.fetchInfoError?.description || 'Unknown error'}
+            onCloseCb={() => props.cleanFetchInfoErrorAction()}
+        />
+    </>
+);
 
 export const mapDispatchToProps: DispatchToPropsFn<AccountActions> = () => dispatch => ({
     cleanFetchInfoErrorAction: bindActionCreators(cleanFetchInfoError, dispatch),
