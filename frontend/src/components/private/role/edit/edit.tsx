@@ -45,6 +45,7 @@ export const EditRole = (props: EditRoleProps) => {
         (!roleTitle || initialTitle) && setRoleTitle(initialTitle || '');
 
         (!extends_ || !_.isEmpty(initialExtends)) && setExtends(initialExtends || []);
+        // eslint-disable-next-line
     }, [initialRoleId, initialTitle, initialExtends]);
 
     const onPermissionsUpdate = (updatedPermissions: Permission[]) => {

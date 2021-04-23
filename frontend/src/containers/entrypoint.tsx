@@ -8,6 +8,7 @@ import { PublicNavigation as PublicEntryPoint } from './public';
 import { PrivateEntrypoint } from './private';
 
 const Entrypoint = (props: EntrypointProps) => {
+    // eslint-disable-next-line
     useEffect(() => props.login(), []);
 
     return (

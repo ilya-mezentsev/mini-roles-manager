@@ -21,6 +21,7 @@ export const Entrypoint = (props: EntrypointProps) => {
         if (!props.accountInfoResult?.info?.login) {
             props.loadAccountInfo();
         }
+        // eslint-disable-next-line
     }, []);
 
     return (

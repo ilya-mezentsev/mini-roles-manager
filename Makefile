@@ -65,7 +65,6 @@ frontend-check:
 frontend-calc-lines:
 	( find $(FRONTEND_SOURCE_PATH) -name '*.*' -print0 | xargs -0 cat ) | wc -l
 
-
 db-run:
 	docker-compose -f $(ROOT_DIR)/docker-compose.yaml -p $(PROJECT_NAME) up db
 
