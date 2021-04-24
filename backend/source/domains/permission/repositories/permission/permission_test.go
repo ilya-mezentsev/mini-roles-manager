@@ -8,7 +8,6 @@ import (
 	"mini-roles-backend/source/db/connection"
 	"mini-roles-backend/source/domains/permission/mock"
 	sharedMock "mini-roles-backend/source/domains/shared/mock"
-	sharedModels "mini-roles-backend/source/domains/shared/models"
 	"testing"
 )
 
@@ -149,7 +148,7 @@ func addTestPermissions() {
 	tx := db.MustBegin()
 	for _, permission := range mock.Permissions {
 		_, err := tx.NamedExec(
-			`insert into permission(permission_id, operation, effect, resource_id, account_hash)
+			`insert into resource_permission(permission_id, operation, effect, resource_id, account_hash)
 					values(:permission_id, :operation, :effect, :resource_id, :account_hash)`,
 			map[string]interface{}{
 				"permission_id": permission.Id,
@@ -171,55 +170,21 @@ func addTestPermissions() {
 }
 
 func addTestFlatRoles() {
-	tx := db.MustBegin()
 	for _, flatRole := range mock.FlatRoles {
-		_, err := tx.NamedExec(
-			`insert into role(role_id, permissions, account_hash) values(:role_id, :permissions, :account_hash)`,
-			map[string]interface{}{
-				"role_id":      flatRole.Id,
-				"permissions":  pq.Array(flatRole.Permissions),
-				"account_hash": sharedMock.ExistsAccountId,
-			},
-		)
-		if err != nil {
-			panic(err)
-		}
-	}
-
-	err := tx.Commit()
-	if err != nil {
-		panic(err)
+		sharedMock.MustAddRole(db, flatRole)
 	}
 }
 
 func addTestOneLevelDepthExtendingRole() {
-	mustAddRole(mock.OneDepthLevelExtendingRole)
+	sharedMock.MustAddRole(db, mock.OneDepthLevelExtendingRole)
 }
 
 func addTestTwoLevelDepthExtendingRole() {
-	mustAddRole(mock.TwoDepthLevelExtendingRole)
+	sharedMock.MustAddRole(db, mock.TwoDepthLevelExtendingRole)
 }
 
 func addTestRecursiveExtendingRoles() {
-	for _, role := range []sharedModels.Role{
-		mock.RecursiveExtendingRole1,
-		mock.RecursiveExtendingRole2,
-	} {
-		mustAddRole(role)
-	}
-}
-
-func mustAddRole(role sharedModels.Role) {
-	_, err := db.NamedExec(
-		`insert into role(role_id, permissions, extends, account_hash) values(:role_id, :permissions, :extends, :account_hash)`,
-		map[string]interface{}{
-			"role_id":      role.Id,
-			"permissions":  pq.Array(role.Permissions),
-			"extends":      pq.Array(role.Extends),
-			"account_hash": sharedMock.ExistsAccountId,
-		},
-	)
-	if err != nil {
-		panic(err)
-	}
+	sharedMock.MustAddRoleWithoutExtends(db, mock.RecursiveExtendingRole1)
+	sharedMock.MustAddRole(db, mock.RecursiveExtendingRole2)
+	sharedMock.MustAddExtendsFrom(db, mock.RecursiveExtendingRole1)
 }

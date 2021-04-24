@@ -13,19 +13,23 @@ const (
 		depth int,
 		exclude character(32)[]
 	)
-	returns table(permissions character(32)[], permissions_depth int)
+	returns table(permission_id character(32), permissions_depth int)
 	language plpgsql
 	as $$
 	declare
 	    extended_role_id character(32);
 	begin
 		return query select
-			r.permissions permissions,
+			role_permission.permission_id permission_id,
 			depth permissions_depth
-		from role r where role_id = entry_point_role_id and account_hash = _account_hash;
+		from role_permission where role_id = entry_point_role_id and account_hash = _account_hash;
 
-		for extended_role_id in
-			(select unnest(extends) from role where role_id = entry_point_role_id and account_hash = _account_hash)
+		for extended_role_id in (
+		    select extends_from from role_extending
+		    where
+				role_id = entry_point_role_id and
+				account_hash = _account_hash
+		)
 		loop
 		    if not extended_role_id = any(exclude) then
 				return query select * from recursive_permissions(
@@ -45,10 +49,10 @@ const (
 	       trim(p.effect) effect,
 	       trim(r.resource_id) resource_id,
 	       r.links_to links_to
-	from permission p
+	from resource_permission p
 	inner join resource r on r.resource_id = p.resource_id
 	cross join lateral (select * from recursive_permissions($2, $1, 1, array[]::character(32)[])) rp
-	where permission_id = any(rp.permissions)
+	where p.permission_id = rp.permission_id
 	order by rp.permissions_depth`
 )
 

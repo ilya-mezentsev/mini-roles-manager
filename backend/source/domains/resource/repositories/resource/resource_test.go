@@ -3,7 +3,6 @@ package resource
 import (
 	"errors"
 	"github.com/jmoiron/sqlx"
-	"github.com/lib/pq"
 	"github.com/stretchr/testify/assert"
 	"mini-roles-backend/source/config"
 	"mini-roles-backend/source/db/connection"
@@ -11,7 +10,6 @@ import (
 	sharedError "mini-roles-backend/source/domains/shared/error"
 	sharedMock "mini-roles-backend/source/domains/shared/mock"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
-	"strings"
 	"testing"
 )
 
@@ -76,7 +74,7 @@ func TestRepository_ListSuccessWithPermissions(t *testing.T) {
 	for _, permission := range someResource.Permissions {
 		_, err = db.NamedExec(
 			`
-			insert into permission(account_hash, resource_id, permission_id, operation, effect)
+			insert into resource_permission(account_hash, resource_id, permission_id, operation, effect)
 			values(:account_hash, :resource_id, :permission_id, :operation, :effect)`,
 			map[string]interface{}{
 				"account_hash":  sharedMock.ExistsAccountId,
@@ -93,13 +91,6 @@ func TestRepository_ListSuccessWithPermissions(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Contains(t, resources, someResource)
-}
-
-func TestRepository_ListEmpty(t *testing.T) {
-	resources, err := repository.List(sharedMock.ExistsAccountId)
-
-	assert.Nil(t, err)
-	assert.Empty(t, resources)
 }
 
 func TestRepository_ListNoResourceTable(t *testing.T) {
@@ -211,23 +202,17 @@ func TestRepository_DeleteSuccessFilterRolePermissions(t *testing.T) {
 		repository.mapFromResource(sharedMock.ExistsAccountId, someResource),
 	)
 	assert.Nil(t, err)
-	db.MustExec(
-		`insert into permission(permission_id, operation, effect, resource_id, account_hash) values($1, $2, $3, $4, $5)`,
-		mock.PermitReadPermissionId1,
-		mock.PermittedOperation,
-		"permit",
-		someResource.Id,
-		sharedMock.ExistsAccountId,
-	)
-	db.MustExec(
-		`insert into role(role_id, permissions, account_hash) values($1, $2, $3)`,
-		mock.FlatRoleId1,
-		pq.Array([]string{
-			mock.PermitReadPermissionId1,
-			mock.PermitDeletePermissionId3,
-		}),
-		sharedMock.ExistsAccountId,
-	)
+	for _, permission := range mock.MakeRole1Permissions() {
+		db.MustExec(
+			`insert into resource_permission(permission_id, operation, effect, resource_id, account_hash) values($1, $2, $3, $4, $5)`,
+			permission.Id,
+			mock.PermittedOperation,
+			"permit",
+			someResource.Id,
+			sharedMock.ExistsAccountId,
+		)
+	}
+	sharedMock.MustAddRole(db, mock.FlatRoles[0])
 
 	err = repository.Delete(sharedMock.ExistsAccountId, someResource.Id)
 	assert.Nil(t, err)
@@ -241,12 +226,13 @@ func TestRepository_DeleteSuccessFilterRolePermissions(t *testing.T) {
 	)
 	assert.False(t, resourceExists)
 
-	var rolePermissionsRow pq.StringArray
-	_ = db.Get(&rolePermissionsRow, `select permissions from role where role_id = $1`, mock.FlatRoleId1)
-	var rolePermissions []string
-	for _, row := range rolePermissionsRow {
-		rolePermissions = append(rolePermissions, strings.TrimSpace(row))
+	var rolePermissions []sharedModels.PermissionId
+	_ = db.Select(
+		&rolePermissions,
+		`select trim(permission_id) permission_id from role_permission where role_id = $1`,
+		mock.FlatRoleId1,
+	)
+	for _, permission := range mock.MakeRole1Permissions() {
+		assert.NotContains(t, rolePermissions, permission.Id)
 	}
-	assert.Contains(t, rolePermissions, mock.PermitDeletePermissionId3)
-	assert.NotContains(t, rolePermissions, mock.PermitReadPermissionId1)
 }

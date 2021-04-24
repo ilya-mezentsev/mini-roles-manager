@@ -6,7 +6,7 @@ import (
 )
 
 const createPermissionQuery = `
-insert into permission(resource_id, account_hash, permission_id, operation, effect)
+insert into resource_permission(resource_id, account_hash, permission_id, operation, effect)
 values(:resource_id, :account_hash, :permission_id, :operation, :effect)`
 
 type Repository struct {
