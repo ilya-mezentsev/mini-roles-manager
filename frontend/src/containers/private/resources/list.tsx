@@ -11,6 +11,7 @@ import {
 } from '../../../components/private/resource';
 import { DispatchToPropsFn, StateToPropsFn } from '../../../shared/types';
 import {
+    cleanDeletedResourceId,
     cleanDeleteResourceError,
     cleanLoadResourcesError,
     cleanUpdateResourceError,
@@ -18,6 +19,7 @@ import {
     fetchResources,
     updateResource,
 } from '../../../store/resource/actions';
+import { fetchRoles, cleanFetchRolesError } from '../../../store/role/actions';
 import { ResourcesListActions, ResourcesListState, ResourcesListProps } from './list.types';
 import { Resource } from '../../../services/api';
 
@@ -42,6 +44,14 @@ export const ResourcesList = (props: ResourcesListProps) => {
         // eslint-disable-next-line
     }, [props.resourcesResult.list]);
 
+    useEffect(() => {
+        if (props.resourcesResult?.deletedResourceId) {
+            props.loadRolesAction();
+            props.cleanDeletedResourceIdAction();
+        }
+        // eslint-disable-next-line
+    }, [props.resourcesResult?.deletedResourceId]);
+
     const [deletingResource, setDeletingResource] = useState<Resource | null>(null);
     const [editingResource, setEditingResource] = useState<Resource | null>(null);
 
@@ -60,7 +70,8 @@ export const ResourcesList = (props: ResourcesListProps) => {
         return (
             !!props.resourcesResult?.fetchError ||
             !!props.resourcesResult?.updateError ||
-            !!props.resourcesResult?.deleteError
+            !!props.resourcesResult?.deleteError ||
+            !!props.rolesResult?.fetchError
         );
     };
 
@@ -71,6 +82,8 @@ export const ResourcesList = (props: ResourcesListProps) => {
             props.cleanUpdateResourceErrorAction();
         } else if (props.resourcesResult?.deleteError) {
             props.cleanDeleteResourceErrorAction();
+        } else if (props.rolesResult?.fetchError) {
+            props.cleanFetchRolesErrorAction();
         }
     };
 
@@ -79,6 +92,7 @@ export const ResourcesList = (props: ResourcesListProps) => {
             props.resourcesResult?.fetchError?.description ||
             props.resourcesResult?.updateError?.description ||
             props.resourcesResult?.deleteError?.description ||
+            props.rolesResult?.fetchError?.description ||
             'Unknown error'
         );
     };
@@ -129,11 +143,16 @@ export const mapDispatchToProps: DispatchToPropsFn<ResourcesListActions> = () =>
 
     deleteResourceAction: bindActionCreators(deleteResource, dispatch),
     cleanDeleteResourceErrorAction: bindActionCreators(cleanDeleteResourceError, dispatch),
+    cleanDeletedResourceIdAction: bindActionCreators(cleanDeletedResourceId, dispatch),
 
     loadResourcesAction: bindActionCreators(fetchResources, dispatch),
     cleanLoadResourcesError: bindActionCreators(cleanLoadResourcesError, dispatch),
+
+    loadRolesAction: bindActionCreators(fetchRoles, dispatch),
+    cleanFetchRolesErrorAction: bindActionCreators(cleanFetchRolesError, dispatch),
 });
 
 export const mapStateToProps: StateToPropsFn<ResourcesListState> = () => state => ({
     resourcesResult: state.resourcesResult,
+    rolesResult: state.rolesResult,
 });

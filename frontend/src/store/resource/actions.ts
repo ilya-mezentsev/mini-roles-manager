@@ -158,3 +158,11 @@ export function cleanDeleteResourceError(): (dispatch: Dispatch) => void {
         });
     };
 }
+
+export function cleanDeletedResourceId(): (dispatch: Dispatch) => void {
+    return dispatch => {
+        dispatch({
+            type: ACTIONS.CLEAN_DELETED_RESOURCE_ID,
+        });
+    };
+}

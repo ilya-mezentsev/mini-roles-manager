@@ -207,12 +207,14 @@ export const Permissions = (props: PermissionsProps) => {
 
                         <TableCell>
                             <Add
-                                color="primary"
+                                color={chosenExistsResourceId() ? 'primary' : 'disabled'}
                                 cursor="pointer"
                                 titleAccess="Add permission"
                                 onClick={() => {
-                                    addNewPermission();
-                                    cleanNewResourcePermissions();
+                                    if (chosenExistsResourceId()) {
+                                        addNewPermission();
+                                        cleanNewResourcePermissions();
+                                    }
                                 }}
                             />
                         </TableCell>

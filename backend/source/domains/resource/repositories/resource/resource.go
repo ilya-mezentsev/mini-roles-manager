@@ -31,7 +31,13 @@ const (
 	set title = :title, links_to = :links_to
 	where account_hash = :account_hash and resource_id = :resource_id`
 
-	deleteResourceQuery = `delete from resource where account_hash = $1 and resource_id = $2`
+	deleteResourceQuery       = `delete from resource where account_hash = $1 and resource_id = $2`
+	removeResourcePermissions = `
+	update role set permissions = array(
+		select unnest(permissions) from role
+		except select permission_id from permission where account_hash = $1 and resource_id = $2
+	)
+	where account_hash = $1`
 )
 
 type Repository struct {
@@ -125,7 +131,12 @@ func (r Repository) Update(accountId sharedModels.AccountId, resource sharedMode
 }
 
 func (r Repository) Delete(accountId sharedModels.AccountId, resourceId sharedModels.ResourceId) error {
-	_, err := r.db.Exec(deleteResourceQuery, accountId, resourceId)
+	_, err := r.db.Exec(removeResourcePermissions, accountId, resourceId)
+	if err != nil {
+		return err
+	}
+
+	_, err = r.db.Exec(deleteResourceQuery, accountId, resourceId)
 
 	return err
 }

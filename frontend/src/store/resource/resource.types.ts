@@ -20,6 +20,7 @@ export interface ResourceErrorResult {
 export type ResourcesActionResult = ResourceActionResult | ResourcesListResult | ResourceIdActionResult | ResourceErrorResult;
 
 export interface ResourcesResult extends ResourcesListResult {
+    deletedResourceId?: string;
     createError?: APIError;
     fetchError?: APIError;
     updateError?: APIError;

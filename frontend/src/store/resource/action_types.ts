@@ -19,4 +19,5 @@ export enum ACTIONS {
     FAILED_DELETE_RESOURCE = 'delete-resource:error',
     FAILED_TO_PERFORM_RESOURCE_DELETING = 'delete-resource:unknown-error',
     CLEAN_DELETE_RESOURCE_ERROR = 'delete-resource:clean-error',
+    CLEAN_DELETED_RESOURCE_ID = 'delete-resource:clean-id',
 }
