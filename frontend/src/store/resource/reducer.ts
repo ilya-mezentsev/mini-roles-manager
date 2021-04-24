@@ -74,7 +74,14 @@ export function resourceReducer(
             const deletedResourceId = (action.resourcesResult as ResourceIdActionResult).resourceId;
             return {
                 ...state,
-                list: (state.list || []).filter(r => r.id !== deletedResourceId)
+                list: (state.list || []).filter(r => r.id !== deletedResourceId),
+                deletedResourceId,
+            };
+
+        case ACTIONS.CLEAN_DELETED_RESOURCE_ID:
+            return {
+                ...state,
+                deletedResourceId: '',
             };
 
         case ACTIONS.FAILED_CREATE_RESOURCE:

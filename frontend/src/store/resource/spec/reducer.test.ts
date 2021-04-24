@@ -123,6 +123,7 @@ describe('resources reducer tests', () => {
             },
         })).toEqual({
             list: [],
+            deletedResourceId: 'resource-1',
         });
 
         expect(resourceReducer(undefined, {
@@ -132,6 +133,7 @@ describe('resources reducer tests', () => {
             },
         })).toEqual({
             list: [],
+            deletedResourceId: 'resource-1',
         });
     });
 
@@ -193,6 +195,15 @@ describe('resources reducer tests', () => {
                 list: null,
             });
         }
+    });
+
+    it('reduce clean deleted resource id action', () => {
+        expect(resourceReducer(undefined, {
+            type: ACTIONS.CLEAN_DELETED_RESOURCE_ID,
+        })).toEqual({
+            list: null,
+            deletedResourceId: '',
+        });
     });
 
     it('reduce unknown action', () => {

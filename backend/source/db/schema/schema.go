@@ -41,7 +41,7 @@ on delete cascade;
 create table if not exists permission(
 	id serial,
 	permission_id character(32) unique,
-	operation character(10),
+	operation character(10) not null,
 	effect character(6) not null,
 	resource_id character(100),
 	account_hash character(32)

@@ -3,12 +3,15 @@ package resource
 import (
 	"errors"
 	"github.com/jmoiron/sqlx"
+	"github.com/lib/pq"
 	"github.com/stretchr/testify/assert"
 	"mini-roles-backend/source/config"
 	"mini-roles-backend/source/db/connection"
+	"mini-roles-backend/source/domains/permission/mock"
 	sharedError "mini-roles-backend/source/domains/shared/error"
 	sharedMock "mini-roles-backend/source/domains/shared/mock"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
+	"strings"
 	"testing"
 )
 
@@ -194,4 +197,56 @@ func TestRepository_DeleteSuccess(t *testing.T) {
 		someResource.Id,
 	)
 	assert.False(t, resourceExists)
+}
+
+func TestRepository_DeleteSuccessFilterRolePermissions(t *testing.T) {
+	defer sharedMock.MustReinstall(db)
+	someResource := sharedModels.Resource{
+		Id:      "some-resource-id-1",
+		Title:   "Some-Resource-Title",
+		LinksTo: nil,
+	}
+	_, err := db.NamedExec(
+		`insert into resource(account_hash, resource_id, title, links_to) values(:account_hash, :resource_id, :title, :links_to)`,
+		repository.mapFromResource(sharedMock.ExistsAccountId, someResource),
+	)
+	assert.Nil(t, err)
+	db.MustExec(
+		`insert into permission(permission_id, operation, effect, resource_id, account_hash) values($1, $2, $3, $4, $5)`,
+		mock.PermitReadPermissionId1,
+		mock.PermittedOperation,
+		"permit",
+		someResource.Id,
+		sharedMock.ExistsAccountId,
+	)
+	db.MustExec(
+		`insert into role(role_id, permissions, account_hash) values($1, $2, $3)`,
+		mock.FlatRoleId1,
+		pq.Array([]string{
+			mock.PermitReadPermissionId1,
+			mock.PermitDeletePermissionId3,
+		}),
+		sharedMock.ExistsAccountId,
+	)
+
+	err = repository.Delete(sharedMock.ExistsAccountId, someResource.Id)
+	assert.Nil(t, err)
+
+	var resourceExists bool
+	_ = db.Get(
+		&resourceExists,
+		`select 1 from resource where account_hash = $1 and resource_id = $2`,
+		sharedMock.ExistsAccountId,
+		someResource.Id,
+	)
+	assert.False(t, resourceExists)
+
+	var rolePermissionsRow pq.StringArray
+	_ = db.Get(&rolePermissionsRow, `select permissions from role where role_id = $1`, mock.FlatRoleId1)
+	var rolePermissions []string
+	for _, row := range rolePermissionsRow {
+		rolePermissions = append(rolePermissions, strings.TrimSpace(row))
+	}
+	assert.Contains(t, rolePermissions, mock.PermitDeletePermissionId3)
+	assert.NotContains(t, rolePermissions, mock.PermitReadPermissionId1)
 }

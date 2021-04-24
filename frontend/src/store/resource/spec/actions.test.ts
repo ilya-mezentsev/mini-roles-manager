@@ -16,6 +16,7 @@ import {
 
     deleteResource,
     cleanDeleteResourceError,
+    cleanDeletedResourceId,
 } from '../actions';
 import { ACTIONS } from '../action_types';
 
@@ -328,6 +329,19 @@ describe('resources actions tests', () => {
         expect(store.getActions()).toEqual([
             {
                 type: ACTIONS.CLEAN_DELETE_RESOURCE_ERROR,
+            },
+        ]);
+    });
+
+    it('clean deleted resource id', () => {
+        const store = mockStore({ resourcesResult: null });
+
+        // @ts-ignore
+        store.dispatch(cleanDeletedResourceId());
+
+        expect(store.getActions()).toEqual([
+            {
+                type: ACTIONS.CLEAN_DELETED_RESOURCE_ID,
             },
         ]);
     });
