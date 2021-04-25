@@ -10,21 +10,48 @@ import (
 
 const (
 	selectRolesQuery = `
-	select trim(role_id) role_id, trim(title) title, permissions, extends
+	select trim(role_id) role_id, trim(title) title
 	from role where account_hash = $1
 	order by created_at`
+	selectPermissionsQuery = `
+	select trim(permission_id) permission_id, trim(role_id) role_id
+	from role_permission
+	where role_id = any($2) and account_hash = $1`
+	selectExtendingQuery = `
+	select trim(extends_from) extends_from, trim(role_id) role_id
+	from role_extending
+	where role_id = any($2) and account_hash = $1`
 
 	addRoleQuery = `
-	insert into role(account_hash, role_id, title, permissions, extends)
-	values(:account_hash, :role_id, :title, :permissions, :extends)`
+	insert into role(account_hash, role_id, title)
+	values(:account_hash, :role_id, :title)`
+	addRolePermissionQuery = `
+	insert into role_permission(permission_id, role_id, account_hash)
+	values(:permission_id, :role_id, :account_hash)
+	on conflict do nothing`
+	addRoleExtendingQuery = `
+	insert into role_extending(extends_from, role_id, account_hash)
+	values(:extends_from, :role_id, :account_hash)
+	on conflict do nothing`
 
 	updateRoleQuery = `
 	update role
-	set title = :title, permissions = :permissions, extends = :extends
+	set title = :title
 	where account_hash = :account_hash and role_id = :role_id`
+	deleteDeletedRolePermissionsQuery = `
+	delete from role_permission
+	where
+		not permission_id = any(:exist_permissions_ids) and
+		role_id = :role_id and
+		account_hash = :account_hash`
+	deleteDeletedRoleExtendingQuery = `
+	delete from role_extending
+	where
+		not extends_from = any(:exist_extending_ids) and
+		role_id = :role_id and
+		account_hash = :account_hash`
 
-	deleteRoleQuery       = `delete from role where account_hash = $1 and role_id = $2`
-	deleteRoleFromExtends = `update role set extends = array_remove(extends, $2) where account_hash = $1`
+	deleteRoleQuery = `delete from role where account_hash = $1 and role_id = $2`
 )
 
 type Repository struct {
@@ -36,58 +63,210 @@ func New(db *sqlx.DB) Repository {
 }
 
 func (r Repository) Create(accountId sharedModels.AccountId, role sharedModels.Role) error {
-	_, err := r.db.NamedExec(addRoleQuery, r.mapFromRole(accountId, role))
-	if sharedRepositories.IsDuplicateKey(err) {
-		err = sharedError.DuplicateUniqueKey{}
+	tx, err := r.db.Beginx()
+	if err != nil {
+		return err
 	}
 
-	return err
+	_, err = tx.NamedExec(addRoleQuery, r.mapFromRole(accountId, role))
+	if err != nil {
+		if sharedRepositories.IsDuplicateKey(err) {
+			err = sharedError.DuplicateUniqueKey{}
+		}
+
+		return err
+	}
+
+	for _, permissionMap := range r.mapFromPermission(accountId, role) {
+		_, err = tx.NamedExec(addRolePermissionQuery, permissionMap)
+		if err != nil {
+			_ = tx.Rollback()
+
+			return err
+		}
+	}
+
+	for _, extendsMap := range r.mapFromExtends(accountId, role) {
+		_, err = tx.NamedExec(addRoleExtendingQuery, extendsMap)
+		if err != nil {
+			_ = tx.Rollback()
+
+			return err
+		}
+	}
+
+	return tx.Commit()
 }
 
 func (r Repository) mapFromRole(accountId sharedModels.AccountId, role sharedModels.Role) map[string]interface{} {
 	return map[string]interface{}{
 		"role_id":      role.Id,
 		"title":        role.Title,
-		"permissions":  pq.Array(role.Permissions),
-		"extends":      pq.Array(role.Extends),
 		"account_hash": accountId,
 	}
+}
+
+func (r Repository) mapFromPermission(accountId sharedModels.AccountId, role sharedModels.Role) []map[string]interface{} {
+	var permissionsMap []map[string]interface{}
+	for _, permissionId := range role.Permissions {
+		permissionsMap = append(permissionsMap, map[string]interface{}{
+			"permission_id": permissionId,
+			"role_id":       role.Id,
+			"account_hash":  accountId,
+		})
+	}
+
+	return permissionsMap
+}
+
+func (r Repository) mapFromExtends(accountId sharedModels.AccountId, role sharedModels.Role) []map[string]interface{} {
+	var extendsMap []map[string]interface{}
+	for _, extendsFromRoleId := range role.Extends {
+		extendsMap = append(extendsMap, map[string]interface{}{
+			"extends_from": extendsFromRoleId,
+			"role_id":      role.Id,
+			"account_hash": accountId,
+		})
+	}
+
+	return extendsMap
 }
 
 func (r Repository) List(accountId sharedModels.AccountId) ([]sharedModels.Role, error) {
 	var roles []roleProxy
 	err := r.db.Select(&roles, selectRolesQuery, accountId)
+	if err != nil {
+		return nil, err
+	}
 
-	return r.makeRoles(roles), err
+	rolesIds := pq.Array(r.makeRolesIds(roles))
+	var rolesPermissions []rolePermissionProxy
+	err = r.db.Select(&rolesPermissions, selectPermissionsQuery, accountId, rolesIds)
+	if err != nil {
+		return nil, err
+	}
+
+	var rolesExtendsFrom []roleExtendingProxy
+	err = r.db.Select(&rolesExtendsFrom, selectExtendingQuery, accountId, rolesIds)
+
+	return r.makeRoles(roles, rolesPermissions, rolesExtendsFrom), err
 }
 
-func (r Repository) makeRoles(proxies []roleProxy) []sharedModels.Role {
-	var roles []sharedModels.Role
+func (r Repository) makeRolesIds(proxies []roleProxy) []sharedModels.RoleId {
+	var rolesIds []sharedModels.RoleId
 	for _, proxy := range proxies {
+		rolesIds = append(rolesIds, proxy.Id)
+	}
+
+	return rolesIds
+}
+
+func (r Repository) makeRoles(
+	roleProxies []roleProxy,
+	rolesPermissionsProxy []rolePermissionProxy,
+	rolesExtendsFrom []roleExtendingProxy,
+) []sharedModels.Role {
+	var roles []sharedModels.Role
+	for _, proxy := range roleProxies {
 		roles = append(roles, sharedModels.Role{
 			Id:          proxy.Id,
 			Title:       proxy.Title,
-			Permissions: proxy.makePermissions(),
-			Extends:     proxy.makeExtends(),
+			Permissions: r.makeRolePermissions(proxy.Id, rolesPermissionsProxy),
+			Extends:     r.makeRoleExtendsFrom(proxy.Id, rolesExtendsFrom),
 		})
 	}
 
 	return roles
 }
 
+func (r Repository) makeRolePermissions(roleId sharedModels.RoleId, rolesPermissionsProxy []rolePermissionProxy) []sharedModels.PermissionId {
+	var rolesPermissions []sharedModels.PermissionId
+	for _, rolePermissionsProxy := range rolesPermissionsProxy {
+		if rolePermissionsProxy.RoleId == roleId {
+			rolesPermissions = append(rolesPermissions, rolePermissionsProxy.PermissionId)
+		}
+	}
+
+	return rolesPermissions
+}
+
+func (r Repository) makeRoleExtendsFrom(roleId sharedModels.RoleId, rolesExtendsFrom []roleExtendingProxy) []sharedModels.RoleId {
+	var roleExtendsFrom []sharedModels.RoleId
+	for _, roleExtendsFromProxy := range rolesExtendsFrom {
+		if roleExtendsFromProxy.RoleId == roleId {
+			roleExtendsFrom = append(roleExtendsFrom, roleExtendsFromProxy.ExtendsFrom)
+		}
+	}
+
+	return roleExtendsFrom
+}
+
 func (r Repository) Update(accountId sharedModels.AccountId, role sharedModels.Role) error {
-	_, err := r.db.NamedExec(updateRoleQuery, r.mapFromRole(accountId, role))
+	tx, err := r.db.Beginx()
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.NamedExec(updateRoleQuery, r.mapFromRole(accountId, role))
+	if err != nil {
+		return err
+	}
+
+	err = r.updatePermissions(tx, accountId, role)
+	if err != nil {
+		return err
+	}
+
+	err = r.updateExtends(tx, accountId, role)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
+func (r Repository) updatePermissions(
+	tx *sqlx.Tx,
+	accountId sharedModels.AccountId,
+	role sharedModels.Role,
+) error {
+	for _, permissionMap := range r.mapFromPermission(accountId, role) {
+		_, err := tx.NamedExec(addRolePermissionQuery, permissionMap)
+		if err != nil {
+			return err
+		}
+	}
+	_, err := tx.NamedExec(deleteDeletedRolePermissionsQuery, map[string]interface{}{
+		"exist_permissions_ids": pq.Array(role.Permissions),
+		"role_id":               role.Id,
+		"account_hash":          accountId,
+	})
+
+	return err
+}
+
+func (r Repository) updateExtends(
+	tx *sqlx.Tx,
+	accountId sharedModels.AccountId,
+	role sharedModels.Role,
+) error {
+	for _, extendsMap := range r.mapFromExtends(accountId, role) {
+		_, err := tx.NamedExec(addRoleExtendingQuery, extendsMap)
+		if err != nil {
+			return err
+		}
+	}
+	_, err := tx.NamedExec(deleteDeletedRoleExtendingQuery, map[string]interface{}{
+		"exist_extending_ids": pq.Array(role.Extends),
+		"role_id":             role.Id,
+		"account_hash":        accountId,
+	})
 
 	return err
 }
 
 func (r Repository) Delete(accountId sharedModels.AccountId, roleId sharedModels.RoleId) error {
 	_, err := r.db.Exec(deleteRoleQuery, accountId, roleId)
-	if err != nil {
-		return err
-	}
-
-	_, err = r.db.Exec(deleteRoleFromExtends, accountId, roleId)
 
 	return err
 }
