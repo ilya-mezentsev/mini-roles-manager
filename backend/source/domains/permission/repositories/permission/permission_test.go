@@ -8,6 +8,7 @@ import (
 	"mini-roles-backend/source/db/connection"
 	"mini-roles-backend/source/domains/permission/mock"
 	sharedMock "mini-roles-backend/source/domains/shared/mock"
+	sharedModels "mini-roles-backend/source/domains/shared/models"
 	"testing"
 )
 
@@ -148,7 +149,7 @@ func addTestPermissions() {
 	tx := db.MustBegin()
 	for _, permission := range mock.Permissions {
 		_, err := tx.NamedExec(
-			`insert into resource_permission(permission_id, operation, effect, resource_id, account_hash)
+			`insert into permission(permission_id, operation, effect, resource_id, account_hash)
 					values(:permission_id, :operation, :effect, :resource_id, :account_hash)`,
 			map[string]interface{}{
 				"permission_id": permission.Id,
@@ -170,21 +171,55 @@ func addTestPermissions() {
 }
 
 func addTestFlatRoles() {
+	tx := db.MustBegin()
 	for _, flatRole := range mock.FlatRoles {
-		sharedMock.MustAddRole(db, flatRole)
+		_, err := tx.NamedExec(
+			`insert into role(role_id, permissions, account_hash) values(:role_id, :permissions, :account_hash)`,
+			map[string]interface{}{
+				"role_id":      flatRole.Id,
+				"permissions":  pq.Array(flatRole.Permissions),
+				"account_hash": sharedMock.ExistsAccountId,
+			},
+		)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	err := tx.Commit()
+	if err != nil {
+		panic(err)
 	}
 }
 
 func addTestOneLevelDepthExtendingRole() {
-	sharedMock.MustAddRole(db, mock.OneDepthLevelExtendingRole)
+	mustAddRole(mock.OneDepthLevelExtendingRole)
 }
 
 func addTestTwoLevelDepthExtendingRole() {
-	sharedMock.MustAddRole(db, mock.TwoDepthLevelExtendingRole)
+	mustAddRole(mock.TwoDepthLevelExtendingRole)
 }
 
 func addTestRecursiveExtendingRoles() {
-	sharedMock.MustAddRoleWithoutExtends(db, mock.RecursiveExtendingRole1)
-	sharedMock.MustAddRole(db, mock.RecursiveExtendingRole2)
-	sharedMock.MustAddExtendsFrom(db, mock.RecursiveExtendingRole1)
+	for _, role := range []sharedModels.Role{
+		mock.RecursiveExtendingRole1,
+		mock.RecursiveExtendingRole2,
+	} {
+		mustAddRole(role)
+	}
+}
+
+func mustAddRole(role sharedModels.Role) {
+	_, err := db.NamedExec(
+		`insert into role(role_id, permissions, extends, account_hash) values(:role_id, :permissions, :extends, :account_hash)`,
+		map[string]interface{}{
+			"role_id":      role.Id,
+			"permissions":  pq.Array(role.Permissions),
+			"extends":      pq.Array(role.Extends),
+			"account_hash": sharedMock.ExistsAccountId,
+		},
+	)
+	if err != nil {
+		panic(err)
+	}
 }

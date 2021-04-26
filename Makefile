@@ -19,7 +19,7 @@ stop: containers-stop
 
 tests: backend-tests frontend-tests
 
-check: backend-check frontend-check
+check: backend-check
 
 backend-build:
 	unset GOPATH && cd $(BACKEND_DIR) && GOMODCACHE=$(BACKEND_LIBS_PATH) go build main.go
@@ -28,7 +28,7 @@ backend-run:
 	unset GOPATH && cd $(BACKEND_DIR) && GOMODCACHE=$(BACKEND_LIBS_PATH) go run main.go -config $(BACKEND_CONFIG_PATH)
 
 backend-tests:
-	unset GOPATH && cd $(BACKEND_SOURCE_PATH) && GOMODCACHE=$(BACKEND_LIBS_PATH) go test -cover -p 1 ./... | { grep -v "no test files"; true; }
+	unset GOPATH && cd $(BACKEND_SOURCE_PATH) && GOMODCACHE=$(BACKEND_LIBS_PATH) go test ./... -cover | { grep -v "no test files"; true; }
 
 backend-check:
 	unset GOPATH && cd $(BACKEND_SOURCE_PATH) && GOMODCACHE=$(BACKEND_LIBS_PATH) go vet ./...
