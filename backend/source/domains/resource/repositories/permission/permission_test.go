@@ -7,7 +7,6 @@ import (
 	"mini-roles-backend/source/db/connection"
 	sharedMock "mini-roles-backend/source/domains/shared/mock"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
-	"mini-roles-backend/source/domains/shared/services/hash"
 	"testing"
 )
 
@@ -31,12 +30,12 @@ func TestRepository_AddResourcePermissionsSuccess(t *testing.T) {
 	sharedMock.MustAddResource(db)
 	permissions := []sharedModels.Permission{
 		{
-			Id:        sharedModels.PermissionId(hash.Md5WithTimeAsKey("some-permission-id-1")),
+			Id:        "some-permission-id-1",
 			Operation: "create",
 			Effect:    "permit",
 		},
 		{
-			Id:        sharedModels.PermissionId(hash.Md5WithTimeAsKey("some-permission-id-2")),
+			Id:        "some-permission-id-2",
 			Operation: "delete",
 			Effect:    "deny",
 		},
@@ -53,7 +52,7 @@ func TestRepository_AddResourcePermissionsSuccess(t *testing.T) {
 		var permissionExists bool
 		err = db.Get(
 			&permissionExists,
-			`select 1 from resource_permission where account_hash = $1 and resource_id = $2 and permission_id = $3`,
+			`select 1 from permission where account_hash = $1 and resource_id = $2 and permission_id = $3`,
 			sharedMock.ExistsAccountId,
 			sharedMock.ExistsResourceId,
 			permission.Id,
@@ -66,7 +65,7 @@ func TestRepository_AddResourcePermissionsSuccess(t *testing.T) {
 
 func TestRepository_AddResourcePermissionsErrorNoTable(t *testing.T) {
 	defer sharedMock.MustReinstall(db)
-	sharedMock.MustDropResourcePermissionTable(db)
+	sharedMock.MustDropPermissionTable(db)
 
 	permissions := []sharedModels.Permission{
 		{
