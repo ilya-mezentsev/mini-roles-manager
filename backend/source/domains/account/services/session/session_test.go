@@ -13,6 +13,7 @@ import (
 	sharedError "mini-roles-backend/source/domains/shared/error"
 	sharedMock "mini-roles-backend/source/domains/shared/mock"
 	"mini-roles-backend/source/domains/shared/services/response_factory"
+	"mini-roles-backend/source/domains/shared/services/validation"
 	"net/http/httptest"
 	"strings"
 	"testing"
@@ -65,7 +66,11 @@ func TestService_CreateSessionValidationError(t *testing.T) {
 
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
 	assert.Equal(t, sharedError.ValidationErrorCode, response.Data().(sharedError.ServiceError).Code)
-	assert.Equal(t, validator.New().Struct(req).Error(), response.Data().(sharedError.ServiceError).Description)
+	assert.Equal(
+		t,
+		validation.MakeFailedValidationDescription(validator.New().Struct(req)),
+		response.Data().(sharedError.ServiceError).Description,
+	)
 }
 
 func TestService_CreateSessionMissedLoginError(t *testing.T) {

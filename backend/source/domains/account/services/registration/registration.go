@@ -3,7 +3,6 @@ package registration
 import (
 	"errors"
 	"fmt"
-	"github.com/go-playground/validator/v10"
 	log "github.com/sirupsen/logrus"
 	"mini-roles-backend/source/domains/account/interfaces"
 	"mini-roles-backend/source/domains/account/models"
@@ -14,6 +13,7 @@ import (
 	sharedModels "mini-roles-backend/source/domains/shared/models"
 	"mini-roles-backend/source/domains/shared/services/hash"
 	"mini-roles-backend/source/domains/shared/services/response_factory"
+	"mini-roles-backend/source/domains/shared/services/validation"
 )
 
 type Service struct {
@@ -25,16 +25,13 @@ func New(repository interfaces.RegistrationRepository) Service {
 }
 
 func (s Service) Register(request request.Registration) sharedInterfaces.Response {
-	err := validator.New().Struct(request)
-	if err != nil {
-		return response_factory.ClientError(sharedError.ServiceError{
-			Code:        sharedError.ValidationErrorCode,
-			Description: err.Error(),
-		})
+	invalidRequestResponse := validation.MakeErrorResponse(request)
+	if invalidRequestResponse != nil {
+		return invalidRequestResponse
 	}
 
 	request.Credentials.Password = shared.MakePassword(request.Credentials)
-	err = s.repository.Register(
+	err := s.repository.Register(
 		s.createSession(request),
 		request.Credentials,
 	)

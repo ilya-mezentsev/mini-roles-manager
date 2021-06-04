@@ -11,6 +11,7 @@ import (
 	sharedMock "mini-roles-backend/source/domains/shared/mock"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
 	"mini-roles-backend/source/domains/shared/services/response_factory"
+	"mini-roles-backend/source/domains/shared/services/validation"
 	"os"
 	"testing"
 )
@@ -70,7 +71,11 @@ func TestService_CreateResourceValidationError(t *testing.T) {
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
 	assert.Equal(t, sharedError.ValidationErrorCode, response.Data().(sharedError.ServiceError).Code)
-	assert.Equal(t, validator.New().Struct(req).Error(), response.Data().(sharedError.ServiceError).Description)
+	assert.Equal(
+		t,
+		validation.MakeFailedValidationDescription(validator.New().Struct(req)),
+		response.Data().(sharedError.ServiceError).Description,
+	)
 }
 
 func TestService_CreateResourceDuplicateKeyError(t *testing.T) {
@@ -146,7 +151,11 @@ func TestService_ResourcesListValidationError(t *testing.T) {
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
 	assert.Equal(t, sharedError.ValidationErrorCode, response.Data().(sharedError.ServiceError).Code)
-	assert.Equal(t, validator.New().Struct(req).Error(), response.Data().(sharedError.ServiceError).Description)
+	assert.Equal(
+		t,
+		validation.MakeFailedValidationDescription(validator.New().Struct(req)),
+		response.Data().(sharedError.ServiceError).Description,
+	)
 }
 
 func TestService_ResourcesListDBError(t *testing.T) {
@@ -191,7 +200,11 @@ func TestService_UpdateResourceValidationError(t *testing.T) {
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
 	assert.Equal(t, sharedError.ValidationErrorCode, response.Data().(sharedError.ServiceError).Code)
-	assert.Equal(t, validator.New().Struct(req).Error(), response.Data().(sharedError.ServiceError).Description)
+	assert.Equal(
+		t,
+		validation.MakeFailedValidationDescription(validator.New().Struct(req)),
+		response.Data().(sharedError.ServiceError).Description,
+	)
 	assert.NotContains(t, mockResourceRepository.Get(sharedMock.ExistsAccountId), updatingResource)
 }
 
@@ -237,7 +250,11 @@ func TestService_DeleteResourceValidationError(t *testing.T) {
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
 	assert.Equal(t, sharedError.ValidationErrorCode, response.Data().(sharedError.ServiceError).Code)
-	assert.Equal(t, validator.New().Struct(req).Error(), response.Data().(sharedError.ServiceError).Description)
+	assert.Equal(
+		t,
+		validation.MakeFailedValidationDescription(validator.New().Struct(req)),
+		response.Data().(sharedError.ServiceError).Description,
+	)
 	assert.True(t, mockResourceRepository.Has(sharedModels.Resource{
 		Id: sharedMock.ExistsResourceId,
 	}))

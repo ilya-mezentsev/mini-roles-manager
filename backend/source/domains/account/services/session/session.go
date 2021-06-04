@@ -3,7 +3,6 @@ package session
 import (
 	"errors"
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 	log "github.com/sirupsen/logrus"
 	"mini-roles-backend/source/config"
 	"mini-roles-backend/source/domains/account/interfaces"
@@ -14,6 +13,7 @@ import (
 	sharedInterfaces "mini-roles-backend/source/domains/shared/interfaces"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
 	"mini-roles-backend/source/domains/shared/services/response_factory"
+	"mini-roles-backend/source/domains/shared/services/validation"
 )
 
 type Service struct {
@@ -32,12 +32,9 @@ func New(
 }
 
 func (s Service) CreateSession(request request.CreateSession) sharedInterfaces.Response {
-	err := validator.New().Struct(request)
-	if err != nil {
-		return response_factory.ClientError(sharedError.ServiceError{
-			Code:        sharedError.ValidationErrorCode,
-			Description: err.Error(),
-		})
+	invalidRequestResponse := validation.MakeErrorResponse(request)
+	if invalidRequestResponse != nil {
+		return invalidRequestResponse
 	}
 
 	request.Credentials.Password = shared.MakePassword(request.Credentials)

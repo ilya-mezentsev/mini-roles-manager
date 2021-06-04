@@ -10,6 +10,7 @@ import (
 	sharedError "mini-roles-backend/source/domains/shared/error"
 	sharedMock "mini-roles-backend/source/domains/shared/mock"
 	"mini-roles-backend/source/domains/shared/services/response_factory"
+	"mini-roles-backend/source/domains/shared/services/validation"
 	"testing"
 )
 
@@ -42,7 +43,11 @@ func TestService_GetInfoValidationError(t *testing.T) {
 
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
 	assert.Equal(t, sharedError.ValidationErrorCode, response.Data().(sharedError.ServiceError).Code)
-	assert.Equal(t, validator.New().Struct(req).Error(), response.Data().(sharedError.ServiceError).Description)
+	assert.Equal(
+		t,
+		validation.MakeFailedValidationDescription(validator.New().Struct(req)),
+		response.Data().(sharedError.ServiceError).Description,
+	)
 }
 
 func TestService_GetInfoServerError(t *testing.T) {
@@ -101,7 +106,11 @@ func TestService_UpdateCredentialsValidationError(t *testing.T) {
 
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
 	assert.Equal(t, sharedError.ValidationErrorCode, response.Data().(sharedError.ServiceError).Code)
-	assert.Equal(t, validator.New().Struct(req).Error(), response.Data().(sharedError.ServiceError).Description)
+	assert.Equal(
+		t,
+		validation.MakeFailedValidationDescription(validator.New().Struct(req)),
+		response.Data().(sharedError.ServiceError).Description,
+	)
 }
 
 func TestService_UpdateCredentialsLoginAlreadyExists(t *testing.T) {
