@@ -3,7 +3,6 @@ package resource
 import (
 	"errors"
 	"fmt"
-	"github.com/go-playground/validator/v10"
 	log "github.com/sirupsen/logrus"
 	"mini-roles-backend/source/domains/resource/interfaces"
 	"mini-roles-backend/source/domains/resource/request"
@@ -12,6 +11,7 @@ import (
 	sharedModels "mini-roles-backend/source/domains/shared/models"
 	"mini-roles-backend/source/domains/shared/services/hash"
 	"mini-roles-backend/source/domains/shared/services/response_factory"
+	"mini-roles-backend/source/domains/shared/services/validation"
 )
 
 type Service struct {
@@ -30,15 +30,12 @@ func New(
 }
 
 func (s Service) CreateResource(request request.CreateResource) shared.Response {
-	err := validator.New().Struct(request)
-	if err != nil {
-		return response_factory.ClientError(sharedError.ServiceError{
-			Code:        sharedError.ValidationErrorCode,
-			Description: err.Error(),
-		})
+	invalidRequestResponse := validation.MakeErrorResponse(request)
+	if invalidRequestResponse != nil {
+		return invalidRequestResponse
 	}
 
-	err = s.resourceRepository.Create(request.AccountId, request.Resource)
+	err := s.resourceRepository.Create(request.AccountId, request.Resource)
 	if err != nil {
 		if errors.As(err, &sharedError.DuplicateUniqueKey{}) {
 			return response_factory.ClientError(sharedError.ServiceError{
@@ -107,12 +104,9 @@ func (s Service) generateResourcePermissions(resource sharedModels.Resource) []s
 }
 
 func (s Service) ResourcesList(request request.ResourcesList) shared.Response {
-	err := validator.New().Struct(request)
-	if err != nil {
-		return response_factory.ClientError(sharedError.ServiceError{
-			Code:        sharedError.ValidationErrorCode,
-			Description: err.Error(),
-		})
+	invalidRequestResponse := validation.MakeErrorResponse(request)
+	if invalidRequestResponse != nil {
+		return invalidRequestResponse
 	}
 
 	resources, err := s.resourceRepository.List(request.AccountId)
@@ -129,15 +123,12 @@ func (s Service) ResourcesList(request request.ResourcesList) shared.Response {
 }
 
 func (s Service) UpdateResource(request request.UpdateResource) shared.Response {
-	err := validator.New().Struct(request)
-	if err != nil {
-		return response_factory.ClientError(sharedError.ServiceError{
-			Code:        sharedError.ValidationErrorCode,
-			Description: err.Error(),
-		})
+	invalidRequestResponse := validation.MakeErrorResponse(request)
+	if invalidRequestResponse != nil {
+		return invalidRequestResponse
 	}
 
-	err = s.resourceRepository.Update(request.AccountId, request.Resource)
+	err := s.resourceRepository.Update(request.AccountId, request.Resource)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"resource": request.Resource,
@@ -153,15 +144,12 @@ func (s Service) UpdateResource(request request.UpdateResource) shared.Response 
 }
 
 func (s Service) DeleteResource(request request.DeleteResource) shared.Response {
-	err := validator.New().Struct(request)
-	if err != nil {
-		return response_factory.ClientError(sharedError.ServiceError{
-			Code:        sharedError.ValidationErrorCode,
-			Description: err.Error(),
-		})
+	invalidRequestResponse := validation.MakeErrorResponse(request)
+	if invalidRequestResponse != nil {
+		return invalidRequestResponse
 	}
 
-	err = s.resourceRepository.Delete(request.AccountId, request.ResourceId)
+	err := s.resourceRepository.Delete(request.AccountId, request.ResourceId)
 	if err != nil {
 		log.Errorf("Unable to update resource in DB: %v", err)
 

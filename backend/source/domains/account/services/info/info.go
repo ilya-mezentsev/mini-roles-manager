@@ -2,7 +2,6 @@ package info
 
 import (
 	"errors"
-	"github.com/go-playground/validator/v10"
 	log "github.com/sirupsen/logrus"
 	"mini-roles-backend/source/domains/account/interfaces"
 	"mini-roles-backend/source/domains/account/models"
@@ -11,6 +10,7 @@ import (
 	sharedError "mini-roles-backend/source/domains/shared/error"
 	sharedInterfaces "mini-roles-backend/source/domains/shared/interfaces"
 	"mini-roles-backend/source/domains/shared/services/response_factory"
+	"mini-roles-backend/source/domains/shared/services/validation"
 )
 
 type Service struct {
@@ -22,12 +22,9 @@ func New(repository interfaces.AccountInfoRepository) Service {
 }
 
 func (s Service) GetInfo(request request.GetInfoRequest) sharedInterfaces.Response {
-	err := validator.New().Struct(request)
-	if err != nil {
-		return response_factory.ClientError(sharedError.ServiceError{
-			Code:        sharedError.ValidationErrorCode,
-			Description: err.Error(),
-		})
+	invalidRequestResponse := validation.MakeErrorResponse(request)
+	if invalidRequestResponse != nil {
+		return invalidRequestResponse
 	}
 
 	info, err := s.repository.FetchInfo(request.AccountId)
@@ -44,14 +41,12 @@ func (s Service) GetInfo(request request.GetInfoRequest) sharedInterfaces.Respon
 }
 
 func (s Service) UpdateCredentials(request request.UpdateCredentialsRequest) sharedInterfaces.Response {
-	err := validator.New().Struct(request)
-	if err != nil {
-		return response_factory.ClientError(sharedError.ServiceError{
-			Code:        sharedError.ValidationErrorCode,
-			Description: err.Error(),
-		})
+	invalidRequestResponse := validation.MakeErrorResponse(request)
+	if invalidRequestResponse != nil {
+		return invalidRequestResponse
 	}
 
+	var err error
 	if request.Credentials.Password == "" {
 		err = s.repository.UpdateLogin(request.AccountId, request.Credentials.Login)
 	} else {

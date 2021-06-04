@@ -9,6 +9,7 @@ import (
 	"mini-roles-backend/source/domains/account/services/shared"
 	sharedError "mini-roles-backend/source/domains/shared/error"
 	"mini-roles-backend/source/domains/shared/services/response_factory"
+	"mini-roles-backend/source/domains/shared/services/validation"
 	"testing"
 )
 
@@ -47,7 +48,11 @@ func TestService_RegisterValidationError(t *testing.T) {
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
 	assert.Equal(t, sharedError.ValidationErrorCode, response.Data().(sharedError.ServiceError).Code)
-	assert.Equal(t, validator.New().Struct(req).Error(), response.Data().(sharedError.ServiceError).Description)
+	assert.Equal(
+		t,
+		validation.MakeFailedValidationDescription(validator.New().Struct(req)),
+		response.Data().(sharedError.ServiceError).Description,
+	)
 }
 
 func TestService_RegisterLoginExistsError(t *testing.T) {

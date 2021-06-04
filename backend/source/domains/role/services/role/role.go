@@ -2,13 +2,13 @@ package role
 
 import (
 	"errors"
-	"github.com/go-playground/validator/v10"
 	log "github.com/sirupsen/logrus"
 	"mini-roles-backend/source/domains/role/interfaces"
 	"mini-roles-backend/source/domains/role/request"
 	sharedError "mini-roles-backend/source/domains/shared/error"
 	shared "mini-roles-backend/source/domains/shared/interfaces"
 	"mini-roles-backend/source/domains/shared/services/response_factory"
+	"mini-roles-backend/source/domains/shared/services/validation"
 )
 
 type Service struct {
@@ -20,15 +20,12 @@ func New(repository interfaces.RoleRepository) Service {
 }
 
 func (s Service) Create(request request.CreateRole) shared.Response {
-	err := validator.New().Struct(request)
-	if err != nil {
-		return response_factory.ClientError(sharedError.ServiceError{
-			Code:        sharedError.ValidationErrorCode,
-			Description: err.Error(),
-		})
+	invalidRequestResponse := validation.MakeErrorResponse(request)
+	if invalidRequestResponse != nil {
+		return invalidRequestResponse
 	}
 
-	err = s.repository.Create(request.AccountId, request.Role)
+	err := s.repository.Create(request.AccountId, request.Role)
 	if err != nil {
 		if errors.As(err, &sharedError.DuplicateUniqueKey{}) {
 			return response_factory.ClientError(sharedError.ServiceError{
@@ -51,12 +48,9 @@ func (s Service) Create(request request.CreateRole) shared.Response {
 }
 
 func (s Service) RolesList(request request.RolesList) shared.Response {
-	err := validator.New().Struct(request)
-	if err != nil {
-		return response_factory.ClientError(sharedError.ServiceError{
-			Code:        sharedError.ValidationErrorCode,
-			Description: err.Error(),
-		})
+	invalidRequestResponse := validation.MakeErrorResponse(request)
+	if invalidRequestResponse != nil {
+		return invalidRequestResponse
 	}
 
 	roles, err := s.repository.List(request.AccountId)
@@ -73,15 +67,12 @@ func (s Service) RolesList(request request.RolesList) shared.Response {
 }
 
 func (s Service) UpdateRole(request request.UpdateRole) shared.Response {
-	err := validator.New().Struct(request)
-	if err != nil {
-		return response_factory.ClientError(sharedError.ServiceError{
-			Code:        sharedError.ValidationErrorCode,
-			Description: err.Error(),
-		})
+	invalidRequestResponse := validation.MakeErrorResponse(request)
+	if invalidRequestResponse != nil {
+		return invalidRequestResponse
 	}
 
-	err = s.repository.Update(request.AccountId, request.Role)
+	err := s.repository.Update(request.AccountId, request.Role)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"role": request.Role,
@@ -97,15 +88,12 @@ func (s Service) UpdateRole(request request.UpdateRole) shared.Response {
 }
 
 func (s Service) DeleteRole(request request.DeleteRole) shared.Response {
-	err := validator.New().Struct(request)
-	if err != nil {
-		return response_factory.ClientError(sharedError.ServiceError{
-			Code:        sharedError.ValidationErrorCode,
-			Description: err.Error(),
-		})
+	invalidRequestResponse := validation.MakeErrorResponse(request)
+	if invalidRequestResponse != nil {
+		return invalidRequestResponse
 	}
 
-	err = s.repository.Delete(request.AccountId, request.RoleId)
+	err := s.repository.Delete(request.AccountId, request.RoleId)
 	if err != nil {
 		log.Errorf("Unable to delete role: %v", err)
 

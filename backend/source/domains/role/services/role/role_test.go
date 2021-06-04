@@ -11,6 +11,7 @@ import (
 	sharedMock "mini-roles-backend/source/domains/shared/mock"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
 	"mini-roles-backend/source/domains/shared/services/response_factory"
+	"mini-roles-backend/source/domains/shared/services/validation"
 	"os"
 	"testing"
 )
@@ -79,7 +80,11 @@ func TestService_CreateValidationError(t *testing.T) {
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
 	assert.Equal(t, sharedError.ValidationErrorCode, response.Data().(sharedError.ServiceError).Code)
-	assert.Equal(t, validator.New().Struct(req).Error(), response.Data().(sharedError.ServiceError).Description)
+	assert.Equal(
+		t,
+		validation.MakeFailedValidationDescription(validator.New().Struct(req)),
+		response.Data().(sharedError.ServiceError).Description,
+	)
 }
 
 func TestService_CreateDBError(t *testing.T) {
@@ -132,7 +137,11 @@ func TestService_RolesListValidationError(t *testing.T) {
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
 	assert.Equal(t, sharedError.ValidationErrorCode, response.Data().(sharedError.ServiceError).Code)
-	assert.Equal(t, validator.New().Struct(req).Error(), response.Data().(sharedError.ServiceError).Description)
+	assert.Equal(
+		t,
+		validation.MakeFailedValidationDescription(validator.New().Struct(req)),
+		response.Data().(sharedError.ServiceError).Description,
+	)
 }
 
 func TestService_RolesListDBError(t *testing.T) {
@@ -176,7 +185,11 @@ func TestService_UpdateRoleValidationError(t *testing.T) {
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
 	assert.Equal(t, sharedError.ValidationErrorCode, response.Data().(sharedError.ServiceError).Code)
-	assert.Equal(t, validator.New().Struct(req).Error(), response.Data().(sharedError.ServiceError).Description)
+	assert.Equal(
+		t,
+		validation.MakeFailedValidationDescription(validator.New().Struct(req)),
+		response.Data().(sharedError.ServiceError).Description,
+	)
 }
 
 func TestService_UpdateRoleDBError(t *testing.T) {
@@ -216,7 +229,11 @@ func TestService_DeleteRoleValidationError(t *testing.T) {
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
 	assert.Equal(t, sharedError.ValidationErrorCode, response.Data().(sharedError.ServiceError).Code)
-	assert.Equal(t, validator.New().Struct(req).Error(), response.Data().(sharedError.ServiceError).Description)
+	assert.Equal(
+		t,
+		validation.MakeFailedValidationDescription(validator.New().Struct(req)),
+		response.Data().(sharedError.ServiceError).Description,
+	)
 }
 
 func TestService_DeleteRoleDBError(t *testing.T) {
