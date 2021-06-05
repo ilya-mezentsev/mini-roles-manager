@@ -5,7 +5,6 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
-	"mini-roles-backend/source/domains/role/mock"
 	"mini-roles-backend/source/domains/role/request"
 	sharedError "mini-roles-backend/source/domains/shared/error"
 	sharedMock "mini-roles-backend/source/domains/shared/mock"
@@ -17,9 +16,9 @@ import (
 )
 
 var (
-	mockRepository      = &mock.RoleRepository{}
+	mockRepository      = &sharedMock.RoleRepository{}
 	expectedOkStatus    = response_factory.DefaultResponse().ApplicationStatus()
-	expectedErrorStatus = response_factory.ServerError(nil).ApplicationStatus()
+	expectedErrorStatus = response_factory.EmptyServerError().ApplicationStatus()
 )
 
 func init() {

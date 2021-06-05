@@ -16,8 +16,8 @@ $ curl localhost:8000/api/public/permissions?roleId=role-1&resourceId=resource-1
   -H "X-RM-Auth-Token: YOUR_API_TOKEN"
 ```
 
-#### Request body:
-All parameters are required
+#### Request parameters:
+All parameters required
 * roleId - id of user role
 * resourceId - id of resource
 * operation - operation that user is going to perform under resource (create, read, update or delete)

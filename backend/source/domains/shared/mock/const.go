@@ -8,6 +8,8 @@ import (
 var (
 	BadAccountId  = shared.AccountId(hash.Md5WithTimeAsKey("bad-account-id"))
 	BadResourceId = shared.ResourceId("bad-resource-id")
+
+	BadAccountIdForRoleRepository = shared.AccountId(hash.Md5WithTimeAsKey("bad-account-id-for-role"))
 )
 
 var (

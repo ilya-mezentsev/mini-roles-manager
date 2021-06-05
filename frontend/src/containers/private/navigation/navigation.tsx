@@ -1,4 +1,8 @@
-import { About, SharedAppNavigation, NavigationRoute } from '../../../components/shared';
+import {
+    About,
+    SharedAppNavigation,
+    NavigationRoute,
+} from '../../../components/shared';
 import {
     Resources,
     Roles,
@@ -6,6 +10,7 @@ import {
     SignOut,
 } from '../connected';
 import { SecondaryButton } from '../../../components/shared/navigation/navigation.types';
+import { Files } from '../files/files';
 
 const routes: NavigationRoute[] = [
     {
@@ -17,6 +22,11 @@ const routes: NavigationRoute[] = [
         path: '/roles',
         name: 'Roles',
         component: () => <Roles/>
+    },
+    {
+        path: '/files',
+        name: 'Import / Export',
+        component: () => <Files/>,
     },
     {
         path: '/account',

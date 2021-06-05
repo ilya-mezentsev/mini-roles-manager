@@ -45,6 +45,15 @@ func TestClientErrorResponse(t *testing.T) {
 	assert.Equal(t, someData, response.Data())
 }
 
+func TestEmptyClientError(t *testing.T) {
+	response := EmptyClientError()
+
+	assert.Equal(t, statusError, response.ApplicationStatus())
+	assert.False(t, response.HasData())
+	assert.Equal(t, http.StatusBadRequest, response.HttpStatus())
+	assert.Nil(t, response.Data())
+}
+
 func TestForbiddenErrorResponse(t *testing.T) {
 	someData := `data`
 	response := ForbiddenError(someData)
@@ -63,4 +72,13 @@ func TestUnauthorizedErrorResponse(t *testing.T) {
 	assert.True(t, response.HasData())
 	assert.Equal(t, http.StatusUnauthorized, response.HttpStatus())
 	assert.Equal(t, someData, response.Data())
+}
+
+func TestEmptyServerError(t *testing.T) {
+	response := EmptyServerError()
+
+	assert.Equal(t, statusError, response.ApplicationStatus())
+	assert.False(t, response.HasData())
+	assert.Equal(t, http.StatusInternalServerError, response.HttpStatus())
+	assert.Nil(t, response.Data())
 }

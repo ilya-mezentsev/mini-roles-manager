@@ -1,27 +1,35 @@
 package response_factory
 
-import "mini-roles-backend/source/domains/shared/interfaces"
+import sharedInterfaces "mini-roles-backend/source/domains/shared/interfaces"
 
-func DefaultResponse() interfaces.Response {
+func DefaultResponse() sharedInterfaces.Response {
 	return defaultResponse{}
 }
 
-func SuccessResponse(data interface{}) interfaces.Response {
+func SuccessResponse(data interface{}) sharedInterfaces.Response {
 	return successResponse{defaultResponse{data}}
 }
 
-func ServerError(data interface{}) interfaces.Response {
+func ServerError(data interface{}) sharedInterfaces.Response {
 	return serverErrorResponse{defaultResponse{data}}
 }
 
-func ClientError(data interface{}) interfaces.Response {
+func EmptyServerError() sharedInterfaces.Response {
+	return ServerError(nil)
+}
+
+func ClientError(data interface{}) sharedInterfaces.Response {
 	return clientErrorResponse{defaultResponse{data}}
 }
 
-func ForbiddenError(data interface{}) interfaces.Response {
+func EmptyClientError() sharedInterfaces.Response {
+	return ClientError(nil)
+}
+
+func ForbiddenError(data interface{}) sharedInterfaces.Response {
 	return forbiddenErrorResponse{defaultResponse{data}}
 }
 
-func UnauthorizedError(data interface{}) interfaces.Response {
+func UnauthorizedError(data interface{}) sharedInterfaces.Response {
 	return unauthorizedErrorResponse{defaultResponse{data}}
 }

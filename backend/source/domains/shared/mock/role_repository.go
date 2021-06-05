@@ -3,7 +3,6 @@ package mock
 import (
 	"errors"
 	sharedError "mini-roles-backend/source/domains/shared/error"
-	sharedMock "mini-roles-backend/source/domains/shared/mock"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
 )
 
@@ -13,9 +12,9 @@ type RoleRepository struct {
 
 func (r *RoleRepository) Reset() {
 	r.roles = map[sharedModels.AccountId][]sharedModels.Role{
-		sharedMock.ExistsAccountId: {
+		ExistsAccountId: {
 			{
-				Id:    sharedMock.ExistsRoleId,
+				Id:    ExistsRoleId,
 				Title: "Some-Role",
 			},
 		},
@@ -47,7 +46,7 @@ func (r RoleRepository) Get(roleId sharedModels.RoleId) (role sharedModels.Role)
 }
 
 func (r *RoleRepository) Create(accountId sharedModels.AccountId, role sharedModels.Role) error {
-	if accountId == sharedMock.BadAccountId {
+	if accountId == BadAccountId {
 		return errors.New("some-error")
 	} else if r.Has(role) {
 		return sharedError.DuplicateUniqueKey{}
@@ -59,7 +58,7 @@ func (r *RoleRepository) Create(accountId sharedModels.AccountId, role sharedMod
 }
 
 func (r RoleRepository) List(accountId sharedModels.AccountId) ([]sharedModels.Role, error) {
-	if accountId == sharedMock.BadAccountId {
+	if accountId == BadAccountId || accountId == BadAccountIdForRoleRepository {
 		return nil, errors.New("some-error")
 	}
 
@@ -67,7 +66,7 @@ func (r RoleRepository) List(accountId sharedModels.AccountId) ([]sharedModels.R
 }
 
 func (r *RoleRepository) Update(accountId sharedModels.AccountId, role sharedModels.Role) error {
-	if accountId == sharedMock.BadAccountId {
+	if accountId == BadAccountId {
 		return errors.New("some-error")
 	}
 
@@ -81,7 +80,7 @@ func (r *RoleRepository) Update(accountId sharedModels.AccountId, role sharedMod
 }
 
 func (r *RoleRepository) Delete(accountId sharedModels.AccountId, roleId sharedModels.RoleId) error {
-	if accountId == sharedMock.BadAccountId {
+	if accountId == BadAccountId {
 		return errors.New("some-error")
 	}
 

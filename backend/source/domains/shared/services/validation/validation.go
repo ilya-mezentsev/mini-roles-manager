@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"github.com/go-playground/validator/v10"
 	sharedError "mini-roles-backend/source/domains/shared/error"
-	shared "mini-roles-backend/source/domains/shared/interfaces"
+	sharedInterfaces "mini-roles-backend/source/domains/shared/interfaces"
 	"mini-roles-backend/source/domains/shared/services/response_factory"
 	"strings"
 )
 
-func MakeErrorResponse(request interface{}) shared.Response {
+func MakeErrorResponse(request interface{}) sharedInterfaces.Response {
 	err := validator.New().Struct(request)
 	if err != nil {
 		return response_factory.ClientError(sharedError.ServiceError{

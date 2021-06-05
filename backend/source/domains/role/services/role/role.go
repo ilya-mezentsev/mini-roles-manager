@@ -6,7 +6,7 @@ import (
 	"mini-roles-backend/source/domains/role/interfaces"
 	"mini-roles-backend/source/domains/role/request"
 	sharedError "mini-roles-backend/source/domains/shared/error"
-	shared "mini-roles-backend/source/domains/shared/interfaces"
+	sharedInterfaces "mini-roles-backend/source/domains/shared/interfaces"
 	"mini-roles-backend/source/domains/shared/services/response_factory"
 	"mini-roles-backend/source/domains/shared/services/validation"
 )
@@ -19,7 +19,7 @@ func New(repository interfaces.RoleRepository) Service {
 	return Service{repository}
 }
 
-func (s Service) Create(request request.CreateRole) shared.Response {
+func (s Service) Create(request request.CreateRole) sharedInterfaces.Response {
 	invalidRequestResponse := validation.MakeErrorResponse(request)
 	if invalidRequestResponse != nil {
 		return invalidRequestResponse
@@ -47,7 +47,7 @@ func (s Service) Create(request request.CreateRole) shared.Response {
 	return response_factory.DefaultResponse()
 }
 
-func (s Service) RolesList(request request.RolesList) shared.Response {
+func (s Service) RolesList(request request.RolesList) sharedInterfaces.Response {
 	invalidRequestResponse := validation.MakeErrorResponse(request)
 	if invalidRequestResponse != nil {
 		return invalidRequestResponse
@@ -66,7 +66,7 @@ func (s Service) RolesList(request request.RolesList) shared.Response {
 	return response_factory.SuccessResponse(roles)
 }
 
-func (s Service) UpdateRole(request request.UpdateRole) shared.Response {
+func (s Service) UpdateRole(request request.UpdateRole) sharedInterfaces.Response {
 	invalidRequestResponse := validation.MakeErrorResponse(request)
 	if invalidRequestResponse != nil {
 		return invalidRequestResponse
@@ -87,7 +87,7 @@ func (s Service) UpdateRole(request request.UpdateRole) shared.Response {
 	return response_factory.DefaultResponse()
 }
 
-func (s Service) DeleteRole(request request.DeleteRole) shared.Response {
+func (s Service) DeleteRole(request request.DeleteRole) sharedInterfaces.Response {
 	invalidRequestResponse := validation.MakeErrorResponse(request)
 	if invalidRequestResponse != nil {
 		return invalidRequestResponse

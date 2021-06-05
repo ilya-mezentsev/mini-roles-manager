@@ -17,11 +17,11 @@ import (
 )
 
 var (
-	mockResourceRepository   = &mock.ResourceRepository{}
+	mockResourceRepository   = &sharedMock.ResourceRepository{}
 	mockPermissionRepository = &mock.PermissionRepository{}
 	service                  = New(mockResourceRepository, mockPermissionRepository)
 	expectedOkStatus         = response_factory.DefaultResponse().ApplicationStatus()
-	expectedErrorStatus      = response_factory.ServerError(nil).ApplicationStatus()
+	expectedErrorStatus      = response_factory.EmptyServerError().ApplicationStatus()
 )
 
 func init() {
