@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { bindActionCreators } from 'redux';
 import {
     Button,
@@ -32,6 +32,9 @@ export const CheckPermissions = (props: CheckPermissionsProps) => {
     const [roleId, setRoleId] = useState('');
     const [resourceId, setResourceId] = useState('');
     const [operation, setOperation] = useState(Operation.CREATE);
+
+    // eslint-disable-next-line
+    useEffect(() => () => props.cleanFetchPermissionResult(), []);
 
     return (
         <>

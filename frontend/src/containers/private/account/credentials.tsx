@@ -21,6 +21,9 @@ export const Credentials = (props: CredentialsProps) => {
         setLogin(props.accountInfoResult?.info.login || '');
     }, [props.accountInfoResult?.info.login]);
 
+    // eslint-disable-next-line
+    useEffect(() => () => props.cleanUpdateCredentialsErrorAction(), []);
+
     const updateCredentials = () => {
         props.updateCredentialsAction({
             login,

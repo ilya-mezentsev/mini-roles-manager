@@ -12,9 +12,8 @@ Deployment instructions is available [here](./deployment.md)
 After you created account, needed resources and roles, added permissions for your roles you can use API for checking access for users. <br/>
 The simplest example of API call is cURL:
 ```bash
-$ curl -X POST localhost:8000/api/permissions \ 
-  -H "X-RM-Auth-Token: YOUR_API_TOKEN" \ 
-  -d '{"roleId": "role-1", "resourceId": "resource-1", "operation": "create"}'
+$ curl localhost:8000/api/public/permissions?roleId=role-1&resourceId=resource-1&operation=create \ 
+  -H "X-RM-Auth-Token: YOUR_API_TOKEN"
 ```
 
 #### Request body:
@@ -52,7 +51,7 @@ HTTP 200 Ok
 {
   "data": {
     "code": "validation-error",
-    "description": "Key: 'PermissionAccess.Operation' Error:Field validation for 'Operation' failed on the 'oneof' tag"
+    "description": "Validation failed. Field - PermissionAccess.Operation. Failed rule - required"
   },
   "status":"error"
 }

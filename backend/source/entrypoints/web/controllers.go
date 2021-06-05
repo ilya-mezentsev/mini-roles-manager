@@ -39,34 +39,36 @@ func Init(
 	resourceController := resourceControllerConstructor.New(resourceService)
 	roleController := roleControllerConstructor.New(roleService)
 
-	r.POST("/registration/user", accountController.Register)
+	webAppGroup := r.Group("/web-app")
 
-	r.GET("/session", accountController.Login)
-	r.POST("/session", accountController.SignIn)
-	r.DELETE("/session", accountController.SignOut)
+	webAppGroup.POST("/registration/user", accountController.Register)
 
-	cookieTokenAuthorized := r.Group("/")
-	cookieTokenAuthorized.Use(checkCookieMiddleware.HasSessionInCookie())
+	webAppGroup.GET("/session", accountController.Login)
+	webAppGroup.POST("/session", accountController.SignIn)
+	webAppGroup.DELETE("/session", accountController.SignOut)
+
+	cookieTokenAuthorizedGroup := webAppGroup.Group("/")
+	cookieTokenAuthorizedGroup.Use(checkCookieMiddleware.HasSessionInCookie())
 	{
-		cookieTokenAuthorized.GET("/account/info", accountController.GetAccountInfo)
-		cookieTokenAuthorized.PATCH("/account/credentials", accountController.UpdateCredentials)
+		cookieTokenAuthorizedGroup.GET("/account/info", accountController.GetAccountInfo)
+		cookieTokenAuthorizedGroup.PATCH("/account/credentials", accountController.UpdateCredentials)
 
-		cookieTokenAuthorized.POST("/check-permissions", permissionController.ResolveResourceAccessEffect)
+		cookieTokenAuthorizedGroup.GET("/permissions", permissionController.ResolveResourceAccessEffect)
 
-		cookieTokenAuthorized.GET("/resources", resourceController.ResourcesList)
-		cookieTokenAuthorized.POST("/resource", resourceController.CreateResource)
-		cookieTokenAuthorized.PATCH("/resource", resourceController.UpdateResource)
-		cookieTokenAuthorized.DELETE("/resource/:resource_id", resourceController.DeleteResource)
+		cookieTokenAuthorizedGroup.GET("/resources", resourceController.ResourcesList)
+		cookieTokenAuthorizedGroup.POST("/resource", resourceController.CreateResource)
+		cookieTokenAuthorizedGroup.PATCH("/resource", resourceController.UpdateResource)
+		cookieTokenAuthorizedGroup.DELETE("/resource/:resource_id", resourceController.DeleteResource)
 
-		cookieTokenAuthorized.GET("/roles", roleController.RolesList)
-		cookieTokenAuthorized.POST("/role", roleController.CreateRole)
-		cookieTokenAuthorized.PATCH("/role", roleController.UpdateRole)
-		cookieTokenAuthorized.DELETE("/role/:role_id", roleController.DeleteRole)
+		cookieTokenAuthorizedGroup.GET("/roles", roleController.RolesList)
+		cookieTokenAuthorizedGroup.POST("/role", roleController.CreateRole)
+		cookieTokenAuthorizedGroup.PATCH("/role", roleController.UpdateRole)
+		cookieTokenAuthorizedGroup.DELETE("/role/:role_id", roleController.DeleteRole)
 	}
 
-	headerTokenAuthorized := r.Group("/")
+	headerTokenAuthorized := r.Group("/public")
 	headerTokenAuthorized.Use(checkHeaderMiddleware.HasSessionInHeader())
 	{
-		headerTokenAuthorized.POST("/permissions", permissionController.ResolveResourceAccessEffect)
+		headerTokenAuthorized.GET("/permissions", permissionController.ResolveResourceAccessEffect)
 	}
 }

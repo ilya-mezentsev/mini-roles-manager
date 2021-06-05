@@ -128,9 +128,9 @@ export const ApiDesc = () => {
                     <Typography>
                         <pre>
                             <code>
-                                curl -X POST localhost:8000/api/permissions \ <br/>
-                                    -H "X-RM-Auth-Token: YOUR_API_TOKEN" \ <br/>
-                                    -d '{"{"}"roleId": "role-1", "resourceId": "resource-1", "operation": "create"{"}"}'
+                                curl "localhost:8000/api/public/permissions" \ <br/>
+                                &nbsp; "?roleId=role-1&resourceId=resource-1&operation=create" \ <br/>
+                                &nbsp; -H "X-RM-Auth-Token: YOUR_API_TOKEN"
                             </code>
                         </pre>
                     </Typography>
@@ -152,17 +152,17 @@ export const ApiDesc = () => {
                                 const fetch = require('node-fetch'); <br/> <br/>
 
                                 fetch(<br/>
-                                    &nbsp; 'http://localhost:8000/api/permissions', <br/>
+                                    &nbsp; 'http://localhost:8000/api/public/permissions' + new URLSearchParams({"{"}, <br/>
+                                    &nbsp; &nbsp; roleId: 'role-1', <br/>
+                                    &nbsp; &nbsp; resourceId: 'resource-1', <br/>
+                                    &nbsp; &nbsp; operation: 'create' <br/>
+                                    &nbsp; {"}"}, <br/>
                                     &nbsp; {"{"} <br/>
-                                    &nbsp; &nbsp; method: 'POST', <br/>
+                                    &nbsp; &nbsp; method: 'GET', <br/>
                                     &nbsp; &nbsp; headers: {"{"} <br/>
                                     &nbsp; &nbsp; &nbsp; 'X-RM-Auth-Token': 'YOUR_API_TOKEN', <br/>
                                     &nbsp; &nbsp; {"},"} <br/>
-                                    &nbsp; &nbsp; body: JSON.stringify({"{"} <br/>
-                                    &nbsp; &nbsp; &nbsp; roleId: 'role-1', <br/>
-                                    &nbsp; &nbsp; &nbsp; resourceId: 'resource-1', <br/>
-                                    &nbsp; &nbsp; &nbsp; operation: 'create' <br/>
-                                    &nbsp; &nbsp; {"}"}, <br/>
+                                    &nbsp; {"}"}, <br/>
                                 );
                             </code>
                         </pre>
@@ -185,9 +185,9 @@ export const ApiDesc = () => {
                                 import requests
                                 <br/> <br/>
                                 requests.post( <br/>
-                                    &nbsp; url='http://localhost:8000/api/permissions', <br/>
+                                    &nbsp; url='http://localhost:8000/api/public/permissions', <br/>
                                     &nbsp; headers={"{"}'X-RM-Auth-Token': 'YOUR_API_TOKEN'{"}"}, <br/>
-                                    &nbsp; json={"{"} <br/>
+                                    &nbsp; params={"{"} <br/>
                                     &nbsp; &nbsp; 'roleId': 'role-1', <br/>
                                     &nbsp; &nbsp; 'resourceId': 'resource-1', <br/>
                                     &nbsp; &nbsp; 'operation': 'create' <br/>
