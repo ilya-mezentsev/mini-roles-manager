@@ -8,3 +8,14 @@ export function removeLeadingAndTrailingSlashes(path: string): string {
 
     return path;
 }
+
+
+export function makeQueryParams(params: {[key: string]: string} | null = null): string {
+    if (params) {
+        return '?' + Object.entries(params)
+            .map(([key, value]) => `${key}=${value}`)
+            .join('&');
+    } else {
+        return '';
+    }
+}

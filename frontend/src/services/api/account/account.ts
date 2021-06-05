@@ -68,8 +68,8 @@ export async function updateCredentials(credentials: AccountCredentials): Promis
 }
 
 export async function fetchPermission(request: PermissionAccessRequest): Promise<ParsedAPIResponse<ResponseData<PermissionAccessResponse>>> {
-    const response = await POST<APIResponse<PermissionAccessResponse>>(
-        '/check-permissions',
+    const response = await GET<APIResponse<PermissionAccessResponse>>(
+        '/permissions',
         { ...request },
     );
 

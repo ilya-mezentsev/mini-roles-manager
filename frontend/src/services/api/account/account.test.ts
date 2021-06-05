@@ -177,14 +177,14 @@ describe('account api tests', () => {
             resourceId: 'resource-1',
         }
         // @ts-ignore
-        request.POST = jest.fn().mockResolvedValue({
+        request.GET = jest.fn().mockResolvedValue({
             status: APIResponseStatus.OK,
             data: 'some-data',
         });
 
         const response = await fetchPermission(d);
 
-        expect(request.POST).toBeCalledWith('/check-permissions', { ...d });
+        expect(request.GET).toBeCalledWith('/permissions', d);
         expect(response).toBeInstanceOf(SuccessResponse);
         expect(response.isOk()).toBeTruthy();
         expect(response.data()).toEqual('some-data');

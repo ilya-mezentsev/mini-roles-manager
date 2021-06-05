@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"mini-roles-backend/source/domains/permission/request"
 	"mini-roles-backend/source/domains/permission/services/permission"
+	sharedModels "mini-roles-backend/source/domains/shared/models"
 	"mini-roles-backend/source/entrypoints/web/shared/context_keys"
 	"mini-roles-backend/source/entrypoints/web/shared/presenter"
 )
@@ -17,10 +18,11 @@ func New(service permission.Service) Controller {
 }
 
 func (c Controller) ResolveResourceAccessEffect(context *gin.Context) {
-	var r request.PermissionAccess
-	if err := context.ShouldBindJSON(&r); err != nil {
-		presenter.MakeInvalidJsonResponse(context)
-		return
+	requestQuery := context.Request.URL.Query()
+	r := request.PermissionAccess{
+		RoleId:     sharedModels.RoleId(requestQuery.Get("roleId")),
+		ResourceId: sharedModels.ResourceId(requestQuery.Get("resourceId")),
+		Operation:  requestQuery.Get("operation"),
 	}
 
 	presenter.MakeJsonResponse(

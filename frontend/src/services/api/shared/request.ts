@@ -1,9 +1,12 @@
-import { removeLeadingAndTrailingSlashes } from './helpers';
+import { removeLeadingAndTrailingSlashes, makeQueryParams } from './helpers';
 import { RequestMethod, RequestParams } from './request.types';
 
-export async function GET<T>(path: string): Promise<T | null> {
+export async function GET<T>(
+    path: string,
+    params: {[key: string]: string} | null = null,
+): Promise<T | null> {
     return await request({
-        path: removeLeadingAndTrailingSlashes(path),
+        path: removeLeadingAndTrailingSlashes(path) + makeQueryParams(params),
         method: RequestMethod.GET,
     });
 }
@@ -47,7 +50,7 @@ async function request<T>(params: RequestParams): Promise<T | null> {
     }
 
     const res = await fetch(
-        `/api/${params.path}`,
+        `/api/web-app/${params.path}`,
         options,
     );
     const responseText = await res.text();
