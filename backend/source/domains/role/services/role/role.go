@@ -9,6 +9,7 @@ import (
 	sharedInterfaces "mini-roles-backend/source/domains/shared/interfaces"
 	"mini-roles-backend/source/domains/shared/services/response_factory"
 	"mini-roles-backend/source/domains/shared/services/validation"
+	sharedSpec "mini-roles-backend/source/domains/shared/spec"
 )
 
 type Service struct {
@@ -53,7 +54,9 @@ func (s Service) RolesList(request request.RolesList) sharedInterfaces.Response 
 		return invalidRequestResponse
 	}
 
-	roles, err := s.repository.List(request.AccountId)
+	roles, err := s.repository.List(sharedSpec.AccountWithId{
+		AccountId: request.AccountId,
+	})
 	if err != nil {
 		log.Errorf("Unable to fetch roles from DB: %v", err)
 

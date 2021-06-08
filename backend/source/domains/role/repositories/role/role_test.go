@@ -10,6 +10,7 @@ import (
 	sharedError "mini-roles-backend/source/domains/shared/error"
 	sharedMock "mini-roles-backend/source/domains/shared/mock"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
+	sharedSpec "mini-roles-backend/source/domains/shared/spec"
 	"strings"
 	"testing"
 )
@@ -49,14 +50,18 @@ func TestRepository_ListSuccess(t *testing.T) {
 	)
 	assert.Nil(t, err)
 
-	roles, err := repository.List(sharedMock.ExistsAccountId)
+	roles, err := repository.List(sharedSpec.AccountWithId{
+		AccountId: sharedMock.ExistsAccountId,
+	})
 
 	assert.Nil(t, err)
 	assert.Contains(t, roles, someRole)
 }
 
 func TestRepository_ListSuccessEmpty(t *testing.T) {
-	roles, err := repository.List(sharedMock.ExistsAccountId)
+	roles, err := repository.List(sharedSpec.AccountWithId{
+		AccountId: sharedMock.ExistsAccountId,
+	})
 
 	assert.Nil(t, err)
 	assert.Empty(t, roles)
@@ -167,7 +172,9 @@ func TestRepository_UpdateSuccess(t *testing.T) {
 	err = repository.Update(sharedMock.ExistsAccountId, someRole)
 	assert.Nil(t, err)
 
-	roles, _ := repository.List(sharedMock.ExistsAccountId)
+	roles, _ := repository.List(sharedSpec.AccountWithId{
+		AccountId: sharedMock.ExistsAccountId,
+	})
 	assert.Contains(t, roles, someRole)
 }
 

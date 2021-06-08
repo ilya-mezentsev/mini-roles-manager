@@ -1,7 +1,10 @@
 package interfaces
 
-import shared "mini-roles-backend/source/domains/shared/models"
+import (
+	shared "mini-roles-backend/source/domains/shared/models"
+	sharedSpec "mini-roles-backend/source/domains/shared/spec"
+)
 
 type RolesFetcherRepository interface {
-	List(accountId shared.AccountId) ([]shared.Role, error)
+	List(spec sharedSpec.AccountWithId) ([]shared.Role, error)
 }

@@ -5,7 +5,7 @@ import (
 	"github.com/lib/pq"
 	sharedError "mini-roles-backend/source/domains/shared/error"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
-	sharedRepositories "mini-roles-backend/source/domains/shared/repositories"
+	sharedSpec "mini-roles-backend/source/domains/shared/spec"
 )
 
 const (
@@ -50,7 +50,7 @@ func New(db *sqlx.DB) Repository {
 
 func (r Repository) Create(accountId sharedModels.AccountId, resource sharedModels.Resource) error {
 	_, err := r.db.NamedExec(createResourceQuery, r.mapFromResource(accountId, resource))
-	if sharedRepositories.IsDuplicateKey(err) {
+	if sharedError.IsDuplicateKey(err) {
 		err = sharedError.DuplicateUniqueKey{}
 	}
 
@@ -69,15 +69,20 @@ func (r Repository) mapFromResource(
 	}
 }
 
-func (r Repository) List(accountId sharedModels.AccountId) ([]sharedModels.Resource, error) {
+func (r Repository) List(spec sharedSpec.AccountWithId) ([]sharedModels.Resource, error) {
 	var resources []resourceProxy
-	err := r.db.Select(&resources, selectResourcesQuery, accountId)
+	err := r.db.Select(&resources, selectResourcesQuery, spec.AccountId)
 	if err != nil {
 		return nil, err
 	}
 
 	var permissions []permissionProxy
-	err = r.db.Select(&permissions, selectResourcePermissionsQuery, pq.Array(r.makeResourceIds(resources)), accountId)
+	err = r.db.Select(
+		&permissions,
+		selectResourcePermissionsQuery,
+		pq.Array(r.makeResourceIds(resources)),
+		spec.AccountId,
+	)
 
 	return r.makeResources(resources, permissions), err
 }

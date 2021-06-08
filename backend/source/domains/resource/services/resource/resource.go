@@ -12,6 +12,7 @@ import (
 	"mini-roles-backend/source/domains/shared/services/hash"
 	"mini-roles-backend/source/domains/shared/services/response_factory"
 	"mini-roles-backend/source/domains/shared/services/validation"
+	sharedSpec "mini-roles-backend/source/domains/shared/spec"
 )
 
 type Service struct {
@@ -109,7 +110,9 @@ func (s Service) ResourcesList(request request.ResourcesList) sharedInterfaces.R
 		return invalidRequestResponse
 	}
 
-	resources, err := s.resourceRepository.List(request.AccountId)
+	resources, err := s.resourceRepository.List(sharedSpec.AccountWithId{
+		AccountId: request.AccountId,
+	})
 	if err != nil {
 		log.Errorf("Unable to fetch resources from DB: %v", err)
 

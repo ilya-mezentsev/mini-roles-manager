@@ -5,7 +5,7 @@ import (
 	"mini-roles-backend/source/domains/account/models"
 	sharedError "mini-roles-backend/source/domains/shared/error"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
-	sharedRepositories "mini-roles-backend/source/domains/shared/repositories"
+	sharedSpec "mini-roles-backend/source/domains/shared/spec"
 )
 
 const (
@@ -31,9 +31,9 @@ func New(db *sqlx.DB) Repository {
 	return Repository{db}
 }
 
-func (r Repository) FetchInfo(accountId sharedModels.AccountId) (models.AccountInfo, error) {
+func (r Repository) FetchInfo(spec sharedSpec.AccountWithId) (models.AccountInfo, error) {
 	var info models.AccountInfo
-	err := r.db.Get(&info, fetchAccountInfoQuery, accountId)
+	err := r.db.Get(&info, fetchAccountInfoQuery, spec.AccountId)
 
 	return info, err
 }
@@ -45,7 +45,7 @@ func (r Repository) UpdateCredentials(accountId sharedModels.AccountId, credenti
 }
 
 func (r Repository) parseUpdateError(err error) error {
-	if sharedRepositories.IsDuplicateKey(err) {
+	if sharedError.IsDuplicateKey(err) {
 		err = sharedError.DuplicateUniqueKey{}
 	}
 

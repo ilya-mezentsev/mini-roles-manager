@@ -10,6 +10,7 @@ import (
 	"mini-roles-backend/source/domains/account/models"
 	sharedError "mini-roles-backend/source/domains/shared/error"
 	sharedMock "mini-roles-backend/source/domains/shared/mock"
+	sharedSpec "mini-roles-backend/source/domains/shared/spec"
 	"testing"
 	"time"
 )
@@ -30,7 +31,9 @@ func init() {
 }
 
 func TestRepository_FetchInfoSuccess(t *testing.T) {
-	info, err := repository.FetchInfo(sharedMock.ExistsAccountId)
+	info, err := repository.FetchInfo(sharedSpec.AccountWithId{
+		AccountId: sharedMock.ExistsAccountId,
+	})
 
 	assert.Nil(t, err)
 	assert.Equal(t, mock.ExistsLogin, info.Login)

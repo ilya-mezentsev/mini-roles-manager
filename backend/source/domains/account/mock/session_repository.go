@@ -3,6 +3,7 @@ package mock
 import (
 	"errors"
 	"mini-roles-backend/source/domains/account/models"
+	"mini-roles-backend/source/domains/account/spec"
 	sharedError "mini-roles-backend/source/domains/shared/error"
 	sharedMock "mini-roles-backend/source/domains/shared/mock"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
@@ -20,21 +21,21 @@ func (s *SessionRepository) Reset() {
 	}
 }
 
-func (s SessionRepository) GetSession(credentials models.AccountCredentials) (models.AccountSession, error) {
-	if credentials.Login == BadLogin {
+func (s SessionRepository) GetSession(spec spec.SessionWithCredentials) (models.AccountSession, error) {
+	if spec.Credentials.Login == BadLogin {
 		return models.AccountSession{}, errors.New("some-error")
-	} else if credentials.Login == MissedLogin {
+	} else if spec.Credentials.Login == MissedLogin {
 		return models.AccountSession{}, sharedError.EntryNotFound{}
 	}
 
 	return s.sessions[sharedMock.ExistsAccountId], nil
 }
 
-func (s SessionRepository) SessionExists(session models.AccountSession) (bool, error) {
-	if session.Id == sharedMock.BadAccountId {
+func (s SessionRepository) SessionExists(spec spec.SessionWithId) (bool, error) {
+	if spec.Id == sharedMock.BadAccountId {
 		return false, errors.New("some-error")
 	}
 
-	_, found := s.sessions[session.Id]
+	_, found := s.sessions[spec.Id]
 	return found, nil
 }

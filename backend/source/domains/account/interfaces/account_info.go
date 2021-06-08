@@ -3,11 +3,12 @@ package interfaces
 import (
 	"mini-roles-backend/source/domains/account/models"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
+	sharedSpec "mini-roles-backend/source/domains/shared/spec"
 )
 
 type (
 	AccountInfoRepository interface {
-		FetchInfo(accountId sharedModels.AccountId) (models.AccountInfo, error)
+		FetchInfo(spec sharedSpec.AccountWithId) (models.AccountInfo, error)
 
 		UpdateCredentials(
 			accountId sharedModels.AccountId,

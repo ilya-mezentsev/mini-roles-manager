@@ -8,6 +8,7 @@ import (
 	"mini-roles-backend/source/domains/files/request"
 	sharedMock "mini-roles-backend/source/domains/shared/mock"
 	"mini-roles-backend/source/domains/shared/services/response_factory"
+	sharedSpec "mini-roles-backend/source/domains/shared/spec"
 	"testing"
 )
 
@@ -45,8 +46,12 @@ func TestService_MakeExportFileSuccess(t *testing.T) {
 		t.Fatalf("unable to unmarshal settings to struct: %v", err)
 	}
 
-	resources, _ := mockResourceRepository.List(sharedMock.ExistsAccountId)
-	roles, _ := mockRoleRepository.List(sharedMock.ExistsAccountId)
+	resources, _ := mockResourceRepository.List(sharedSpec.AccountWithId{
+		AccountId: sharedMock.ExistsAccountId,
+	})
+	roles, _ := mockRoleRepository.List(sharedSpec.AccountWithId{
+		AccountId: sharedMock.ExistsAccountId,
+	})
 
 	assert.Equal(
 		t,

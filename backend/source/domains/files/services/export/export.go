@@ -10,6 +10,7 @@ import (
 	sharedModels "mini-roles-backend/source/domains/shared/models"
 	"mini-roles-backend/source/domains/shared/services/response_factory"
 	"mini-roles-backend/source/domains/shared/services/validation"
+	sharedSpec "mini-roles-backend/source/domains/shared/spec"
 	"os"
 )
 
@@ -33,14 +34,18 @@ func (s Service) MakeExportFile(request request.ExportRequest) sharedInterfaces.
 		return response_factory.EmptyClientError()
 	}
 
-	resources, err := s.resourcesFetcherRepository.List(request.AccountId)
+	resources, err := s.resourcesFetcherRepository.List(sharedSpec.AccountWithId{
+		AccountId: request.AccountId,
+	})
 	if err != nil {
 		log.Errorf("Unable to fetch resources from DB: %v", err)
 
 		return response_factory.EmptyServerError()
 	}
 
-	roles, err := s.rolesFetcherRepository.List(request.AccountId)
+	roles, err := s.rolesFetcherRepository.List(sharedSpec.AccountWithId{
+		AccountId: request.AccountId,
+	})
 	if err != nil {
 		log.Errorf("Unable to fetch roles from DB: %v", err)
 

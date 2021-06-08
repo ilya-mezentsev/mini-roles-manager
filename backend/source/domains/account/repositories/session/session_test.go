@@ -7,6 +7,7 @@ import (
 	"mini-roles-backend/source/config"
 	"mini-roles-backend/source/db/connection"
 	"mini-roles-backend/source/domains/account/models"
+	"mini-roles-backend/source/domains/account/spec"
 	sharedError "mini-roles-backend/source/domains/shared/error"
 	sharedMock "mini-roles-backend/source/domains/shared/mock"
 	"testing"
@@ -28,9 +29,11 @@ func init() {
 }
 
 func TestRepository_GetSessionSuccess(t *testing.T) {
-	accountSession, err := repository.GetSession(models.AccountCredentials{
-		Login:    sharedMock.ExistsLogin,
-		Password: sharedMock.ExistsPassword,
+	accountSession, err := repository.GetSession(spec.SessionWithCredentials{
+		Credentials: models.AccountCredentials{
+			Login:    sharedMock.ExistsLogin,
+			Password: sharedMock.ExistsPassword,
+		},
 	})
 
 	assert.Nil(t, err)
@@ -38,16 +41,18 @@ func TestRepository_GetSessionSuccess(t *testing.T) {
 }
 
 func TestRepository_GetSessionNoCredentialsFound(t *testing.T) {
-	_, err := repository.GetSession(models.AccountCredentials{
-		Login:    "foo-bar",
-		Password: sharedMock.ExistsPassword,
+	_, err := repository.GetSession(spec.SessionWithCredentials{
+		Credentials: models.AccountCredentials{
+			Login:    "foo-bar",
+			Password: sharedMock.ExistsPassword,
+		},
 	})
 
 	assert.True(t, errors.As(err, &sharedError.EntryNotFound{}))
 }
 
 func TestRepository_SessionExistsTrue(t *testing.T) {
-	sessionExists, err := repository.SessionExists(models.AccountSession{
+	sessionExists, err := repository.SessionExists(spec.SessionWithId{
 		Id: sharedMock.ExistsAccountId,
 	})
 
@@ -56,7 +61,7 @@ func TestRepository_SessionExistsTrue(t *testing.T) {
 }
 
 func TestRepository_SessionExistsFalse(t *testing.T) {
-	sessionExists, err := repository.SessionExists(models.AccountSession{
+	sessionExists, err := repository.SessionExists(spec.SessionWithId{
 		Id: "foo-bar",
 	})
 

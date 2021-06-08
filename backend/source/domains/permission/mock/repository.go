@@ -2,6 +2,7 @@ package mock
 
 import (
 	"errors"
+	"mini-roles-backend/source/domains/permission/spec"
 	sharedMock "mini-roles-backend/source/domains/shared/mock"
 	shared "mini-roles-backend/source/domains/shared/models"
 )
@@ -46,17 +47,14 @@ func (p *PermissionRepository) Reset() {
 	}
 }
 
-func (p PermissionRepository) List(
-	accountId shared.AccountId,
-	roleId shared.RoleId,
-) ([]shared.Permission, error) {
-	if accountId == sharedMock.BadAccountId {
+func (p PermissionRepository) List(spec spec.PermissionWithAccountIdAndRoleId) ([]shared.Permission, error) {
+	if spec.AccountId == sharedMock.BadAccountId {
 		return nil, errors.New("some-error")
 	}
 
-	rolePermissions, found := p.permissions[accountId]
+	rolePermissions, found := p.permissions[spec.AccountId]
 	if found {
-		return rolePermissions[roleId], nil
+		return rolePermissions[spec.RoleId], nil
 	} else {
 		return nil, nil
 	}

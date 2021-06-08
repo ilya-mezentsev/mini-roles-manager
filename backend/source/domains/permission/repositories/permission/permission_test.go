@@ -7,6 +7,7 @@ import (
 	"mini-roles-backend/source/config"
 	"mini-roles-backend/source/db/connection"
 	"mini-roles-backend/source/domains/permission/mock"
+	"mini-roles-backend/source/domains/permission/spec"
 	sharedMock "mini-roles-backend/source/domains/shared/mock"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
 	"testing"
@@ -34,7 +35,10 @@ func initTestData() {
 }
 
 func TestRepository_ListEmpty(t *testing.T) {
-	permissions, err := repository.List(sharedMock.ExistsAccountId, sharedMock.ExistsRoleId)
+	permissions, err := repository.List(spec.PermissionWithAccountIdAndRoleId{
+		AccountId: sharedMock.ExistsAccountId,
+		RoleId:    sharedMock.ExistsRoleId,
+	})
 
 	assert.Nil(t, err)
 	assert.Empty(t, permissions)
@@ -44,7 +48,10 @@ func TestRepository_ListFlatRolePermissions(t *testing.T) {
 	initTestData()
 	defer sharedMock.MustReinstall(db)
 
-	permissions, err := repository.List(sharedMock.ExistsAccountId, mock.FlatRoleId1)
+	permissions, err := repository.List(spec.PermissionWithAccountIdAndRoleId{
+		AccountId: sharedMock.ExistsAccountId,
+		RoleId:    mock.FlatRoleId1,
+	})
 
 	assert.Nil(t, err)
 	for _, role1Permission := range mock.MakeRole1Permissions() {
@@ -57,7 +64,10 @@ func TestRepository_ListOneDepthLevelExtending(t *testing.T) {
 	addTestOneLevelDepthExtendingRole()
 	defer sharedMock.MustReinstall(db)
 
-	permissions, err := repository.List(sharedMock.ExistsAccountId, mock.OneDepthLevelExtendingRoleId)
+	permissions, err := repository.List(spec.PermissionWithAccountIdAndRoleId{
+		AccountId: sharedMock.ExistsAccountId,
+		RoleId:    mock.OneDepthLevelExtendingRoleId,
+	})
 
 	assert.Nil(t, err)
 	for _, role1Permission := range mock.MakeRole1Permissions() {
@@ -79,7 +89,10 @@ func TestRepository_ListTwoDepthLevelExtending(t *testing.T) {
 	addTestTwoLevelDepthExtendingRole()
 	defer sharedMock.MustReinstall(db)
 
-	permissions, err := repository.List(sharedMock.ExistsAccountId, mock.TwoDepthLevelExtendingRoleId)
+	permissions, err := repository.List(spec.PermissionWithAccountIdAndRoleId{
+		AccountId: sharedMock.ExistsAccountId,
+		RoleId:    mock.TwoDepthLevelExtendingRoleId,
+	})
 
 	assert.Nil(t, err)
 	for _, extendingRolePermission := range mock.Permissions {
@@ -92,7 +105,10 @@ func TestRepository_ListRecursiveRolesExtending(t *testing.T) {
 	addTestRecursiveExtendingRoles()
 	defer sharedMock.MustReinstall(db)
 
-	permissions, err := repository.List(sharedMock.ExistsAccountId, mock.RecursiveExtendingRoleId1)
+	permissions, err := repository.List(spec.PermissionWithAccountIdAndRoleId{
+		AccountId: sharedMock.ExistsAccountId,
+		RoleId:    mock.RecursiveExtendingRoleId1,
+	})
 
 	assert.Nil(t, err)
 	for _, expectedPermission := range append(
@@ -118,7 +134,10 @@ func TestRepository_ListError(t *testing.T) {
 	$$`)
 	defer db.MustExec(dropFunctionQuery)
 
-	_, err := repository.List(sharedMock.ExistsAccountId, sharedMock.ExistsRoleId)
+	_, err := repository.List(spec.PermissionWithAccountIdAndRoleId{
+		AccountId: sharedMock.ExistsAccountId,
+		RoleId:    sharedMock.ExistsRoleId,
+	})
 
 	assert.NotNil(t, err)
 }

@@ -2,6 +2,7 @@ package permission
 
 import (
 	"github.com/jmoiron/sqlx"
+	"mini-roles-backend/source/domains/permission/spec"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
 )
 
@@ -60,17 +61,14 @@ func New(db *sqlx.DB) Repository {
 	return Repository{db}
 }
 
-func (r Repository) List(
-	accountId sharedModels.AccountId,
-	roleId sharedModels.RoleId,
-) ([]sharedModels.Permission, error) {
+func (r Repository) List(spec spec.PermissionWithAccountIdAndRoleId) ([]sharedModels.Permission, error) {
 	_, err := r.db.Exec(createRecursivePermissionsFunctionQuery)
 	if err != nil {
 		return nil, err
 	}
 
 	var proxies []permissionProxy
-	err = r.db.Select(&proxies, selectPermissionsQuery, accountId, roleId)
+	err = r.db.Select(&proxies, selectPermissionsQuery, spec.AccountId, spec.RoleId)
 
 	return r.makePermissions(proxies), err
 }
