@@ -11,6 +11,7 @@ import (
 	sharedMock "mini-roles-backend/source/domains/shared/mock"
 	"mini-roles-backend/source/domains/shared/services/response_factory"
 	"mini-roles-backend/source/domains/shared/services/validation"
+	sharedSpec "mini-roles-backend/source/domains/shared/spec"
 	"testing"
 )
 
@@ -29,7 +30,9 @@ func TestService_GetInfoSuccess(t *testing.T) {
 		AccountId: sharedMock.ExistsAccountId,
 	})
 
-	expectedInfo, _ := mockInfoRepository.FetchInfo(sharedMock.ExistsAccountId)
+	expectedInfo, _ := mockInfoRepository.FetchInfo(sharedSpec.AccountWithId{
+		AccountId: sharedMock.ExistsAccountId,
+	})
 
 	assert.Equal(t, expectedOkStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())

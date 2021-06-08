@@ -5,6 +5,7 @@ import (
 	"mini-roles-backend/source/domains/permission/interfaces"
 	"mini-roles-backend/source/domains/permission/models"
 	"mini-roles-backend/source/domains/permission/request"
+	"mini-roles-backend/source/domains/permission/spec"
 	sharedError "mini-roles-backend/source/domains/shared/error"
 	sharedInterfaces "mini-roles-backend/source/domains/shared/interfaces"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
@@ -29,7 +30,10 @@ func (s Service) HasPermission(
 		return invalidRequestResponse
 	}
 
-	permissions, err := s.repository.List(accountId, request.RoleId)
+	permissions, err := s.repository.List(spec.PermissionWithAccountIdAndRoleId{
+		AccountId: accountId,
+		RoleId:    request.RoleId,
+	})
 	if err != nil {
 		log.Errorf("Unable to fetch permissions from DB: %v", err)
 

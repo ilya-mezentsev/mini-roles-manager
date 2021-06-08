@@ -5,7 +5,7 @@ import (
 	"github.com/lib/pq"
 	sharedError "mini-roles-backend/source/domains/shared/error"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
-	sharedRepositories "mini-roles-backend/source/domains/shared/repositories"
+	sharedSpec "mini-roles-backend/source/domains/shared/spec"
 )
 
 const (
@@ -37,7 +37,7 @@ func New(db *sqlx.DB) Repository {
 
 func (r Repository) Create(accountId sharedModels.AccountId, role sharedModels.Role) error {
 	_, err := r.db.NamedExec(addRoleQuery, r.mapFromRole(accountId, role))
-	if sharedRepositories.IsDuplicateKey(err) {
+	if sharedError.IsDuplicateKey(err) {
 		err = sharedError.DuplicateUniqueKey{}
 	}
 
@@ -54,9 +54,9 @@ func (r Repository) mapFromRole(accountId sharedModels.AccountId, role sharedMod
 	}
 }
 
-func (r Repository) List(accountId sharedModels.AccountId) ([]sharedModels.Role, error) {
+func (r Repository) List(spec sharedSpec.AccountWithId) ([]sharedModels.Role, error) {
 	var roles []roleProxy
-	err := r.db.Select(&roles, selectRolesQuery, accountId)
+	err := r.db.Select(&roles, selectRolesQuery, spec.AccountId)
 
 	return r.makeRoles(roles), err
 }

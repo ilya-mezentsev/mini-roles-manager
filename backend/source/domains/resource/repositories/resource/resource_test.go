@@ -11,6 +11,7 @@ import (
 	sharedError "mini-roles-backend/source/domains/shared/error"
 	sharedMock "mini-roles-backend/source/domains/shared/mock"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
+	sharedSpec "mini-roles-backend/source/domains/shared/spec"
 	"strings"
 	"testing"
 )
@@ -43,7 +44,9 @@ func TestRepository_ListSuccess(t *testing.T) {
 	)
 	assert.Nil(t, err)
 
-	resources, err := repository.List(sharedMock.ExistsAccountId)
+	resources, err := repository.List(sharedSpec.AccountWithId{
+		AccountId: sharedMock.ExistsAccountId,
+	})
 
 	assert.Nil(t, err)
 	assert.Contains(t, resources, someResource)
@@ -89,14 +92,18 @@ func TestRepository_ListSuccessWithPermissions(t *testing.T) {
 		assert.Nil(t, err)
 	}
 
-	resources, err := repository.List(sharedMock.ExistsAccountId)
+	resources, err := repository.List(sharedSpec.AccountWithId{
+		AccountId: sharedMock.ExistsAccountId,
+	})
 
 	assert.Nil(t, err)
 	assert.Contains(t, resources, someResource)
 }
 
 func TestRepository_ListEmpty(t *testing.T) {
-	resources, err := repository.List(sharedMock.ExistsAccountId)
+	resources, err := repository.List(sharedSpec.AccountWithId{
+		AccountId: sharedMock.ExistsAccountId,
+	})
 
 	assert.Nil(t, err)
 	assert.Empty(t, resources)
@@ -106,7 +113,9 @@ func TestRepository_ListNoResourceTable(t *testing.T) {
 	defer sharedMock.MustReinstall(db)
 	sharedMock.MustDropResourceTable(db)
 
-	_, err := repository.List(sharedMock.ExistsAccountId)
+	_, err := repository.List(sharedSpec.AccountWithId{
+		AccountId: sharedMock.ExistsAccountId,
+	})
 
 	assert.NotNil(t, err)
 }
@@ -168,7 +177,9 @@ func TestRepository_UpdateSuccess(t *testing.T) {
 	err = repository.Update(sharedMock.ExistsAccountId, someResource)
 	assert.Nil(t, err)
 
-	resources, err := repository.List(sharedMock.ExistsAccountId)
+	resources, err := repository.List(sharedSpec.AccountWithId{
+		AccountId: sharedMock.ExistsAccountId,
+	})
 	assert.Nil(t, err)
 	assert.Contains(t, resources, someResource)
 }

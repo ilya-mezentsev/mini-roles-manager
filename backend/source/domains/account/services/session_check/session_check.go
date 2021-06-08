@@ -3,9 +3,9 @@ package session_check
 import (
 	log "github.com/sirupsen/logrus"
 	"mini-roles-backend/source/domains/account/interfaces"
-	"mini-roles-backend/source/domains/account/models"
 	"mini-roles-backend/source/domains/account/request"
 	"mini-roles-backend/source/domains/account/services/shared"
+	"mini-roles-backend/source/domains/account/spec"
 	sharedError "mini-roles-backend/source/domains/shared/error"
 	sharedInterfaces "mini-roles-backend/source/domains/shared/interfaces"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
@@ -39,7 +39,7 @@ func (s Service) CheckSessionFromCookie(request request.SessionExists) sharedInt
 }
 
 func (s Service) checkSession(request request.SessionExists, token string) sharedInterfaces.Response {
-	accountExists, err := s.repository.SessionExists(models.AccountSession{
+	accountExists, err := s.repository.SessionExists(spec.SessionWithId{
 		Id: sharedModels.AccountId(token),
 	})
 	if err != nil {

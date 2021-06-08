@@ -6,6 +6,7 @@ import (
 	sharedError "mini-roles-backend/source/domains/shared/error"
 	sharedMock "mini-roles-backend/source/domains/shared/mock"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
+	sharedSpec "mini-roles-backend/source/domains/shared/spec"
 )
 
 type InfoRepository struct {
@@ -37,12 +38,12 @@ func (r InfoRepository) Info(accountId sharedModels.AccountId) models.AccountInf
 	return r.accounts[accountId]
 }
 
-func (r InfoRepository) FetchInfo(accountId sharedModels.AccountId) (models.AccountInfo, error) {
-	if accountId == sharedMock.BadAccountId {
+func (r InfoRepository) FetchInfo(spec sharedSpec.AccountWithId) (models.AccountInfo, error) {
+	if spec.AccountId == sharedMock.BadAccountId {
 		return models.AccountInfo{}, errors.New("some-error")
 	}
 
-	return r.accounts[accountId], nil
+	return r.accounts[spec.AccountId], nil
 }
 
 func (r *InfoRepository) UpdateCredentials(accountId sharedModels.AccountId, credentials models.UpdateAccountCredentials) error {

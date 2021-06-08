@@ -4,6 +4,7 @@ import (
 	"errors"
 	sharedError "mini-roles-backend/source/domains/shared/error"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
+	sharedSpec "mini-roles-backend/source/domains/shared/spec"
 )
 
 type RoleRepository struct {
@@ -57,12 +58,12 @@ func (r *RoleRepository) Create(accountId sharedModels.AccountId, role sharedMod
 	return nil
 }
 
-func (r RoleRepository) List(accountId sharedModels.AccountId) ([]sharedModels.Role, error) {
-	if accountId == BadAccountId || accountId == BadAccountIdForRoleRepository {
+func (r RoleRepository) List(spec sharedSpec.AccountWithId) ([]sharedModels.Role, error) {
+	if spec.AccountId == BadAccountId || spec.AccountId == BadAccountIdForRoleRepository {
 		return nil, errors.New("some-error")
 	}
 
-	return r.roles[accountId], nil
+	return r.roles[spec.AccountId], nil
 }
 
 func (r *RoleRepository) Update(accountId sharedModels.AccountId, role sharedModels.Role) error {

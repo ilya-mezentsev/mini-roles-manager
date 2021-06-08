@@ -4,7 +4,6 @@ import (
 	"github.com/jmoiron/sqlx"
 	"mini-roles-backend/source/domains/account/models"
 	sharedError "mini-roles-backend/source/domains/shared/error"
-	sharedRepositories "mini-roles-backend/source/domains/shared/repositories"
 )
 
 const (
@@ -42,7 +41,7 @@ func (r Repository) Register(
 		"account_hash": session.Id,
 	})
 	if err != nil {
-		if sharedRepositories.IsDuplicateKey(err) {
+		if sharedError.IsDuplicateKey(err) {
 			err = sharedError.DuplicateUniqueKey{}
 		}
 

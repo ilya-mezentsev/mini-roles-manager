@@ -7,5 +7,5 @@ import (
 )
 
 func MakePassword(c models.AccountCredentials) string {
-	return hash.Md5(fmt.Sprintf("%s:%s", c.Login, c.Password))
+	return hash.Md5(fmt.Sprintf("%s:%s", c.Password, c.Password))
 }

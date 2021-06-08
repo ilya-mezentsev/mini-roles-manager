@@ -9,6 +9,7 @@ import (
 	"mini-roles-backend/source/domains/account/models"
 	"mini-roles-backend/source/domains/account/request"
 	"mini-roles-backend/source/domains/account/services/shared"
+	"mini-roles-backend/source/domains/account/spec"
 	sharedError "mini-roles-backend/source/domains/shared/error"
 	sharedInterfaces "mini-roles-backend/source/domains/shared/interfaces"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
@@ -38,7 +39,9 @@ func (s Service) CreateSession(request request.CreateSession) sharedInterfaces.R
 	}
 
 	request.Credentials.Password = shared.MakePassword(request.Credentials)
-	accountSession, err := s.repository.GetSession(request.Credentials)
+	accountSession, err := s.repository.GetSession(spec.SessionWithCredentials{
+		Credentials: request.Credentials,
+	})
 	if err != nil {
 		if errors.As(err, &sharedError.EntryNotFound{}) {
 			return response_factory.ClientError(sharedError.ServiceError{
@@ -79,7 +82,7 @@ func (s Service) GetSession(request request.GetSession) sharedInterfaces.Respons
 	accountSession := models.AccountSession{
 		Id: sharedModels.AccountId(cookieToken),
 	}
-	accountExists, err := s.repository.SessionExists(accountSession)
+	accountExists, err := s.repository.SessionExists(spec.SessionWithId(accountSession))
 	if err != nil {
 		log.Errorf("Unable to check account existance: %v", err)
 		return response_factory.ServerError(sharedError.ServiceError{

@@ -11,6 +11,7 @@ import (
 	sharedModels "mini-roles-backend/source/domains/shared/models"
 	"mini-roles-backend/source/domains/shared/services/response_factory"
 	"mini-roles-backend/source/domains/shared/services/validation"
+	sharedSpec "mini-roles-backend/source/domains/shared/spec"
 	"os"
 	"testing"
 )
@@ -105,7 +106,9 @@ func TestService_CreateDBError(t *testing.T) {
 }
 
 func TestService_RolesListSuccess(t *testing.T) {
-	expectedRoles, err := mockRepository.List(sharedMock.ExistsAccountId)
+	expectedRoles, err := mockRepository.List(sharedSpec.AccountWithId{
+		AccountId: sharedMock.ExistsAccountId,
+	})
 	assert.Nil(t, err)
 	assert.NotEmpty(t, expectedRoles)
 

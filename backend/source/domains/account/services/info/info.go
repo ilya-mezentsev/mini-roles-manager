@@ -11,6 +11,7 @@ import (
 	sharedInterfaces "mini-roles-backend/source/domains/shared/interfaces"
 	"mini-roles-backend/source/domains/shared/services/response_factory"
 	"mini-roles-backend/source/domains/shared/services/validation"
+	sharedSpec "mini-roles-backend/source/domains/shared/spec"
 )
 
 type Service struct {
@@ -27,7 +28,9 @@ func (s Service) GetInfo(request request.GetInfoRequest) sharedInterfaces.Respon
 		return invalidRequestResponse
 	}
 
-	info, err := s.repository.FetchInfo(request.AccountId)
+	info, err := s.repository.FetchInfo(sharedSpec.AccountWithId{
+		AccountId: request.AccountId,
+	})
 	if err != nil {
 		log.Errorf("Unable to fetch account info: %v", err)
 
