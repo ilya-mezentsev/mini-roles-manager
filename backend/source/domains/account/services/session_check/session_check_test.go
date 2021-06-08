@@ -16,7 +16,7 @@ import (
 
 var (
 	sessionRepositoryMock = &mock.SessionRepository{}
-	expectedErrorStatus   = response_factory.ServerError(nil).ApplicationStatus()
+	expectedErrorStatus   = response_factory.EmptyServerError().ApplicationStatus()
 	service               = New(sessionRepositoryMock)
 )
 

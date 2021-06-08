@@ -2,11 +2,11 @@ package presenter
 
 import (
 	"github.com/gin-gonic/gin"
-	"mini-roles-backend/source/domains/shared/interfaces"
+	sharedInterfaces "mini-roles-backend/source/domains/shared/interfaces"
 	"net/http"
 )
 
-func MakeJsonResponse(c *gin.Context, r interfaces.Response) {
+func MakeJsonResponse(c *gin.Context, r sharedInterfaces.Response) {
 	c.Status(r.HttpStatus())
 	if r.HasData() {
 		c.JSON(r.HttpStatus(), gin.H{
@@ -18,4 +18,11 @@ func MakeJsonResponse(c *gin.Context, r interfaces.Response) {
 
 func MakeInvalidJsonResponse(c *gin.Context) {
 	c.String(http.StatusBadRequest, "Invalid JSON format")
+}
+
+func MakeFileResponse(c *gin.Context, r sharedInterfaces.Response) {
+	c.Status(r.HttpStatus())
+	if r.HasData() {
+		c.File(r.Data().(string))
+	}
 }

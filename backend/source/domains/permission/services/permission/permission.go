@@ -6,7 +6,7 @@ import (
 	"mini-roles-backend/source/domains/permission/models"
 	"mini-roles-backend/source/domains/permission/request"
 	sharedError "mini-roles-backend/source/domains/shared/error"
-	shared "mini-roles-backend/source/domains/shared/interfaces"
+	sharedInterfaces "mini-roles-backend/source/domains/shared/interfaces"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
 	"mini-roles-backend/source/domains/shared/services/response_factory"
 	"mini-roles-backend/source/domains/shared/services/validation"
@@ -23,7 +23,7 @@ func New(repository interfaces.PermissionRepository) Service {
 func (s Service) HasPermission(
 	accountId sharedModels.AccountId,
 	request request.PermissionAccess,
-) shared.Response {
+) sharedInterfaces.Response {
 	invalidRequestResponse := validation.MakeErrorResponse(request)
 	if invalidRequestResponse != nil {
 		return invalidRequestResponse
@@ -45,7 +45,7 @@ func (s Service) HasPermission(
 func (s Service) makePermissionsResponse(
 	request request.PermissionAccess,
 	rolePermissions []sharedModels.Permission,
-) shared.Response {
+) sharedInterfaces.Response {
 	effect := s.effectForRequestedRole(request, rolePermissions)
 	if effect.IsEmpty() {
 		return s.checkPermissionsForLinkingResources(request, rolePermissions)
@@ -72,7 +72,7 @@ func (s Service) effectForRequestedRole(
 	return models.MissedEffect{}
 }
 
-func (s Service) makeResponseFromEffect(effect interfaces.Effect) shared.Response {
+func (s Service) makeResponseFromEffect(effect interfaces.Effect) sharedInterfaces.Response {
 	if effect.IsPermit() {
 		return response_factory.SuccessResponse(models.EffectResponse{
 			Effect: permitEffectCode,
@@ -87,7 +87,7 @@ func (s Service) makeResponseFromEffect(effect interfaces.Effect) shared.Respons
 func (s Service) checkPermissionsForLinkingResources(
 	request request.PermissionAccess,
 	rolePermissions []sharedModels.Permission,
-) shared.Response {
+) sharedInterfaces.Response {
 	linkingResource, resourceFound := s.findLinkingResources(request.ResourceId, rolePermissions)
 	if resourceFound {
 		return s.makePermissionsResponse(

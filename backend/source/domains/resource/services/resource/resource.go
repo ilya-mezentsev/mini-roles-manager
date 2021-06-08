@@ -7,7 +7,7 @@ import (
 	"mini-roles-backend/source/domains/resource/interfaces"
 	"mini-roles-backend/source/domains/resource/request"
 	sharedError "mini-roles-backend/source/domains/shared/error"
-	shared "mini-roles-backend/source/domains/shared/interfaces"
+	sharedInterfaces "mini-roles-backend/source/domains/shared/interfaces"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
 	"mini-roles-backend/source/domains/shared/services/hash"
 	"mini-roles-backend/source/domains/shared/services/response_factory"
@@ -29,7 +29,7 @@ func New(
 	}
 }
 
-func (s Service) CreateResource(request request.CreateResource) shared.Response {
+func (s Service) CreateResource(request request.CreateResource) sharedInterfaces.Response {
 	invalidRequestResponse := validation.MakeErrorResponse(request)
 	if invalidRequestResponse != nil {
 		return invalidRequestResponse
@@ -103,7 +103,7 @@ func (s Service) generateResourcePermissions(resource sharedModels.Resource) []s
 	return permissions
 }
 
-func (s Service) ResourcesList(request request.ResourcesList) shared.Response {
+func (s Service) ResourcesList(request request.ResourcesList) sharedInterfaces.Response {
 	invalidRequestResponse := validation.MakeErrorResponse(request)
 	if invalidRequestResponse != nil {
 		return invalidRequestResponse
@@ -122,7 +122,7 @@ func (s Service) ResourcesList(request request.ResourcesList) shared.Response {
 	return response_factory.SuccessResponse(resources)
 }
 
-func (s Service) UpdateResource(request request.UpdateResource) shared.Response {
+func (s Service) UpdateResource(request request.UpdateResource) sharedInterfaces.Response {
 	invalidRequestResponse := validation.MakeErrorResponse(request)
 	if invalidRequestResponse != nil {
 		return invalidRequestResponse
@@ -143,7 +143,7 @@ func (s Service) UpdateResource(request request.UpdateResource) shared.Response 
 	return response_factory.DefaultResponse()
 }
 
-func (s Service) DeleteResource(request request.DeleteResource) shared.Response {
+func (s Service) DeleteResource(request request.DeleteResource) sharedInterfaces.Response {
 	invalidRequestResponse := validation.MakeErrorResponse(request)
 	if invalidRequestResponse != nil {
 		return invalidRequestResponse

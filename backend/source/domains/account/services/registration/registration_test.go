@@ -16,7 +16,7 @@ import (
 var (
 	mockRegistrationRepository = &mock.RegistrationRepository{}
 	expectedOkStatus           = response_factory.DefaultResponse().ApplicationStatus()
-	expectedErrorStatus        = response_factory.ServerError(nil).ApplicationStatus()
+	expectedErrorStatus        = response_factory.EmptyServerError().ApplicationStatus()
 )
 
 func init() {

@@ -6,10 +6,12 @@ import (
 	"mini-roles-backend/source/domains/account/services/registration"
 	"mini-roles-backend/source/domains/account/services/session"
 	"mini-roles-backend/source/domains/account/services/session_check"
+	"mini-roles-backend/source/domains/files/services/export"
 	"mini-roles-backend/source/domains/permission/services/permission"
 	"mini-roles-backend/source/domains/resource/services/resource"
 	"mini-roles-backend/source/domains/role/services/role"
 	"mini-roles-backend/source/entrypoints/web/controllers/account"
+	filesControllerConstructor "mini-roles-backend/source/entrypoints/web/controllers/files"
 	permissionControllerConstructor "mini-roles-backend/source/entrypoints/web/controllers/permission"
 	resourceControllerConstructor "mini-roles-backend/source/entrypoints/web/controllers/resource"
 	roleControllerConstructor "mini-roles-backend/source/entrypoints/web/controllers/role"
@@ -30,6 +32,8 @@ func Init(
 	resourceService resource.Service,
 
 	roleService role.Service,
+
+	exportService export.Service,
 ) {
 	checkCookieMiddleware := cookie.New(sessionCheckService)
 	checkHeaderMiddleware := header.New(sessionCheckService)
@@ -38,6 +42,7 @@ func Init(
 	permissionController := permissionControllerConstructor.New(permissionService)
 	resourceController := resourceControllerConstructor.New(resourceService)
 	roleController := roleControllerConstructor.New(roleService)
+	filesController := filesControllerConstructor.New(exportService)
 
 	webAppGroup := r.Group("/web-app")
 
@@ -64,6 +69,8 @@ func Init(
 		cookieTokenAuthorizedGroup.POST("/role", roleController.CreateRole)
 		cookieTokenAuthorizedGroup.PATCH("/role", roleController.UpdateRole)
 		cookieTokenAuthorizedGroup.DELETE("/role/:role_id", roleController.DeleteRole)
+
+		cookieTokenAuthorizedGroup.GET("/files/export", filesController.Export)
 	}
 
 	headerTokenAuthorized := r.Group("/public")

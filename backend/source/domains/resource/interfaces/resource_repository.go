@@ -1,17 +1,18 @@
 package interfaces
 
 import (
+	sharedInterfaces "mini-roles-backend/source/domains/shared/interfaces"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
 )
 
 type (
 	ResourceRepository interface {
+		sharedInterfaces.ResourceFetcherRepository
+
 		Create(
 			accountId sharedModels.AccountId,
 			resource sharedModels.Resource,
 		) error
-
-		List(accountId sharedModels.AccountId) ([]sharedModels.Resource, error)
 
 		Update(
 			accountId sharedModels.AccountId,

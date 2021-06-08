@@ -16,6 +16,7 @@ import (
 	"mini-roles-backend/source/domains/account/services/registration"
 	"mini-roles-backend/source/domains/account/services/session"
 	"mini-roles-backend/source/domains/account/services/session_check"
+	"mini-roles-backend/source/domains/files/services/export"
 	permissionInterfaces "mini-roles-backend/source/domains/permission/interfaces"
 	permissionListRepositoryConstructor "mini-roles-backend/source/domains/permission/repositories/permission"
 	"mini-roles-backend/source/domains/permission/services/permission"
@@ -48,6 +49,7 @@ var (
 	permissionService   permission.Service
 	resourceService     resource.Service
 	roleService         role.Service
+	exportService       export.Service
 )
 
 func init() {
@@ -73,6 +75,7 @@ func init() {
 	permissionService = permission.New(permissionListRepository)
 	resourceService = resource.New(resourceRepository, permissionCreatorRepository)
 	roleService = role.New(roleRepository)
+	exportService = export.New(roleRepository, resourceRepository)
 }
 
 func main() {
@@ -91,6 +94,8 @@ func main() {
 		resourceService,
 
 		roleService,
+
+		exportService,
 	)
 
 	err := r.Run(fmt.Sprintf(":%d", configsRepository.ServerPort()))

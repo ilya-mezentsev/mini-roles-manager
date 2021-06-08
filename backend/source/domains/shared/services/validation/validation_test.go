@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	expectedErrorStatus = response_factory.ServerError(nil).ApplicationStatus()
+	expectedErrorStatus = response_factory.EmptyServerError().ApplicationStatus()
 )
 
 func TestMakeErrorResponseInvalidRequest(t *testing.T) {
@@ -37,7 +37,7 @@ func TestMakeErrorResponseInvalidRequest(t *testing.T) {
 func TestMakeErrorResponseValidRequest(t *testing.T) {
 	req := request.CreateRole{
 		AccountId: sharedMock.ExistsAccountId,
-		Role:      sharedModels.Role{
+		Role: sharedModels.Role{
 			Id: "some-id",
 		},
 	}
