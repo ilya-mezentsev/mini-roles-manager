@@ -1,11 +1,14 @@
 package mock
 
-import shared "mini-roles-backend/source/domains/shared/models"
+import (
+	shared "mini-roles-backend/source/domains/shared/models"
+	sharedResource "mini-roles-backend/source/domains/shared/resource"
+)
 
 const (
-	PermittedOperation        = "read"
-	DeniedOperation           = "delete"
-	DefinedOnLinkingOperation = "update"
-	UndefinedOperation        = "create"
+	PermittedOperation        = sharedResource.ReadOperation
+	DeniedOperation           = sharedResource.DeleteOperation
+	DefinedOnLinkingOperation = sharedResource.UpdateOperation
+	UndefinedOperation        = sharedResource.CreateOperation
 	LinkingResourceId         = shared.ResourceId("linking-resource-id")
 )

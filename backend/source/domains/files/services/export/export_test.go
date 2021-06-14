@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
-	"mini-roles-backend/source/domains/files/models"
 	"mini-roles-backend/source/domains/files/request"
 	sharedMock "mini-roles-backend/source/domains/shared/mock"
+	sharedModels "mini-roles-backend/source/domains/shared/models"
 	"mini-roles-backend/source/domains/shared/services/response_factory"
 	sharedSpec "mini-roles-backend/source/domains/shared/spec"
 	"testing"
@@ -40,7 +40,7 @@ func TestService_MakeExportFileSuccess(t *testing.T) {
 		t.Fatalf("unable to read tmp file: %v", err)
 	}
 
-	var exportData models.JSONRepresentation
+	var exportData sharedModels.AppData
 	err = json.Unmarshal(data, &exportData)
 	if err != nil {
 		t.Fatalf("unable to unmarshal settings to struct: %v", err)
@@ -55,7 +55,7 @@ func TestService_MakeExportFileSuccess(t *testing.T) {
 
 	assert.Equal(
 		t,
-		models.JSONRepresentation{
+		sharedModels.AppData{
 			Resources: resources,
 			Roles:     roles,
 		},

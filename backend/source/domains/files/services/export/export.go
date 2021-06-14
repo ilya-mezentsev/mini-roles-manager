@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
-	"mini-roles-backend/source/domains/files/models"
 	"mini-roles-backend/source/domains/files/request"
 	sharedInterfaces "mini-roles-backend/source/domains/shared/interfaces"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
@@ -73,7 +72,7 @@ func (s Service) makeJSON(
 	resources []sharedModels.Resource,
 	roles []sharedModels.Role,
 ) ([]byte, error) {
-	return json.Marshal(models.JSONRepresentation{
+	return json.Marshal(sharedModels.AppData{
 		Resources: resources,
 		Roles:     roles,
 	})

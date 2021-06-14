@@ -11,6 +11,7 @@ import (
 	sharedError "mini-roles-backend/source/domains/shared/error"
 	sharedMock "mini-roles-backend/source/domains/shared/mock"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
+	sharedResource "mini-roles-backend/source/domains/shared/resource"
 	sharedSpec "mini-roles-backend/source/domains/shared/spec"
 	"strings"
 	"testing"
@@ -61,13 +62,13 @@ func TestRepository_ListSuccessWithPermissions(t *testing.T) {
 		Permissions: []sharedModels.Permission{
 			{
 				Id:        "permission-id-1",
-				Operation: "create",
-				Effect:    "deny",
+				Operation: sharedResource.CreateOperation,
+				Effect:    sharedResource.DenyEffect,
 			},
 			{
 				Id:        "permission-id-2",
-				Operation: "read",
-				Effect:    "permit",
+				Operation: sharedResource.ReadOperation,
+				Effect:    sharedResource.PermitEffect,
 			},
 		},
 	}
@@ -226,7 +227,7 @@ func TestRepository_DeleteSuccessFilterRolePermissions(t *testing.T) {
 		`insert into permission(permission_id, operation, effect, resource_id, account_hash) values($1, $2, $3, $4, $5)`,
 		mock.PermitReadPermissionId1,
 		mock.PermittedOperation,
-		"permit",
+		sharedResource.PermitEffect,
 		someResource.Id,
 		sharedMock.ExistsAccountId,
 	)

@@ -1,6 +1,10 @@
 package mock
 
-import sharedModels "mini-roles-backend/source/domains/shared/models"
+import (
+	"fmt"
+	sharedModels "mini-roles-backend/source/domains/shared/models"
+	sharedResource "mini-roles-backend/source/domains/shared/resource"
+)
 
 const (
 	ExistsResourceId1 = "resource-1"
@@ -114,8 +118,8 @@ var (
 					ExistsResourceId3,
 				},
 			},
-			Operation: "create",
-			Effect:    "deny",
+			Operation: sharedResource.CreateOperation,
+			Effect:    sharedResource.DenyEffect,
 		},
 		{
 			Id: PermitReadPermissionId1,
@@ -125,8 +129,8 @@ var (
 					ExistsResourceId3,
 				},
 			},
-			Operation: "read",
-			Effect:    "permit",
+			Operation: sharedResource.ReadOperation,
+			Effect:    sharedResource.PermitEffect,
 		},
 		{
 			Id: DenyUpdatePermissionId1,
@@ -136,8 +140,8 @@ var (
 					ExistsResourceId3,
 				},
 			},
-			Operation: "update",
-			Effect:    "deny",
+			Operation: sharedResource.UpdateOperation,
+			Effect:    sharedResource.DenyEffect,
 		},
 		{
 			Id: DenyDeletePermissionId1,
@@ -147,8 +151,8 @@ var (
 					ExistsResourceId3,
 				},
 			},
-			Operation: "delete",
-			Effect:    "deny",
+			Operation: sharedResource.DeleteOperation,
+			Effect:    sharedResource.DenyEffect,
 		},
 
 		{
@@ -156,32 +160,32 @@ var (
 			Resource: sharedModels.Resource{
 				Id: ExistsResourceId2,
 			},
-			Operation: "create",
-			Effect:    "permit",
+			Operation: sharedResource.CreateOperation,
+			Effect:    sharedResource.PermitEffect,
 		},
 		{
 			Id: PermitReadPermissionId2,
 			Resource: sharedModels.Resource{
 				Id: ExistsResourceId2,
 			},
-			Operation: "read",
-			Effect:    "permit",
+			Operation: sharedResource.ReadOperation,
+			Effect:    sharedResource.PermitEffect,
 		},
 		{
 			Id: PermitUpdatePermissionId2,
 			Resource: sharedModels.Resource{
 				Id: ExistsResourceId2,
 			},
-			Operation: "update",
-			Effect:    "permit",
+			Operation: sharedResource.UpdateOperation,
+			Effect:    sharedResource.PermitEffect,
 		},
 		{
 			Id: DenyDeletePermissionId2,
 			Resource: sharedModels.Resource{
 				Id: ExistsResourceId2,
 			},
-			Operation: "delete",
-			Effect:    "deny",
+			Operation: sharedResource.DeleteOperation,
+			Effect:    sharedResource.DenyEffect,
 		},
 
 		{
@@ -189,46 +193,46 @@ var (
 			Resource: sharedModels.Resource{
 				Id: ExistsResourceId3,
 			},
-			Operation: "create",
-			Effect:    "permit",
+			Operation: sharedResource.CreateOperation,
+			Effect:    sharedResource.PermitEffect,
 		},
 		{
 			Id: PermitReadPermissionId3,
 			Resource: sharedModels.Resource{
 				Id: ExistsResourceId3,
 			},
-			Operation: "read",
-			Effect:    "permit",
+			Operation: sharedResource.ReadOperation,
+			Effect:    sharedResource.PermitEffect,
 		},
 		{
 			Id: PermitUpdatePermissionId3,
 			Resource: sharedModels.Resource{
 				Id: ExistsResourceId3,
 			},
-			Operation: "update",
-			Effect:    "permit",
+			Operation: sharedResource.UpdateOperation,
+			Effect:    sharedResource.PermitEffect,
 		},
 		{
 			Id: PermitDeletePermissionId3,
 			Resource: sharedModels.Resource{
 				Id: ExistsResourceId3,
 			},
-			Operation: "delete",
-			Effect:    "deny",
+			Operation: sharedResource.DeleteOperation,
+			Effect:    sharedResource.DenyEffect,
 		},
 	}
 )
 
 func MakeRole1Permissions() []sharedModels.Permission {
-	return Permissions[:4]
+	return makeCopy(Permissions[:4])
 }
 
 func MakeRole2Permissions() []sharedModels.Permission {
-	return Permissions[4:8]
+	return makeCopy(Permissions[4:8])
 }
 
 func MakeExtendingRolePermissions() []sharedModels.Permission {
-	return Permissions[8:]
+	return makeCopy(Permissions[8:])
 }
 
 func MakeRecursiveExtendingRole1Permissions() []sharedModels.Permission {
@@ -237,4 +241,108 @@ func MakeRecursiveExtendingRole1Permissions() []sharedModels.Permission {
 
 func MakeRecursiveExtendingRole2Permissions() []sharedModels.Permission {
 	return MakeRole2Permissions()
+}
+
+func MakeAppDataForAllRoles(roleId sharedModels.RoleId) sharedModels.AppData {
+	return sharedModels.AppData{
+		Resources: makeResourcesByRoleId(roleId),
+		Roles:     allRoles(),
+	}
+}
+
+func makeResourcesByRoleId(roleId sharedModels.RoleId) []sharedModels.Resource {
+	var resources []sharedModels.Resource
+	var resourcesMap = make(map[sharedModels.ResourceId]sharedModels.Resource)
+	var rolePermissionsIds = makeRolePermissions(roleId)
+
+	for _, permission := range Permissions {
+		for _, rolePermissionId := range rolePermissionsIds {
+			if permission.Id == rolePermissionId {
+				resource, resourceFound := resourcesMap[permission.Resource.Id]
+				if resourceFound {
+					resource.Permissions = append(resource.Permissions, sharedModels.Permission{
+						Id:        permission.Id,
+						Operation: permission.Operation,
+						Effect:    permission.Effect,
+						Resource:  permission.Resource,
+					})
+					resourcesMap[permission.Resource.Id] = resource
+				} else {
+					resourcesMap[permission.Resource.Id] = sharedModels.Resource{
+						Id:      permission.Resource.Id,
+						Title:   permission.Resource.Title,
+						LinksTo: permission.Resource.LinksTo,
+						Permissions: []sharedModels.Permission{
+							{
+								Id:        permission.Id,
+								Operation: permission.Operation,
+								Effect:    permission.Effect,
+								Resource:  permission.Resource,
+							},
+						},
+					}
+				}
+			}
+		}
+	}
+
+	for _, resource := range resourcesMap {
+		resources = append(resources, resource)
+	}
+
+	return resources
+}
+
+func makeRolePermissions(roleId sharedModels.RoleId) []sharedModels.PermissionId {
+	var (
+		permissions    []sharedModels.Permission
+		permissionsIds []sharedModels.PermissionId
+	)
+
+	switch roleId {
+	case OneDepthLevelExtendingRoleId:
+		permissions = append(
+			MakeRole1Permissions(),
+			MakeExtendingRolePermissions()...,
+		)
+
+	case TwoDepthLevelExtendingRoleId:
+		permissions = Permissions
+
+	case RecursiveExtendingRoleId1:
+		permissions = append(
+			MakeRecursiveExtendingRole1Permissions(),
+			MakeRecursiveExtendingRole2Permissions()...,
+		)
+
+	case FlatRoleId1:
+		permissions = MakeRole1Permissions()
+
+	case RecursiveExtendingRoleId2:
+	case FlatRoleId2:
+	default:
+		panic(fmt.Sprintf("Unknown role id for making permissions: %s", roleId))
+	}
+
+	for _, permission := range permissions {
+		permissionsIds = append(permissionsIds, permission.Id)
+	}
+
+	return permissionsIds
+}
+
+func allRoles() []sharedModels.Role {
+	return append(
+		FlatRoles,
+		OneDepthLevelExtendingRole,
+		TwoDepthLevelExtendingRole,
+		RecursiveExtendingRole1,
+		RecursiveExtendingRole2,
+	)
+}
+
+func makeCopy(permissions []sharedModels.Permission) []sharedModels.Permission {
+	var dist []sharedModels.Permission
+	copy(dist, permissions)
+	return dist
 }

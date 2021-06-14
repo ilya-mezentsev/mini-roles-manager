@@ -1,21 +1,23 @@
 package mock
 
 import (
-	shared "mini-roles-backend/source/domains/shared/models"
+	sharedModels "mini-roles-backend/source/domains/shared/models"
 	"mini-roles-backend/source/domains/shared/services/hash"
 )
 
 var (
-	BadAccountId  = shared.AccountId(hash.Md5WithTimeAsKey("bad-account-id"))
-	BadResourceId = shared.ResourceId("bad-resource-id")
+	BadAccountId    = sharedModels.AccountId(hash.Md5WithTimeAsKey("bad-account-id"))
+	BadResourceId   = sharedModels.ResourceId("bad-resource-id")
+	BadRoleId       = sharedModels.RoleId("bad-role-id")
+	BadPermissionId = sharedModels.PermissionId("bad-permission-id")
 
-	BadAccountIdForRoleRepository = shared.AccountId(hash.Md5WithTimeAsKey("bad-account-id-for-role"))
+	BadAccountIdForRoleRepository = sharedModels.AccountId(hash.Md5WithTimeAsKey("bad-account-id-for-role"))
 )
 
 var (
-	ExistsAccountId  = shared.AccountId(hash.Md5WithTimeAsKey("exists-account-id"))
+	ExistsAccountId  = sharedModels.AccountId(hash.Md5WithTimeAsKey("exists-account-id"))
 	ExistsLogin      = "ExistsLogin"
 	ExistsPassword   = "exists-password"
-	ExistsRoleId     = shared.RoleId(hash.Md5WithTimeAsKey("exists-role-id"))
-	ExistsResourceId = shared.ResourceId("exists-resource-id")
+	ExistsRoleId     = sharedModels.RoleId(hash.Md5WithTimeAsKey("exists-role-id"))
+	ExistsResourceId = sharedModels.ResourceId("exists-resource-id")
 )

@@ -1,8 +1,18 @@
 package resource
 
+import sharedResource "mini-roles-backend/source/domains/shared/resource"
+
 var (
-	resourcesOperations        = [...]string{"create", "read", "update", "delete"}
-	resourcesOperationsEffects = [...]string{"permit", "deny"}
+	resourcesOperations = [...]string{
+		sharedResource.CreateOperation,
+		sharedResource.ReadOperation,
+		sharedResource.UpdateOperation,
+		sharedResource.DeleteOperation,
+	}
+	resourcesOperationsEffects = [...]string{
+		sharedResource.PermitEffect,
+		sharedResource.DenyEffect,
+	}
 )
 
 const (

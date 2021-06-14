@@ -8,6 +8,9 @@ PROJECT_NAME := "mini_roles_manager"
 BACKEND_LIBS_PATH := $(BACKEND_DIR)/libs
 BACKEND_SOURCE_PATH := $(BACKEND_DIR)/source
 BACKEND_CONFIG_PATH := $(BACKEND_DIR)/config/main.json
+BACKEND_APP_DATA_PATH := $(BACKEND_DIR)/config/app-data.json
+
+BACKEND_VALIDATION_PKG_PATH := $(BACKEND_SOURCE_PATH)/domains/files/services/validation
 
 FRONTEND_SOURCE_PATH := $(FRONTEND_DIR)/src
 
@@ -22,13 +25,22 @@ tests: backend-tests frontend-tests
 check: backend-check frontend-check
 
 backend-build:
-	unset GOPATH && cd $(BACKEND_DIR) && GOMODCACHE=$(BACKEND_LIBS_PATH) go build main.go
+	unset GOPATH && cd $(BACKEND_DIR) && GOMODCACHE=$(BACKEND_LIBS_PATH) go build -o main
 
 backend-run:
-	unset GOPATH && cd $(BACKEND_DIR) && GOMODCACHE=$(BACKEND_LIBS_PATH) go run main.go -config $(BACKEND_CONFIG_PATH)
+	unset GOPATH && cd $(BACKEND_DIR) && GOMODCACHE=$(BACKEND_LIBS_PATH) ./main -config $(BACKEND_CONFIG_PATH)
+
+backend-run-minimal:
+	unset GOPATH && cd $(BACKEND_DIR) && GOMODCACHE=$(BACKEND_LIBS_PATH) ./main -mode minimal -app-data $(BACKEND_APP_DATA_PATH)
+
+backend-help:
+	unset GOPATH && cd $(BACKEND_DIR) && GOMODCACHE=$(BACKEND_LIBS_PATH) ./main -help
 
 backend-tests:
 	unset GOPATH && cd $(BACKEND_SOURCE_PATH) && GOMODCACHE=$(BACKEND_LIBS_PATH) go test -cover -p 1 ./... | { grep -v "no test files"; true; }
+
+backend-benchmark-file-validation:
+	unset GOPATH && cd $(BACKEND_VALIDATION_PKG_PATH) && GOMODCACHE=$(BACKEND_LIBS_PATH) go test -bench . -benchmem -run=^$
 
 backend-check:
 	unset GOPATH && cd $(BACKEND_SOURCE_PATH) && GOMODCACHE=$(BACKEND_LIBS_PATH) go vet ./...
