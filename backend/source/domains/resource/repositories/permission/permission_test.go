@@ -7,6 +7,7 @@ import (
 	"mini-roles-backend/source/db/connection"
 	sharedMock "mini-roles-backend/source/domains/shared/mock"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
+	sharedResource "mini-roles-backend/source/domains/shared/resource"
 	"testing"
 )
 
@@ -31,13 +32,13 @@ func TestRepository_AddResourcePermissionsSuccess(t *testing.T) {
 	permissions := []sharedModels.Permission{
 		{
 			Id:        "some-permission-id-1",
-			Operation: "create",
-			Effect:    "permit",
+			Operation: sharedResource.CreateOperation,
+			Effect:    sharedResource.PermitEffect,
 		},
 		{
 			Id:        "some-permission-id-2",
-			Operation: "delete",
-			Effect:    "deny",
+			Operation: sharedResource.DeleteOperation,
+			Effect:    sharedResource.DenyEffect,
 		},
 	}
 
@@ -70,13 +71,13 @@ func TestRepository_AddResourcePermissionsErrorNoTable(t *testing.T) {
 	permissions := []sharedModels.Permission{
 		{
 			Id:        "some-permission-id-1",
-			Operation: "create",
-			Effect:    "permit",
+			Operation: sharedResource.CreateOperation,
+			Effect:    sharedResource.PermitEffect,
 		},
 		{
 			Id:        "some-permission-id-2",
-			Operation: "delete",
-			Effect:    "deny",
+			Operation: sharedResource.DeleteOperation,
+			Effect:    sharedResource.DenyEffect,
 		},
 	}
 
@@ -102,13 +103,13 @@ func TestRepository_AddResourcePermissionsNoConnection(t *testing.T) {
 	permissions := []sharedModels.Permission{
 		{
 			Id:        "some-permission-id-1",
-			Operation: "create",
-			Effect:    "permit",
+			Operation: sharedResource.CreateOperation,
+			Effect:    sharedResource.PermitEffect,
 		},
 		{
 			Id:        "some-permission-id-2",
-			Operation: "delete",
-			Effect:    "deny",
+			Operation: sharedResource.DeleteOperation,
+			Effect:    sharedResource.DenyEffect,
 		},
 	}
 

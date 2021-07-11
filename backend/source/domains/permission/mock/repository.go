@@ -5,6 +5,7 @@ import (
 	"mini-roles-backend/source/domains/permission/spec"
 	sharedMock "mini-roles-backend/source/domains/shared/mock"
 	shared "mini-roles-backend/source/domains/shared/models"
+	sharedResource "mini-roles-backend/source/domains/shared/resource"
 )
 
 type PermissionRepository struct {
@@ -24,7 +25,7 @@ func (p *PermissionRepository) Reset() {
 						},
 					},
 					Operation: DefinedOnLinkingOperation,
-					Effect:    "permit",
+					Effect:    sharedResource.PermitEffect,
 				},
 				{
 					Id: "some-permission-id-2",
@@ -32,7 +33,7 @@ func (p *PermissionRepository) Reset() {
 						Id: sharedMock.ExistsResourceId,
 					},
 					Operation: PermittedOperation,
-					Effect:    "permit",
+					Effect:    sharedResource.PermitEffect,
 				},
 				{
 					Id: "some-permission-id-3",
@@ -40,7 +41,7 @@ func (p *PermissionRepository) Reset() {
 						Id: sharedMock.ExistsResourceId,
 					},
 					Operation: DeniedOperation,
-					Effect:    "deny",
+					Effect:    sharedResource.DenyEffect,
 				},
 			},
 		},

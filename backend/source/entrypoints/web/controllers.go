@@ -19,7 +19,7 @@ import (
 	"mini-roles-backend/source/entrypoints/web/middleware/header"
 )
 
-func Init(
+func FullInit(
 	r *gin.Engine,
 
 	registrationService registration.Service,
@@ -78,4 +78,14 @@ func Init(
 	{
 		headerTokenAuthorized.GET("/permissions", permissionController.ResolveResourceAccessEffect)
 	}
+}
+
+func MinimalInit(
+	r *gin.Engine,
+
+	permissionService permission.Service,
+) {
+	permissionController := permissionControllerConstructor.New(permissionService)
+
+	r.GET("/permissions", permissionController.ResolveResourceAccessEffect)
 }

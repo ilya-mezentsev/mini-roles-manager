@@ -1,4 +1,4 @@
-package permission
+package permission_db
 
 import (
 	"github.com/jmoiron/sqlx"
