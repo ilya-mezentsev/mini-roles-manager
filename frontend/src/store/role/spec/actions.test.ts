@@ -260,35 +260,38 @@ describe('roles actions tests', () => {
     });
 
     it('delete role success', async () => {
-        const d = 'role-id';
+        const roleId = 'role-id';
+        const rolesVersionId = 'roles-version-id';
         const store = mockStore({ rolesResult: null });
         // @ts-ignore
         api.deleteRole = jest.fn().mockResolvedValue(new SuccessResponse(null));
 
         // @ts-ignore
-        await store.dispatch(deleteRole(d));
+        await store.dispatch(deleteRole(rolesVersionId, roleId));
 
-        expect(api.deleteRole).toBeCalledWith(d);
+        expect(api.deleteRole).toBeCalledWith(rolesVersionId, roleId);
         expect(store.getActions()).toEqual([
             {
                 type: ACTIONS.SUCCESS_DELETE_ROLE,
                 rolesResult: {
-                    roleId: d,
+                    roleId,
+                    rolesVersionId,
                 },
             },
         ]);
     });
 
     it('delete role parsed error', async () => {
-        const d = 'role-id';
+        const roleId = 'role-id';
+        const rolesVersionId = 'roles-version-id';
         const store = mockStore({ rolesResult: null });
         // @ts-ignore
         api.deleteRole = jest.fn().mockResolvedValue(new ErrorResponse('some-error'));
 
         // @ts-ignore
-        await store.dispatch(deleteRole(d));
+        await store.dispatch(deleteRole(rolesVersionId, roleId));
 
-        expect(api.deleteRole).toBeCalledWith(d);
+        expect(api.deleteRole).toBeCalledWith(rolesVersionId, roleId);
         expect(store.getActions()).toEqual([
             {
                 type: ACTIONS.FAILED_DELETE_ROLE,
@@ -300,15 +303,16 @@ describe('roles actions tests', () => {
     });
 
     it('delete role unknown error', async () => {
-        const d = 'role-id';
+        const roleId = 'role-id';
+        const rolesVersionId = 'roles-version-id';
         const store = mockStore({ rolesResult: null });
         // @ts-ignore
         api.deleteRole = jest.fn().mockRejectedValue('some-error');
 
         // @ts-ignore
-        await store.dispatch(deleteRole(d));
+        await store.dispatch(deleteRole(rolesVersionId, roleId));
 
-        expect(api.deleteRole).toBeCalledWith(d);
+        expect(api.deleteRole).toBeCalledWith(rolesVersionId, roleId);
         expect(store.getActions()).toEqual([
             {
                 type: ACTIONS.FAILED_TO_PERFORM_ROLE_DELETING,

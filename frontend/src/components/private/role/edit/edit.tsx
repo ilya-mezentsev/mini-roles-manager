@@ -38,7 +38,7 @@ export const EditRole = (props: EditRoleProps) => {
     const [roleId, setRoleId] = useState('');
     const [roleTitle, setRoleTitle] = useState('');
     const [extends_, setExtends] = useState<string[]>([]);
-    const canExtendsFrom = props.existRoles.filter(r => r.id !== initialRoleId);
+    const canExtendsFrom = props.existRoles.filter(r => r.id !== initialRoleId && r.versionId === props.roleVersionId);
 
     useEffect(() => {
         (!roleId || initialRoleId) && setRoleId(initialRoleId || '');
@@ -63,6 +63,7 @@ export const EditRole = (props: EditRoleProps) => {
     const handleSave = () => {
         props.save({
             id: roleId,
+            versionId: props.roleVersionId,
             title: roleTitle,
             permissions,
             extends: extends_,

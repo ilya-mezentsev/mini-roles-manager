@@ -7,11 +7,16 @@ import { DispatchToPropsFn, StateToPropsFn } from '../../shared/types';
 import { fetchRoles } from '../../store/role/actions';
 import { fetchResources } from '../../store/resource/actions';
 import { fetchInfo } from '../../store/account_info/actions';
+import { fetchRolesVersion } from '../../store/roles_version/actions';
 
 export const Entrypoint = (props: EntrypointProps) => {
     useEffect(() => {
         if (!props.resourcesResult.list) {
             props.loadResourcesAction();
+        }
+
+        if (!props.rolesVersionResult.list) {
+            props.loadRolesVersionsAction();
         }
 
         if (!props.rolesResult.list) {
@@ -31,11 +36,13 @@ export const Entrypoint = (props: EntrypointProps) => {
 
 export const mapDispatchToProps: DispatchToPropsFn<EntrypointActions> = () => dispatch => ({
     loadResourcesAction: bindActionCreators(fetchResources, dispatch),
+    loadRolesVersionsAction: bindActionCreators(fetchRolesVersion, dispatch),
     loadRolesAction: bindActionCreators(fetchRoles, dispatch),
     loadAccountInfo: bindActionCreators(fetchInfo, dispatch),
 });
 
 export const mapStateToProps: StateToPropsFn<EntrypointState> = () => state => ({
+    rolesVersionResult: state.rolesVersionResult,
     rolesResult: state.rolesResult,
     resourcesResult: state.resourcesResult,
     accountInfoResult: state.accountInfoResult,

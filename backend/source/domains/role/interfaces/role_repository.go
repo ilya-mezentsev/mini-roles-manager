@@ -2,7 +2,7 @@ package interfaces
 
 import (
 	sharedInterfaces "mini-roles-backend/source/domains/shared/interfaces"
-	shared "mini-roles-backend/source/domains/shared/models"
+	sharedModels "mini-roles-backend/source/domains/shared/models"
 )
 
 type (
@@ -10,18 +10,19 @@ type (
 		sharedInterfaces.RolesFetcherRepository
 
 		Create(
-			accountId shared.AccountId,
-			role shared.Role,
+			accountId sharedModels.AccountId,
+			role sharedModels.Role,
 		) error
 
 		Update(
-			accountId shared.AccountId,
-			role shared.Role,
+			accountId sharedModels.AccountId,
+			role sharedModels.Role,
 		) error
 
 		Delete(
-			accountId shared.AccountId,
-			roleId shared.RoleId,
+			accountId sharedModels.AccountId,
+			rolesVersionId sharedModels.RolesVersionId,
+			roleId sharedModels.RoleId,
 		) error
 	}
 )

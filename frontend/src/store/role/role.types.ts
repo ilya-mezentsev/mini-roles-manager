@@ -11,6 +11,7 @@ export interface RolesListResult {
 
 export interface RoleIdActionResult {
     roleId: string;
+    rolesVersionId: string;
 }
 
 export interface RoleErrorResult {

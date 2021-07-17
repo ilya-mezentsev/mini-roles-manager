@@ -3,7 +3,7 @@ export const ResourceDesc = () => (
     <>
         <h2>Resource</h2>
         <p>
-            Resource - is a entity under what operations can be performed.
+            Resource - is an entity under what operations can be performed.
         </p>
         <h3>
             Examples of resources

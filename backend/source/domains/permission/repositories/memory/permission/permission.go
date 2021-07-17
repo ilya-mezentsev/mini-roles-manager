@@ -1,4 +1,4 @@
-package permission_memory
+package permission
 
 import (
 	"mini-roles-backend/source/domains/permission/spec"
@@ -15,20 +15,23 @@ func New(appData sharedModels.AppData) Repository {
 
 func (r Repository) List(spec spec.PermissionWithAccountIdAndRoleId) ([]sharedModels.Permission, error) {
 	return r.list(
+		spec.RolesVersionId,
 		spec.RoleId,
 		make(map[sharedModels.RoleId]struct{}),
 	), nil
 }
 
 func (r Repository) list(
+	rolesVersionId sharedModels.RolesVersionId,
 	entryPointRoleId sharedModels.RoleId,
 	exclude map[sharedModels.RoleId]struct{},
 ) []sharedModels.Permission {
 	for _, role := range r.appData.Roles {
-		if role.Id == entryPointRoleId {
+		if role.Id == entryPointRoleId && role.VersionId == rolesVersionId {
 			exclude[role.Id] = struct{}{}
 
 			return r.findPermissions(
+				rolesVersionId,
 				role,
 				exclude,
 			)
@@ -39,6 +42,7 @@ func (r Repository) list(
 }
 
 func (r Repository) findPermissions(
+	rolesVersionId sharedModels.RolesVersionId,
 	role sharedModels.Role,
 	exclude map[sharedModels.RoleId]struct{},
 ) []sharedModels.Permission {
@@ -69,6 +73,7 @@ func (r Repository) findPermissions(
 		permissions = append(
 			permissions,
 			r.list(
+				rolesVersionId,
 				roleId,
 				exclude,
 			)...,

@@ -108,14 +108,23 @@ func TestValidateMissedEffect(t *testing.T) {
 func TestValidateDuplicateRoleId(t *testing.T) {
 	representation := mock.MakeValidAppData()
 	representation.Roles = append(representation.Roles, representation.Roles[0])
+	expectedErrorMessage := fmt.Sprintf(
+		"Role id %s found %d times for version %s",
+		representation.Roles[0].Id,
+		2,
+		representation.Roles[0].VersionId,
+	)
 
 	_, errorsMessages := Validate(mustMarshal(representation))
+	assert.Contains(t, errorsMessages, expectedErrorMessage)
 
-	assert.Contains(
-		t,
-		errorsMessages,
-		fmt.Sprintf("Role id %s found %d times", representation.Roles[0].Id, 2),
-	)
+	representation = mock.MakeValidAppData()
+	roleWithDifferentVersionId := representation.Roles[0]
+	roleWithDifferentVersionId.VersionId = sharedMock.ExistsRolesVersionId2
+	representation.Roles = append(representation.Roles, roleWithDifferentVersionId)
+
+	_, errorsMessages = Validate(mustMarshal(representation))
+	assert.NotContains(t, errorsMessages, expectedErrorMessage)
 }
 
 func TestValidateMissedExtendsId(t *testing.T) {
@@ -123,14 +132,34 @@ func TestValidateMissedExtendsId(t *testing.T) {
 	representation.Roles[0].Extends = append(representation.Roles[0].Extends, sharedMock.BadRoleId)
 
 	_, errorsMessages := Validate(mustMarshal(representation))
-
 	assert.Contains(
 		t,
 		errorsMessages,
 		fmt.Sprintf(
-			"Role with id %s has not exists extends id: %s",
+			"Role with id %s has not exists extends id: %s, for version %s",
 			representation.Roles[0].Id,
 			sharedMock.BadRoleId,
+			representation.Roles[0].VersionId,
+		),
+	)
+
+	representation = mock.MakeValidAppData()
+	roleWithDifferentVersionId := sharedModels.Role{
+		Id:        "some-id",
+		VersionId: sharedMock.ExistsRolesVersionId2,
+	}
+	representation.Roles = append(representation.Roles, roleWithDifferentVersionId)
+	representation.Roles[0].Extends = append(representation.Roles[0].Extends, roleWithDifferentVersionId.Id)
+
+	_, errorsMessages = Validate(mustMarshal(representation))
+	assert.Contains(
+		t,
+		errorsMessages,
+		fmt.Sprintf(
+			"Role with id %s has not exists extends id: %s, for version %s",
+			representation.Roles[0].Id,
+			roleWithDifferentVersionId.Id,
+			representation.Roles[0].VersionId,
 		),
 	)
 }
@@ -158,18 +187,43 @@ func TestValidateConflictPermission(t *testing.T) {
 		representation.Roles[0].Permissions,
 		representation.Resources[0].Permissions[0].Id,
 	)
+	expectedErrorMessage := fmt.Sprintf(
+		"Role with id %s has conflict permissions for resource %s on %s operation for version %s",
+		representation.Roles[0].Id,
+		representation.Resources[0].Id,
+		representation.Resources[0].Permissions[0].Operation,
+		representation.Roles[0].VersionId,
+	)
 
 	_, errorsMessages := Validate(mustMarshal(representation))
+	assert.Contains(t, errorsMessages, expectedErrorMessage)
+
+	representation = mock.MakeValidAppData()
+	roleWithDifferentVersionId := sharedModels.Role{
+		Id:          representation.Roles[0].Id,
+		VersionId:   sharedMock.ExistsRolesVersionId2,
+		Permissions: append([]sharedModels.PermissionId{}, representation.Roles[0].Permissions...),
+	}
+	roleWithDifferentVersionId.Permissions = append(
+		representation.Roles[0].Permissions,
+		representation.Resources[0].Permissions[0].Id,
+	)
+	representation.Roles = append(representation.Roles, roleWithDifferentVersionId)
+
+	_, errorsMessages = Validate(mustMarshal(representation))
+	assert.NotContains(t, errorsMessages, expectedErrorMessage)
+}
+
+func TestValidateNoDefaultRolesVersionId(t *testing.T) {
+	representation := mock.MakeValidAppData()
+	representation.DefaultRolesVersionId = ""
+
+	_, errorMessages := Validate(mustMarshal(representation))
 
 	assert.Contains(
 		t,
-		errorsMessages,
-		fmt.Sprintf(
-			"Role with id %s has conflict permissions for resource %s on %s operation",
-			representation.Roles[0].Id,
-			representation.Resources[0].Id,
-			representation.Resources[0].Permissions[0].Operation,
-		),
+		errorMessages,
+		"Default roles version id is not present",
 	)
 }
 

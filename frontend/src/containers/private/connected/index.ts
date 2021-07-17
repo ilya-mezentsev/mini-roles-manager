@@ -19,6 +19,18 @@ import {
 } from '../resources/list';
 
 import {
+    RolesVersion as RolesVersionContainer,
+    mapDispatchToProps as RolesVersionContainerMapDispatchToProps,
+    mapStateToProps as RolesVersionContainerMapStateToProps,
+} from '../roles_version/roles_version';
+
+import {
+    RolesVersionList as RolesVersionListContainer,
+    mapDispatchToProps as RolesVersionListContainerMapDispatchToProps,
+    mapStateToProps as RolesVersionListContainerMapStateToProps,
+} from '../roles_version/list';
+
+import {
     Roles as RolesContainer,
     mapDispatchToProps as RolesContainerMapDispatchToProps,
     mapStateToProps as RolesContainerMapStateToProps,
@@ -78,6 +90,16 @@ export const ResourcesList = connect(
     ResourcesListContainerMapStateToProps(),
     ResourcesListMapDispatchToProps(),
 )(ResourcesListContainer);
+
+export const RolesVersion = connect(
+    RolesVersionContainerMapStateToProps(),
+    RolesVersionContainerMapDispatchToProps(),
+)(RolesVersionContainer);
+
+export const RolesVersionList = connect(
+    RolesVersionListContainerMapStateToProps(),
+    RolesVersionListContainerMapDispatchToProps(),
+)(RolesVersionListContainer);
 
 export const Roles = connect(
     RolesContainerMapStateToProps(),

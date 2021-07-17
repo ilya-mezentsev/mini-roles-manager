@@ -58,8 +58,9 @@ func (c Controller) UpdateRole(context *gin.Context) {
 
 func (c Controller) DeleteRole(context *gin.Context) {
 	r := request.DeleteRole{
-		AccountId: context_keys.GetAccountId(context),
-		RoleId:    sharedModels.RoleId(context.Param("role_id")),
+		AccountId:      context_keys.GetAccountId(context),
+		RoleId:         sharedModels.RoleId(context.Param("role_id")),
+		RolesVersionId: sharedModels.RolesVersionId(context.Param("roles_version_id")),
 	}
 
 	presenter.MakeJsonResponse(

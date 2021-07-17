@@ -3,7 +3,7 @@ export const RoleDesc = () => (
     <>
         <h2>Role</h2>
         <p>
-            Role - is a entity that can has permissions to perform operations under resources
+            Role - is an entity that can has permissions to perform operations under resources
         </p>
         <h3>
             Examples of roles

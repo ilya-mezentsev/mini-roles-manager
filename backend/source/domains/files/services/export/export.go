@@ -14,17 +14,20 @@ import (
 )
 
 type Service struct {
-	rolesFetcherRepository     sharedInterfaces.RolesFetcherRepository
-	resourcesFetcherRepository sharedInterfaces.ResourceFetcherRepository
+	rolesFetcherRepository               sharedInterfaces.RolesFetcherRepository
+	resourcesFetcherRepository           sharedInterfaces.ResourceFetcherRepository
+	defaultRolesVersionFetcherRepository sharedInterfaces.DefaultRolesVersionFetcherRepository
 }
 
 func New(
 	rolesFetcherRepository sharedInterfaces.RolesFetcherRepository,
 	resourcesFetcherRepository sharedInterfaces.ResourceFetcherRepository,
+	defaultRolesVersionFetcherRepository sharedInterfaces.DefaultRolesVersionFetcherRepository,
 ) Service {
 	return Service{
-		rolesFetcherRepository:     rolesFetcherRepository,
-		resourcesFetcherRepository: resourcesFetcherRepository,
+		rolesFetcherRepository:               rolesFetcherRepository,
+		resourcesFetcherRepository:           resourcesFetcherRepository,
+		defaultRolesVersionFetcherRepository: defaultRolesVersionFetcherRepository,
 	}
 }
 
@@ -33,34 +36,50 @@ func (s Service) MakeExportFile(request request.ExportRequest) sharedInterfaces.
 		return response_factory.EmptyClientError()
 	}
 
-	resources, err := s.resourcesFetcherRepository.List(sharedSpec.AccountWithId{
+	spec := sharedSpec.AccountWithId{
 		AccountId: request.AccountId,
-	})
+	}
+	resources, err := s.resourcesFetcherRepository.List(spec)
 	if err != nil {
-		log.Errorf("Unable to fetch resources from DB: %v", err)
+		log.WithFields(log.Fields{
+			"request": request,
+		}).Errorf("Unable to fetch resources from DB: %v", err)
 
 		return response_factory.EmptyServerError()
 	}
 
-	roles, err := s.rolesFetcherRepository.List(sharedSpec.AccountWithId{
-		AccountId: request.AccountId,
-	})
+	roles, err := s.rolesFetcherRepository.List(spec)
 	if err != nil {
-		log.Errorf("Unable to fetch roles from DB: %v", err)
+		log.WithFields(log.Fields{
+			"request": request,
+		}).Errorf("Unable to fetch roles from DB: %v", err)
 
 		return response_factory.EmptyServerError()
 	}
 
-	jsonBytes, err := s.makeJSON(resources, roles)
+	defaultRolesVersion, err := s.defaultRolesVersionFetcherRepository.Fetch(spec)
 	if err != nil {
-		log.Errorf("Unable to marshal data to json: %v", err)
+		log.WithFields(log.Fields{
+			"request": request,
+		}).Errorf("Unable to fetch default roles version from db: %v", err)
+
+		return response_factory.EmptyServerError()
+	}
+
+	jsonBytes, err := s.makeJSON(resources, roles, defaultRolesVersion)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"request": request,
+		}).Errorf("Unable to marshal data to json: %v", err)
 
 		return response_factory.EmptyServerError()
 	}
 
 	tmpExportFilePath, err := s.createTmpFile(jsonBytes)
 	if err != nil {
-		log.Errorf("Unable to create tmp export file: %v", err)
+		log.WithFields(log.Fields{
+			"request": request,
+		}).Errorf("Unable to create tmp export file: %v", err)
 
 		return response_factory.EmptyServerError()
 	}
@@ -71,10 +90,12 @@ func (s Service) MakeExportFile(request request.ExportRequest) sharedInterfaces.
 func (s Service) makeJSON(
 	resources []sharedModels.Resource,
 	roles []sharedModels.Role,
+	defaultRolesVersion sharedModels.RolesVersion,
 ) ([]byte, error) {
 	return json.Marshal(sharedModels.AppData{
-		Resources: resources,
-		Roles:     roles,
+		Resources:             resources,
+		Roles:                 roles,
+		DefaultRolesVersionId: defaultRolesVersion.Id,
 	})
 }
 

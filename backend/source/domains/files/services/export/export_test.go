@@ -13,17 +13,23 @@ import (
 )
 
 var (
-	mockResourceRepository = &sharedMock.ResourceRepository{}
-	mockRoleRepository     = &sharedMock.RoleRepository{}
-	expectedOkStatus       = response_factory.DefaultResponse().ApplicationStatus()
-	expectedErrorStatus    = response_factory.EmptyServerError().ApplicationStatus()
+	mockResourceRepository            = &sharedMock.ResourceRepository{}
+	mockDefaultRolesVersionRepository = &sharedMock.DefaultRolesVersionRepository{}
+	mockRoleRepository                = &sharedMock.RoleRepository{}
+	expectedOkStatus                  = response_factory.DefaultResponse().ApplicationStatus()
+	expectedErrorStatus               = response_factory.EmptyServerError().ApplicationStatus()
 
-	service = New(mockRoleRepository, mockResourceRepository)
+	service = New(
+		mockRoleRepository,
+		mockResourceRepository,
+		mockDefaultRolesVersionRepository,
+	)
 )
 
 func init() {
 	mockResourceRepository.Reset()
 	mockRoleRepository.Reset()
+	mockDefaultRolesVersionRepository.Reset()
 }
 
 func TestService_MakeExportFileSuccess(t *testing.T) {
@@ -46,18 +52,19 @@ func TestService_MakeExportFileSuccess(t *testing.T) {
 		t.Fatalf("unable to unmarshal settings to struct: %v", err)
 	}
 
-	resources, _ := mockResourceRepository.List(sharedSpec.AccountWithId{
+	spec := sharedSpec.AccountWithId{
 		AccountId: sharedMock.ExistsAccountId,
-	})
-	roles, _ := mockRoleRepository.List(sharedSpec.AccountWithId{
-		AccountId: sharedMock.ExistsAccountId,
-	})
+	}
+	resources, _ := mockResourceRepository.List(spec)
+	roles, _ := mockRoleRepository.List(spec)
+	defaultRolesVersion, _ := mockDefaultRolesVersionRepository.Fetch(spec)
 
 	assert.Equal(
 		t,
 		sharedModels.AppData{
-			Resources: resources,
-			Roles:     roles,
+			Resources:             resources,
+			Roles:                 roles,
+			DefaultRolesVersionId: defaultRolesVersion.Id,
 		},
 		exportData,
 	)
@@ -75,6 +82,15 @@ func TestService_MakeExportFileUnableToFetchResources(t *testing.T) {
 func TestService_MakeExportFileUnableToFetchRoles(t *testing.T) {
 	response := service.MakeExportFile(request.ExportRequest{
 		AccountId: sharedMock.BadAccountIdForRoleRepository,
+	})
+
+	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.HasData())
+}
+
+func TestService_MakeExportFileUnableToFetchDefaultRolesVersion(t *testing.T) {
+	response := service.MakeExportFile(request.ExportRequest{
+		AccountId: sharedMock.BadAccountIdForDefaultRolesVersionRepository,
 	})
 
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())

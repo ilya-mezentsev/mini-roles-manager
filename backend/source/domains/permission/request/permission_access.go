@@ -1,16 +1,17 @@
 package request
 
-import shared "mini-roles-backend/source/domains/shared/models"
+import sharedModels "mini-roles-backend/source/domains/shared/models"
 
 type (
 	PermissionAccess struct {
-		RoleId     shared.RoleId     `json:"roleId" validate:"required"`
-		ResourceId shared.ResourceId `json:"resourceId" validate:"required"`
-		Operation  string            `json:"operation" validate:"required,oneof=create read update delete"`
+		RoleId         sharedModels.RoleId     `validate:"required"`
+		ResourceId     sharedModels.ResourceId `validate:"required"`
+		Operation      string                  `validate:"required,oneof=create read update delete"`
+		RolesVersionId sharedModels.RolesVersionId
 	}
 )
 
-func (r PermissionAccess) WithResourceId(resourceId shared.ResourceId) PermissionAccess {
+func (r PermissionAccess) WithResourceId(resourceId sharedModels.ResourceId) PermissionAccess {
 	r.ResourceId = resourceId
 	return r
 }

@@ -2,6 +2,7 @@ package response_factory
 
 import (
 	"github.com/stretchr/testify/assert"
+	sharedError "mini-roles-backend/source/domains/shared/error"
 	"net/http"
 	"testing"
 )
@@ -81,4 +82,14 @@ func TestEmptyServerError(t *testing.T) {
 	assert.False(t, response.HasData())
 	assert.Equal(t, http.StatusInternalServerError, response.HttpStatus())
 	assert.Nil(t, response.Data())
+}
+
+func TestDefaultServerError(t *testing.T) {
+	response := DefaultServerError()
+
+	assert.Equal(t, statusError, response.ApplicationStatus())
+	assert.True(t, response.HasData())
+	assert.Equal(t, http.StatusInternalServerError, response.HttpStatus())
+	assert.Equal(t, sharedError.ServerErrorCode, response.Data().(sharedError.ServiceError).Code)
+	assert.Equal(t, sharedError.ServerErrorDescription, response.Data().(sharedError.ServiceError).Description)
 }

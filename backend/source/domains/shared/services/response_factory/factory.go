@@ -1,6 +1,9 @@
 package response_factory
 
-import sharedInterfaces "mini-roles-backend/source/domains/shared/interfaces"
+import (
+	sharedError "mini-roles-backend/source/domains/shared/error"
+	sharedInterfaces "mini-roles-backend/source/domains/shared/interfaces"
+)
 
 func DefaultResponse() sharedInterfaces.Response {
 	return defaultResponse{}
@@ -12,6 +15,13 @@ func SuccessResponse(data interface{}) sharedInterfaces.Response {
 
 func ServerError(data interface{}) sharedInterfaces.Response {
 	return serverErrorResponse{defaultResponse{data}}
+}
+
+func DefaultServerError() sharedInterfaces.Response {
+	return ServerError(sharedError.ServiceError{
+		Code:        sharedError.ServerErrorCode,
+		Description: sharedError.ServerErrorDescription,
+	})
 }
 
 func EmptyServerError() sharedInterfaces.Response {

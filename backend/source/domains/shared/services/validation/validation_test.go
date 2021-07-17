@@ -38,7 +38,8 @@ func TestMakeErrorResponseValidRequest(t *testing.T) {
 	req := request.CreateRole{
 		AccountId: sharedMock.ExistsAccountId,
 		Role: sharedModels.Role{
-			Id: "some-id",
+			Id:        "some-id",
+			VersionId: sharedMock.ExistsRolesVersionId,
 		},
 	}
 

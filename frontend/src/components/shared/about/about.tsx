@@ -2,17 +2,19 @@ import {
     Redirect,
     Route,
     Switch,
-} from "react-router";
+} from 'react-router';
 import LiveHelpIcon from '@material-ui/icons/LiveHelp';
 import PersonIcon from '@material-ui/icons/Person';
 import NatureIcon from '@material-ui/icons/Nature';
 import CodeIcon from '@material-ui/icons/Code';
+import MergeTypeIcon from '@material-ui/icons/MergeType';
 import Grid from '@material-ui/core/Grid';
 
 import { ListItemRoute } from '../navigation/navigation.types';
 import { SharedListNavigation } from '../../../components/shared';
 import { InfoDesc } from './info.desc';
 import { ResourceDesc } from './resource.desc';
+import { RolesVersionDesc } from './roles_version.desc';
 import { RoleDesc } from './role.desc';
 import { ApiDesc } from './api.desc';
 
@@ -30,6 +32,12 @@ const routes: (ListItemRoute & { component: () => JSX.Element })[] = [
         name: 'Resource',
         component: () => <ResourceDesc/>,
         iconComponent: () => <NatureIcon/>,
+    },
+    {
+        path: '/about/roles-version',
+        name: 'Roles Version',
+        component: () => <RolesVersionDesc/>,
+        iconComponent: () => <MergeTypeIcon/>,
     },
     {
         path: '/about/role',

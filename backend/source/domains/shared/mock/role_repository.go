@@ -15,8 +15,9 @@ func (r *RoleRepository) Reset() {
 	r.roles = map[sharedModels.AccountId][]sharedModels.Role{
 		ExistsAccountId: {
 			{
-				Id:    ExistsRoleId,
-				Title: "Some-Role",
+				Id:        ExistsRoleId,
+				Title:     "Some-Role",
+				VersionId: ExistsRolesVersionId,
 			},
 		},
 	}
@@ -80,14 +81,18 @@ func (r *RoleRepository) Update(accountId sharedModels.AccountId, role sharedMod
 	return nil
 }
 
-func (r *RoleRepository) Delete(accountId sharedModels.AccountId, roleId sharedModels.RoleId) error {
+func (r *RoleRepository) Delete(
+	accountId sharedModels.AccountId,
+	rolesVersionId sharedModels.RolesVersionId,
+	roleId sharedModels.RoleId,
+) error {
 	if accountId == BadAccountId {
 		return errors.New("some-error")
 	}
 
 	var newRoles []sharedModels.Role
 	for _, role := range r.roles[accountId] {
-		if role.Id != roleId {
+		if role.Id != roleId || role.VersionId != rolesVersionId {
 			newRoles = append(newRoles, role)
 		}
 	}

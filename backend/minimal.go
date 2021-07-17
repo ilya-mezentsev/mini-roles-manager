@@ -6,7 +6,8 @@ import (
 	"io/ioutil"
 	"log"
 	"mini-roles-backend/source/domains/files/services/validation"
-	"mini-roles-backend/source/domains/permission/repositories/permission_memory"
+	defaultRolesVersionRepositoryConstructor "mini-roles-backend/source/domains/permission/repositories/memory/default_roles_version"
+	permissionRepositoryConstructor "mini-roles-backend/source/domains/permission/repositories/memory/permission"
 	"mini-roles-backend/source/domains/permission/services/permission"
 	"mini-roles-backend/source/entrypoints/web"
 	"strings"
@@ -33,12 +34,13 @@ func minimalInit(r *gin.Engine) int {
 
 	appData, validationErrors := validation.Validate(appDataBytes)
 	if len(validationErrors) > 0 {
-		log.Println("App data file is invalid:")
-		log.Fatalln(strings.Join(validationErrors, "\n"))
+		log.Fatalf("App data file is invalid:\n%v", strings.Join(validationErrors, "\n"))
 	}
 
-	permissionRepository := permission_memory.New(appData)
-	permissionService := permission.New(permissionRepository)
+	permissionRepository := permissionRepositoryConstructor.New(appData)
+	defaultRolesVersionRepository := defaultRolesVersionRepositoryConstructor.New(appData)
+
+	permissionService := permission.New(permissionRepository, defaultRolesVersionRepository)
 
 	web.MinimalInit(
 		r,

@@ -7,7 +7,7 @@ export interface RolesListActions {
     updateRoleAction: (role: Role) => void;
     cleanUpdateRoleErrorAction: () => void;
 
-    deleteRoleAction: (roleId: string) => void;
+    deleteRoleAction: (rolesVersionId: string, roleId: string) => void;
     cleanDeleteRoleErrorAction: () => void;
 }
 

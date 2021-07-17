@@ -9,13 +9,15 @@ describe('roles reducer tests', () => {
             type: ACTIONS.SUCCESS_CREATE_ROLE,
             rolesResult: {
                 role: {
-                    id: 'role-1'
+                    id: 'role-1',
+                    versionId: 'version-id',
                 },
             },
         })).toEqual({
             list: [
                 {
-                    id: 'role-1'
+                    id: 'role-1',
+                    versionId: 'version-id',
                 },
             ],
         });
@@ -55,6 +57,13 @@ describe('roles reducer tests', () => {
                 {
                     id: 'role-1',
                     title: 'title-1',
+                    versionId: 'version-1',
+                } as Role,
+
+                {
+                    id: 'role-1',
+                    title: 'title-1',
+                    versionId: 'version-2',
                 } as Role,
             ],
         };
@@ -65,6 +74,7 @@ describe('roles reducer tests', () => {
                 role: {
                     id: 'role-1',
                     title: 'title-2',
+                    versionId: 'version-1',
                 } as Role,
             },
         })).toEqual({
@@ -72,7 +82,13 @@ describe('roles reducer tests', () => {
                 {
                     id: 'role-1',
                     title: 'title-2',
-                } as Role,
+                    versionId: 'version-1',
+                },
+                {
+                    id: 'role-1',
+                    title: 'title-1',
+                    versionId: 'version-2',
+                },
             ],
         });
 
@@ -89,7 +105,13 @@ describe('roles reducer tests', () => {
                 {
                     id: 'role-1',
                     title: 'title-1',
-                } as Role,
+                    versionId: 'version-1',
+                },
+                {
+                    id: 'role-1',
+                    title: 'title-1',
+                    versionId: 'version-2',
+                },
             ],
         });
 
@@ -112,11 +134,26 @@ describe('roles reducer tests', () => {
                 {
                     id: 'role-1',
                     title: 'title-1',
+                    versionId: 'roles-version-1',
                 } as Role,
 
                 {
                     id: 'role-2',
                     title: 'title-1',
+                    versionId: 'roles-version-1',
+                    extends: ['role-1'],
+                } as Role,
+
+                {
+                    id: 'role-1',
+                    title: 'title-1',
+                    versionId: 'roles-version-2',
+                } as Role,
+
+                {
+                    id: 'role-2',
+                    title: 'title-1',
+                    versionId: 'roles-version-2',
                     extends: ['role-1'],
                 } as Role,
             ],
@@ -126,13 +163,26 @@ describe('roles reducer tests', () => {
             type: ACTIONS.SUCCESS_DELETE_ROLE,
             rolesResult: {
                 roleId: 'role-1',
+                rolesVersionId: 'roles-version-1',
             },
         })).toEqual({
             list: [
                 {
                     id: 'role-2',
                     title: 'title-1',
+                    versionId: 'roles-version-1',
                     extends: [],
+                },
+                {
+                    id: 'role-1',
+                    title: 'title-1',
+                    versionId: 'roles-version-2',
+                },
+                {
+                    id: 'role-2',
+                    title: 'title-1',
+                    versionId: 'roles-version-2',
+                    extends: ['role-1'],
                 },
             ],
         });
@@ -141,6 +191,7 @@ describe('roles reducer tests', () => {
             type: ACTIONS.SUCCESS_DELETE_ROLE,
             rolesResult: {
                 roleId: 'role-1',
+                rolesVersionId: 'roles-version-1',
             },
         })).toEqual({
             list: [],

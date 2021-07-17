@@ -41,6 +41,7 @@ func checkFields(appData sharedModels.AppData) []string {
 		extendsIdsAreExist,
 		permissionsAreExist,
 		permissionsDoNotConflict,
+		defaultRolesVersionIdIsPresent,
 	} {
 		messagesCount++
 		go func(resourcesCheckFn CheckFn) {
@@ -207,19 +208,33 @@ func allOperationsAreExist(appData sharedModels.AppData) []string {
 
 func rolesIdsAreUnique(appData sharedModels.AppData) []string {
 	var messages []string
-	rolesIds := make(map[sharedModels.RoleId]uint)
+	rolesIds := make(map[sharedModels.RolesVersionId]map[sharedModels.RoleId]uint)
 	for _, role := range appData.Roles {
-		_, hasRoleId := rolesIds[role.Id]
+		if _, hasRolesVersionId := rolesIds[role.VersionId]; !hasRolesVersionId {
+			rolesIds[role.VersionId] = map[sharedModels.RoleId]uint{}
+		}
+
+		_, hasRoleId := rolesIds[role.VersionId][role.Id]
 		if hasRoleId {
-			rolesIds[role.Id] += 1
+			rolesIds[role.VersionId][role.Id] += 1
 		} else {
-			rolesIds[role.Id] = 1
+			rolesIds[role.VersionId][role.Id] = 1
 		}
 	}
 
-	for roleId, foundCount := range rolesIds {
-		if foundCount > 1 {
-			messages = append(messages, fmt.Sprintf("Role id %s found %d times", roleId, foundCount))
+	for rolesVersionId, roles := range rolesIds {
+		for roleId, foundCount := range roles {
+			if foundCount > 1 {
+				messages = append(
+					messages,
+					fmt.Sprintf(
+						"Role id %s found %d times for version %s",
+						roleId,
+						foundCount,
+						rolesVersionId,
+					),
+				)
+			}
 		}
 	}
 
@@ -228,19 +243,24 @@ func rolesIdsAreUnique(appData sharedModels.AppData) []string {
 
 func extendsIdsAreExist(appData sharedModels.AppData) []string {
 	var messages []string
-	rolesIds := make(map[sharedModels.RoleId]struct{})
+	rolesIds := make(map[sharedModels.RolesVersionId]map[sharedModels.RoleId]struct{})
 	for _, role := range appData.Roles {
-		rolesIds[role.Id] = struct{}{}
+		if _, hasRolesVersionId := rolesIds[role.VersionId]; !hasRolesVersionId {
+			rolesIds[role.VersionId] = map[sharedModels.RoleId]struct{}{}
+		}
+
+		rolesIds[role.VersionId][role.Id] = struct{}{}
 	}
 
 	for _, role := range appData.Roles {
 		for _, extendsId := range role.Extends {
-			_, extendsIdFound := rolesIds[extendsId]
+			_, extendsIdFound := rolesIds[role.VersionId][extendsId]
 			if !extendsIdFound {
 				messages = append(messages, fmt.Sprintf(
-					"Role with id %s has not exists extends id: %s",
+					"Role with id %s has not exists extends id: %s, for version %s",
 					role.Id,
 					extendsId,
+					role.VersionId,
 				))
 			}
 		}
@@ -278,15 +298,16 @@ func permissionsDoNotConflict(appData sharedModels.AppData) []string {
 	var messages []string
 	/*
 		structure like
-			role_1:
-				resource_1:
-					create: 1
-					read: 2
-					...
+			roles_version_1:
+				role_1:
+					resource_1:
+						create: 1
+						read: 2
+						...
 
 		if we get 2 it means that role contains conflict permission
 	*/
-	rolesResourcesOperationsEffects := make(map[sharedModels.RoleId]map[sharedModels.ResourceId]map[string]uint)
+	rolesResourcesOperationsEffects := make(map[sharedModels.RolesVersionId]map[sharedModels.RoleId]map[sharedModels.ResourceId]map[string]uint)
 	permissions := make(map[sharedModels.PermissionId]sharedModels.Permission)
 	for _, resource := range appData.Resources {
 		for _, permission := range resource.Permissions {
@@ -303,45 +324,61 @@ func permissionsDoNotConflict(appData sharedModels.AppData) []string {
 		for _, permissionId := range role.Permissions {
 			permission, found := permissions[permissionId]
 			if !found {
-				// here we cannot be sure that permission with particular id is exist
+				// here we cannot be sure that permission with particular id is existing
 				continue
 			}
 
-			if _, found = rolesResourcesOperationsEffects[role.Id]; !found {
-				rolesResourcesOperationsEffects[role.Id] = make(map[sharedModels.ResourceId]map[string]uint)
+			if _, found = rolesResourcesOperationsEffects[role.VersionId]; !found {
+				rolesResourcesOperationsEffects[role.VersionId] = make(map[sharedModels.RoleId]map[sharedModels.ResourceId]map[string]uint)
 			}
 
-			if _, found = rolesResourcesOperationsEffects[role.Id][permission.Resource.Id]; !found {
-				rolesResourcesOperationsEffects[role.Id][permission.Resource.Id] = make(map[string]uint)
+			if _, found = rolesResourcesOperationsEffects[role.VersionId][role.Id]; !found {
+				rolesResourcesOperationsEffects[role.VersionId][role.Id] = make(map[sharedModels.ResourceId]map[string]uint)
 			}
 
-			if _, found = rolesResourcesOperationsEffects[role.Id][permission.Resource.Id][permission.Operation]; !found {
-				rolesResourcesOperationsEffects[role.Id][permission.Resource.Id][permission.Operation] = 1
+			if _, found = rolesResourcesOperationsEffects[role.VersionId][role.Id][permission.Resource.Id]; !found {
+				rolesResourcesOperationsEffects[role.VersionId][role.Id][permission.Resource.Id] = make(map[string]uint)
+			}
+
+			if _, found = rolesResourcesOperationsEffects[role.VersionId][role.Id][permission.Resource.Id][permission.Operation]; !found {
+				rolesResourcesOperationsEffects[role.VersionId][role.Id][permission.Resource.Id][permission.Operation] = 1
 			} else {
-				rolesResourcesOperationsEffects[role.Id][permission.Resource.Id][permission.Operation] += 1
+				rolesResourcesOperationsEffects[role.VersionId][role.Id][permission.Resource.Id][permission.Operation] += 1
 			}
 		}
 	}
 
-	for roleId, resourceIdToOperationEffectCount := range rolesResourcesOperationsEffects {
-		for resourceId, operationToEffectCount := range resourceIdToOperationEffectCount {
-			for _, operation := range []string{
-				sharedResource.CreateOperation,
-				sharedResource.ReadOperation,
-				sharedResource.UpdateOperation,
-				sharedResource.DeleteOperation,
-			} {
-				count := operationToEffectCount[operation]
-				if count > 1 {
-					messages = append(messages, fmt.Sprintf(
-						"Role with id %s has conflict permissions for resource %s on %s operation",
-						roleId,
-						resourceId,
-						operation,
-					))
+	for rolesVersionId, roles := range rolesResourcesOperationsEffects {
+		for roleId, resourceIdToOperationEffectCount := range roles {
+			for resourceId, operationToEffectCount := range resourceIdToOperationEffectCount {
+				for _, operation := range []string{
+					sharedResource.CreateOperation,
+					sharedResource.ReadOperation,
+					sharedResource.UpdateOperation,
+					sharedResource.DeleteOperation,
+				} {
+					count := operationToEffectCount[operation]
+					if count > 1 {
+						messages = append(messages, fmt.Sprintf(
+							"Role with id %s has conflict permissions for resource %s on %s operation for version %s",
+							roleId,
+							resourceId,
+							operation,
+							rolesVersionId,
+						))
+					}
 				}
 			}
 		}
+	}
+
+	return messages
+}
+
+func defaultRolesVersionIdIsPresent(appData sharedModels.AppData) []string {
+	var messages []string
+	if appData.DefaultRolesVersionId == "" {
+		messages = append(messages, "Default roles version id is not present")
 	}
 
 	return messages

@@ -1,4 +1,4 @@
-package permission_db
+package permission
 
 import (
 	"github.com/jmoiron/sqlx"
@@ -9,6 +9,7 @@ import (
 const (
 	createRecursivePermissionsFunctionQuery = `
 	create or replace function recursive_permissions(
+		roles_version_id character(32),
 		entry_point_role_id character(32),
 		_account_hash character(32),
 		depth int,
@@ -23,13 +24,20 @@ const (
 		return query select
 			r.permissions permissions,
 			depth permissions_depth
-		from role r where role_id = entry_point_role_id and account_hash = _account_hash;
+		from role r where role_id = entry_point_role_id and account_hash = _account_hash and version_id = roles_version_id;
 
 		for extended_role_id in
-			(select unnest(extends) from role where role_id = entry_point_role_id and account_hash = _account_hash)
+			(
+			    select unnest(extends) from role
+			    where
+			          role_id = entry_point_role_id and
+			          account_hash = _account_hash and
+			          version_id = roles_version_id
+			)
 		loop
 		    if not extended_role_id = any(exclude) then
 				return query select * from recursive_permissions(
+				    roles_version_id,
 					trim(extended_role_id),
 					_account_hash,
 					depth + 1,
@@ -48,7 +56,7 @@ const (
 	       r.links_to links_to
 	from permission p
 	inner join resource r on r.resource_id = p.resource_id
-	cross join lateral (select * from recursive_permissions($2, $1, 1, array[]::character(32)[])) rp
+	cross join lateral (select * from recursive_permissions($2, $3, $1, 1, array[]::character(32)[])) rp
 	where permission_id = any(rp.permissions)
 	order by rp.permissions_depth`
 )
@@ -68,7 +76,7 @@ func (r Repository) List(spec spec.PermissionWithAccountIdAndRoleId) ([]sharedMo
 	}
 
 	var proxies []permissionProxy
-	err = r.db.Select(&proxies, selectPermissionsQuery, spec.AccountId, spec.RoleId)
+	err = r.db.Select(&proxies, selectPermissionsQuery, spec.AccountId, spec.RolesVersionId, spec.RoleId)
 
 	return r.makePermissions(proxies), err
 }

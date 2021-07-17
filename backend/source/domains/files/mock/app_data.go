@@ -12,7 +12,8 @@ const count = 10
 func MakeValidAppData() sharedModels.AppData {
 	var resources []sharedModels.Resource
 	role := sharedModels.Role{
-		Id: sharedMock.ExistsRoleId,
+		Id:        sharedMock.ExistsRoleId,
+		VersionId: sharedMock.ExistsRolesVersionId,
 	}
 
 	for i := 0; i < 10; i++ {
@@ -84,8 +85,9 @@ func MakeValidAppData() sharedModels.AppData {
 	}
 
 	return sharedModels.AppData{
-		Resources: resources,
-		Roles:     []sharedModels.Role{role},
+		Resources:             resources,
+		Roles:                 []sharedModels.Role{role},
+		DefaultRolesVersionId: sharedMock.ExistsRolesVersionId,
 	}
 }
 

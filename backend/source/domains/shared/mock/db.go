@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"mini-roles-backend/source/db/schema"
+	sharedModels "mini-roles-backend/source/domains/shared/models"
 )
 
 const (
@@ -11,6 +12,7 @@ const (
 	accountCredentialsTable = "account_credentials"
 	resourceTable           = "resource"
 	permissionTable         = "permission"
+	versionTable            = "roles_version"
 	roleTable               = "role"
 )
 
@@ -18,6 +20,7 @@ func MustReinstall(db *sqlx.DB) {
 	dropTables(db)
 	createTables(db)
 	addAccount(db)
+	addRolesVersion(db)
 }
 
 func dropTables(db *sqlx.DB) {
@@ -26,6 +29,7 @@ func dropTables(db *sqlx.DB) {
 		accountCredentialsTable,
 		resourceTable,
 		permissionTable,
+		versionTable,
 		roleTable,
 	} {
 		db.MustExec(fmt.Sprintf("drop table if exists %s cascade", tableName))
@@ -44,6 +48,14 @@ func addAccount(db *sqlx.DB) {
 		ExistsPassword,
 		ExistsAccountId,
 	)
+}
+
+func addRolesVersion(db *sqlx.DB) {
+	MustAddRolesVersion(db, ExistsRolesVersionId)
+}
+
+func MustAddRolesVersion(db *sqlx.DB, rolesVersionId sharedModels.RolesVersionId) {
+	db.MustExec(`insert into roles_version(version_id, account_hash) values($1, $2)`, rolesVersionId, ExistsAccountId)
 }
 
 func MustAddResource(db *sqlx.DB) {

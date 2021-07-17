@@ -17,11 +17,18 @@ import (
 )
 
 type Service struct {
-	repository interfaces.RegistrationRepository
+	registrationRepository        interfaces.RegistrationRepository
+	rolesVersionCreatorRepository sharedInterfaces.RolesVersionCreatorRepository
 }
 
-func New(repository interfaces.RegistrationRepository) Service {
-	return Service{repository}
+func New(
+	registrationRepository interfaces.RegistrationRepository,
+	rolesVersionCreatorRepository sharedInterfaces.RolesVersionCreatorRepository,
+) Service {
+	return Service{
+		registrationRepository:        registrationRepository,
+		rolesVersionCreatorRepository: rolesVersionCreatorRepository,
+	}
 }
 
 func (s Service) Register(request request.Registration) sharedInterfaces.Response {
@@ -31,8 +38,9 @@ func (s Service) Register(request request.Registration) sharedInterfaces.Respons
 	}
 
 	request.Credentials.Password = shared.MakePassword(request.Credentials)
-	err := s.repository.Register(
-		s.createSession(request),
+	session := s.createSession(request)
+	err := s.registrationRepository.Register(
+		session,
 		request.Credentials,
 	)
 	if err != nil {
@@ -44,10 +52,20 @@ func (s Service) Register(request request.Registration) sharedInterfaces.Respons
 		}
 
 		log.Errorf("Unable to register user in DB: %v", err)
-		return response_factory.ServerError(sharedError.ServiceError{
-			Code:        sharedError.ServerErrorCode,
-			Description: sharedError.ServerErrorDescription,
-		})
+		return response_factory.DefaultServerError()
+	}
+
+	err = s.rolesVersionCreatorRepository.Create(
+		session.Id,
+		sharedModels.RolesVersion{
+			Id: defaultRolesVersionId,
+		},
+	)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"account_hash": session.Id,
+		}).Errorf("Unable to create roles version: %v", err)
+		return response_factory.DefaultServerError()
 	}
 
 	return response_factory.DefaultResponse()

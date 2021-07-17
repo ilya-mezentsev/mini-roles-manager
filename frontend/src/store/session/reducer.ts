@@ -34,7 +34,7 @@ export function sessionReducer(
         case ACTIONS.FAILED_TO_PERFORM_SIGN_IN_ACTION:
             log.error((action.userSession?.error as unknown as Error)?.toString() || 'Unknown error');
             return {
-                ...(state || {}),
+                ...state,
                 error: {
                     code: UnknownErrorCode,
                     description: UnknownErrorDescription,
@@ -44,7 +44,7 @@ export function sessionReducer(
         case ACTIONS.CLEAN_SIGN_OUT_ERROR:
         case ACTIONS.CLEAN_SIGN_IN_ERROR:
             return {
-                ...(state || {}),
+                ...state,
                 error: null,
             };
 

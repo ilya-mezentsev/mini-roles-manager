@@ -12,15 +12,15 @@ Deployment instructions is available [here](./deployment.md)
 After you created account, needed resources and roles, added permissions for your roles you can use API for checking access for users. <br/>
 The simplest example of API call is cURL:
 ```bash
-$ curl "localhost:8000/api/public/permissions?roleId=role-1&resourceId=resource-1&operation=create" \ 
+$ curl "localhost:8000/api/public/permissions?roleId=role-1&resourceId=resource-1&operation=create&rolesVersionId=version-1" \ 
   -H "X-RM-Auth-Token: YOUR_API_TOKEN"
 ```
 
 #### Request parameters:
-All parameters required
-* roleId - id of user role
-* resourceId - id of resource
-* operation - operation that user is going to perform under resource (create, read, update or delete)
+* roleId (required) - id of user role
+* resourceId (required) - id of resource
+* operation (required) - operation that user is going to perform under resource (create, read, update or delete)
+* rolesVersionId (optional) - roles version id; if not present default will be used (for now first created, but see [#26](/../../issues/26))
 
 #### Responses:
 Each response has next fields:

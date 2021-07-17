@@ -14,13 +14,16 @@ import (
 	"mini-roles-backend/source/domains/account/services/session"
 	"mini-roles-backend/source/domains/account/services/session_check"
 	"mini-roles-backend/source/domains/files/services/export"
-	permissionListRepositoryConstructor "mini-roles-backend/source/domains/permission/repositories/permission_db"
+	defaultRolesVersionRepositoryConstructor "mini-roles-backend/source/domains/permission/repositories/db/default_roles_version"
+	permissionRepositoryConstructor "mini-roles-backend/source/domains/permission/repositories/db/permission"
 	"mini-roles-backend/source/domains/permission/services/permission"
 	permissionCreatorRepositoryConstructor "mini-roles-backend/source/domains/resource/repositories/permission"
 	resourceRepositoryConstructor "mini-roles-backend/source/domains/resource/repositories/resource"
 	"mini-roles-backend/source/domains/resource/services/resource"
 	roleRepositoryConstructor "mini-roles-backend/source/domains/role/repositories/role"
+	rolesVersionRepositoryConstructor "mini-roles-backend/source/domains/role/repositories/roles_version"
 	"mini-roles-backend/source/domains/role/services/role"
+	"mini-roles-backend/source/domains/role/services/roles_version"
 	"mini-roles-backend/source/entrypoints/web"
 )
 
@@ -35,19 +38,26 @@ func fullInit(r *gin.Engine) int {
 	registrationRepository := registrationRepositoryConstructor.New(db)
 	sessionRepository := sessionRepositoryConstructor.New(db)
 	accountInfoRepository := accountInfoRepositoryConstructor.New(db)
-	permissionListRepository := permissionListRepositoryConstructor.New(db)
+	permissionListRepository := permissionRepositoryConstructor.New(db)
 	permissionCreatorRepository := permissionCreatorRepositoryConstructor.New(db)
 	resourceRepository := resourceRepositoryConstructor.New(db)
+	rolesVersionRepository := rolesVersionRepositoryConstructor.New(db)
+	defaultRolesVersionRepository := defaultRolesVersionRepositoryConstructor.New(db)
 	roleRepository := roleRepositoryConstructor.New(db)
 
-	registrationService := registration.New(registrationRepository)
+	registrationService := registration.New(registrationRepository, rolesVersionRepository)
 	sessionService := session.New(sessionRepository, configsRepository)
 	accountInfoService := info.New(accountInfoRepository)
 	sessionCheckService := session_check.New(sessionRepository)
-	permissionService := permission.New(permissionListRepository)
+	permissionService := permission.New(permissionListRepository, defaultRolesVersionRepository)
 	resourceService := resource.New(resourceRepository, permissionCreatorRepository)
+	rolesVersionService := roles_version.New(rolesVersionRepository)
 	roleService := role.New(roleRepository)
-	exportService := export.New(roleRepository, resourceRepository)
+	exportService := export.New(
+		roleRepository,
+		resourceRepository,
+		defaultRolesVersionRepository,
+	)
 
 	web.FullInit(
 		r,
@@ -60,6 +70,8 @@ func fullInit(r *gin.Engine) int {
 		permissionService,
 
 		resourceService,
+
+		rolesVersionService,
 
 		roleService,
 

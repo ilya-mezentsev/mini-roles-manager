@@ -5,6 +5,7 @@ import {
 } from '../../../components/shared';
 import {
     Resources,
+    RolesVersion,
     Roles,
     Account,
     SignOut,
@@ -17,6 +18,11 @@ const routes: NavigationRoute[] = [
         path: '/resources',
         name: 'Resources',
         component: () => <Resources/>
+    },
+    {
+        path: '/roles-versions',
+        name: 'Roles Versions',
+        component: () => <RolesVersion/>
     },
     {
         path: '/roles',

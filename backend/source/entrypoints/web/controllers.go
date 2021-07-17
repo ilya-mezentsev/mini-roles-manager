@@ -10,11 +10,13 @@ import (
 	"mini-roles-backend/source/domains/permission/services/permission"
 	"mini-roles-backend/source/domains/resource/services/resource"
 	"mini-roles-backend/source/domains/role/services/role"
+	"mini-roles-backend/source/domains/role/services/roles_version"
 	"mini-roles-backend/source/entrypoints/web/controllers/account"
 	filesControllerConstructor "mini-roles-backend/source/entrypoints/web/controllers/files"
 	permissionControllerConstructor "mini-roles-backend/source/entrypoints/web/controllers/permission"
 	resourceControllerConstructor "mini-roles-backend/source/entrypoints/web/controllers/resource"
 	roleControllerConstructor "mini-roles-backend/source/entrypoints/web/controllers/role"
+	rolesVersionControllerConstructor "mini-roles-backend/source/entrypoints/web/controllers/roles_version"
 	"mini-roles-backend/source/entrypoints/web/middleware/cookie"
 	"mini-roles-backend/source/entrypoints/web/middleware/header"
 )
@@ -31,6 +33,8 @@ func FullInit(
 
 	resourceService resource.Service,
 
+	rolesVersionService roles_version.Service,
+
 	roleService role.Service,
 
 	exportService export.Service,
@@ -41,6 +45,7 @@ func FullInit(
 	accountController := account.New(registrationService, sessionService, accountInfoService)
 	permissionController := permissionControllerConstructor.New(permissionService)
 	resourceController := resourceControllerConstructor.New(resourceService)
+	rolesVersionController := rolesVersionControllerConstructor.New(rolesVersionService)
 	roleController := roleControllerConstructor.New(roleService)
 	filesController := filesControllerConstructor.New(exportService)
 
@@ -65,10 +70,15 @@ func FullInit(
 		cookieTokenAuthorizedGroup.PATCH("/resource", resourceController.UpdateResource)
 		cookieTokenAuthorizedGroup.DELETE("/resource/:resource_id", resourceController.DeleteResource)
 
+		cookieTokenAuthorizedGroup.GET("/roles-versions", rolesVersionController.RolesVersionsList)
+		cookieTokenAuthorizedGroup.POST("/roles-version", rolesVersionController.CreateRolesVersion)
+		cookieTokenAuthorizedGroup.PATCH("/roles-version", rolesVersionController.UpdateRolesVersion)
+		cookieTokenAuthorizedGroup.DELETE("/roles-version/:roles_version_id", rolesVersionController.DeleteRolesVersion)
+
 		cookieTokenAuthorizedGroup.GET("/roles", roleController.RolesList)
 		cookieTokenAuthorizedGroup.POST("/role", roleController.CreateRole)
 		cookieTokenAuthorizedGroup.PATCH("/role", roleController.UpdateRole)
-		cookieTokenAuthorizedGroup.DELETE("/role/:role_id", roleController.DeleteRole)
+		cookieTokenAuthorizedGroup.DELETE("/role/:roles_version_id/:role_id", roleController.DeleteRole)
 
 		cookieTokenAuthorizedGroup.GET("/files/export", filesController.Export)
 	}

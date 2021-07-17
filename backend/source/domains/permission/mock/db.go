@@ -2,6 +2,7 @@ package mock
 
 import (
 	"fmt"
+	sharedMock "mini-roles-backend/source/domains/shared/mock"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
 	sharedResource "mini-roles-backend/source/domains/shared/resource"
 )
@@ -51,7 +52,8 @@ var (
 	}
 
 	OneDepthLevelExtendingRole = sharedModels.Role{
-		Id: OneDepthLevelExtendingRoleId,
+		Id:        OneDepthLevelExtendingRoleId,
+		VersionId: sharedMock.ExistsRolesVersionId,
 		Permissions: []sharedModels.PermissionId{
 			PermitCreatePermissionId3,
 			PermitReadPermissionId3,
@@ -64,7 +66,8 @@ var (
 	}
 
 	TwoDepthLevelExtendingRole = sharedModels.Role{
-		Id: TwoDepthLevelExtendingRoleId,
+		Id:        TwoDepthLevelExtendingRoleId,
+		VersionId: sharedMock.ExistsRolesVersionId,
 		Extends: []sharedModels.RoleId{
 			FlatRoleId2,
 			OneDepthLevelExtendingRoleId,
@@ -73,6 +76,7 @@ var (
 
 	RecursiveExtendingRole1 = sharedModels.Role{
 		Id:          RecursiveExtendingRoleId1,
+		VersionId:   sharedMock.ExistsRolesVersionId,
 		Permissions: FlatRoles[0].Permissions,
 		Extends: []sharedModels.RoleId{
 			RecursiveExtendingRoleId2,
@@ -81,6 +85,7 @@ var (
 
 	RecursiveExtendingRole2 = sharedModels.Role{
 		Id:          RecursiveExtendingRoleId2,
+		VersionId:   sharedMock.ExistsRolesVersionId,
 		Permissions: FlatRoles[1].Permissions,
 		Extends: []sharedModels.RoleId{
 			RecursiveExtendingRoleId1,
@@ -90,7 +95,8 @@ var (
 	// FlatRoles flat - meaning that it extends no another role
 	FlatRoles = []sharedModels.Role{
 		{
-			Id: FlatRoleId1,
+			Id:        FlatRoleId1,
+			VersionId: sharedMock.ExistsRolesVersionId,
 			Permissions: []sharedModels.PermissionId{
 				DenyCreatePermissionId1,
 				PermitReadPermissionId1,
@@ -99,7 +105,18 @@ var (
 			},
 		},
 		{
-			Id: FlatRoleId2,
+			Id:        FlatRoleId2,
+			VersionId: sharedMock.ExistsRolesVersionId,
+			Permissions: []sharedModels.PermissionId{
+				PermitCreatePermissionId2,
+				PermitReadPermissionId2,
+				PermitUpdatePermissionId2,
+				DenyDeletePermissionId2,
+			},
+		},
+		{
+			Id:        FlatRoleId1,
+			VersionId: sharedMock.ExistsRolesVersionId2,
 			Permissions: []sharedModels.PermissionId{
 				PermitCreatePermissionId2,
 				PermitReadPermissionId2,
@@ -229,6 +246,10 @@ func MakeRole1Permissions() []sharedModels.Permission {
 
 func MakeRole2Permissions() []sharedModels.Permission {
 	return makeCopy(Permissions[4:8])
+}
+
+func MakeRoles1WithAnotherVersionPermissions() []sharedModels.Permission {
+	return MakeRole2Permissions()
 }
 
 func MakeExtendingRolePermissions() []sharedModels.Permission {

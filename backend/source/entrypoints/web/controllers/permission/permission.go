@@ -20,9 +20,10 @@ func New(service permission.Service) Controller {
 func (c Controller) ResolveResourceAccessEffect(context *gin.Context) {
 	requestQuery := context.Request.URL.Query()
 	r := request.PermissionAccess{
-		RoleId:     sharedModels.RoleId(requestQuery.Get("roleId")),
-		ResourceId: sharedModels.ResourceId(requestQuery.Get("resourceId")),
-		Operation:  requestQuery.Get("operation"),
+		RoleId:         sharedModels.RoleId(requestQuery.Get("roleId")),
+		ResourceId:     sharedModels.ResourceId(requestQuery.Get("resourceId")),
+		Operation:      requestQuery.Get("operation"),
+		RolesVersionId: sharedModels.RolesVersionId(requestQuery.Get("rolesVersionId")),
 	}
 
 	presenter.MakeJsonResponse(
