@@ -41,3 +41,10 @@ func (r *RegistrationRepository) Register(session models.AccountSession, credent
 
 	return nil
 }
+
+type FailingRolesVersionCreatorRepository struct {
+}
+
+func (f FailingRolesVersionCreatorRepository) Create(sharedModels.AccountId, sharedModels.RolesVersion) error {
+	return errors.New("some-error")
+}

@@ -16,7 +16,7 @@ import {
     CheckPermissionsProps,
     CheckPermissionsActions,
     CheckPermissionsState,
-} from './check_permission.typess';
+} from './check_permission.types';
 import { DispatchToPropsFn, StateToPropsFn } from '../../../shared/types';
 import { cleanFetchPermissionResult, fetchPermission } from '../../../store/permission/actions';
 import { Operation } from '../../../services/api/shared/types';
@@ -29,6 +29,7 @@ const operations = [
 ];
 
 export const CheckPermissions = (props: CheckPermissionsProps) => {
+    const [rolesVersionId, setRolesVersionId] = useState('');
     const [roleId, setRoleId] = useState('');
     const [resourceId, setResourceId] = useState('');
     const [operation, setOperation] = useState(Operation.CREATE);
@@ -54,7 +55,11 @@ export const CheckPermissions = (props: CheckPermissionsProps) => {
 
             <Autocomplete
                 disabled={(props.rolesResult.list?.length || 0) < 1}
-                options={(props.rolesResult.list || []).map(r => r.id)}
+                options={
+                    (props.rolesResult.list || [])
+                        .filter(r => r.versionId === props.rolesVersionResult.currentRolesVersion?.id)
+                        .map(r => r.id)
+                }
                 value={roleId}
                 onChange={(_, newValue) => setRoleId(newValue || '')}
                 fullWidth
@@ -63,6 +68,21 @@ export const CheckPermissions = (props: CheckPermissionsProps) => {
                     <TextField {...params} label="Role Id" variant="outlined" margin="dense" />
                 )}
             />
+
+            <InputLabel>Roles version</InputLabel>
+            <Select
+                margin="dense"
+                fullWidth
+                value={rolesVersionId || props.rolesVersionResult.currentRolesVersion?.id || ''}
+                onChange={e => setRolesVersionId((e.target as HTMLSelectElement).value)}
+                input={<Input />}
+            >
+                {(props.rolesVersionResult.list || []).map(rv => (
+                    <MenuItem key={`operation_${rv.id}`} value={rv.id}>
+                        {rv.id}
+                    </MenuItem>
+                ))}
+            </Select>
 
             <InputLabel>Effect</InputLabel>
             <Select
@@ -84,11 +104,15 @@ export const CheckPermissions = (props: CheckPermissionsProps) => {
                     disabled={!roleId || !resourceId || !operation}
                     variant="contained"
                     color="primary"
-                    onClick={() => props.fetchPermissionAction({
-                        roleId,
-                        resourceId,
-                        operation,
-                    })}
+                    onClick={() => {
+                        props.cleanFetchPermissionResult();
+                        props.fetchPermissionAction({
+                            roleId,
+                            resourceId,
+                            operation,
+                            rolesVersionId: rolesVersionId || props.rolesVersionResult.currentRolesVersion?.id || '',
+                        });
+                    }}
                 >
                     Check
                 </Button>
@@ -118,6 +142,7 @@ export const mapDispatchToProps: DispatchToPropsFn<CheckPermissionsActions> = ()
 
 export const mapStateToProps: StateToPropsFn<CheckPermissionsState> = () => state => ({
     fetchPermissionResult: state.fetchPermissionResult,
+    rolesVersionResult: state.rolesVersionResult,
     resourcesResult: state.resourcesResult,
     rolesResult: state.rolesResult,
 });

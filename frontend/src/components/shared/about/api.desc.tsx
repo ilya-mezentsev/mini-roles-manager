@@ -31,12 +31,13 @@ export const ApiDesc = () => {
             </p>
 
             <h3>
-                Request body:
+                Request parameters:
             </h3>
             <ul>
                 <li>roleId - Id of role that are going to perform operation under resource</li>
                 <li>resourceId - Id of resource</li>
                 <li>operation - Operation that are going to perform (create|read|update|delete)</li>
+                <li>rolesVersionId - Id of version that supposed to be used for role permission resolving</li>
             </ul>
 
             <h3>
@@ -128,8 +129,11 @@ export const ApiDesc = () => {
                     <Typography>
                         <pre>
                             <code>
-                                curl "localhost:8000/api/public/permissions" \ <br/>
-                                &nbsp; "?roleId=role-1&resourceId=resource-1&operation=create" \ <br/>
+                                curl -G "localhost:8000/api/public/permissions" \ <br/>
+                                &nbsp; -d "roleId=role-1" \ <br/>
+                                &nbsp; -d "resourceId=resource-1" \ <br/>
+                                &nbsp; -d "operation=create" \ <br/>
+                                &nbsp; -d "rolesVersionId=roles-version-1" \ <br/>
                                 &nbsp; -H "X-RM-Auth-Token: YOUR_API_TOKEN"
                             </code>
                         </pre>
@@ -156,6 +160,7 @@ export const ApiDesc = () => {
                                     &nbsp; &nbsp; roleId: 'role-1', <br/>
                                     &nbsp; &nbsp; resourceId: 'resource-1', <br/>
                                     &nbsp; &nbsp; operation: 'create' <br/>
+                                    &nbsp; &nbsp; rolesVersionId: 'roles-version-1' <br/>
                                     &nbsp; {"}"}, <br/>
                                     &nbsp; {"{"} <br/>
                                     &nbsp; &nbsp; method: 'GET', <br/>
@@ -190,7 +195,8 @@ export const ApiDesc = () => {
                                     &nbsp; params={"{"} <br/>
                                     &nbsp; &nbsp; 'roleId': 'role-1', <br/>
                                     &nbsp; &nbsp; 'resourceId': 'resource-1', <br/>
-                                    &nbsp; &nbsp; 'operation': 'create' <br/>
+                                    &nbsp; &nbsp; 'operation': 'create', <br/>
+                                    &nbsp; &nbsp; 'rolesVersionId': 'roles-version-1', <br/>
                                     &nbsp; {"}"}, <br/>
                                 )
                             </code>

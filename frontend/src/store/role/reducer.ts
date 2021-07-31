@@ -57,7 +57,7 @@ export function roleReducer(
         case ACTIONS.SUCCESS_UPDATE_ROLE:
             const newList = (state.list || []).slice();
             const updatedRole = (action.rolesResult as RoleActionResult).role;
-            const updatedRoleIndex = newList.findIndex(r => r.id === updatedRole.id);
+            const updatedRoleIndex = newList.findIndex(r => r.id === updatedRole.id && r.versionId === updatedRole.versionId);
             if (updatedRoleIndex >= 0) {
                 newList[updatedRoleIndex] = {
                     ...newList[updatedRoleIndex],
@@ -73,14 +73,17 @@ export function roleReducer(
             };
 
         case ACTIONS.SUCCESS_DELETE_ROLE:
-            const deletedRoleId = (action.rolesResult as RoleIdActionResult).roleId;
+            const res = action.rolesResult as RoleIdActionResult
+            const deletedRoleId = res.roleId;
+            const deletedRoleVersionId = res.rolesVersionId;
+
             return {
                 ...state,
                 list: (state.list || [])
-                    .filter(r => r.id !== deletedRoleId)
+                    .filter(r => r.id !== deletedRoleId || r.versionId !== deletedRoleVersionId)
                     .map(r => ({
                         ...r,
-                        extends: r.extends?.filter(roleId => roleId !== deletedRoleId)
+                        extends: r.extends?.filter(roleId => roleId !== deletedRoleId || r.versionId !== deletedRoleVersionId)
                     })),
             };
 

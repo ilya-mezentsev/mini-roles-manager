@@ -122,15 +122,15 @@ export function cleanUpdateRoleError(): (dispatch: Dispatch) => void {
     };
 }
 
-export function deleteRole(roleId: string): (dispatch: Dispatch) => Promise<void> {
+export function deleteRole(rolesVersionId: string, roleId: string): (dispatch: Dispatch) => Promise<void> {
     return async dispatch => {
         try {
-            const response = await deleteRoleAPI(roleId);
+            const response = await deleteRoleAPI(rolesVersionId, roleId);
 
             if (response.isOk()) {
                 dispatch({
                     type: ACTIONS.SUCCESS_DELETE_ROLE,
-                    rolesResult: { roleId },
+                    rolesResult: { roleId, rolesVersionId },
                 });
             } else {
                 dispatch({

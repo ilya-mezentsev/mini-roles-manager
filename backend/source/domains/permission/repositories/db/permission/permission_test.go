@@ -1,4 +1,4 @@
-package permission_db
+package permission
 
 import (
 	"github.com/jmoiron/sqlx"
@@ -31,13 +31,29 @@ func init() {
 func initTestData() {
 	addTestResources()
 	addTestPermissions()
+	sharedMock.MustAddRolesVersion(db, sharedMock.ExistsRolesVersionId2)
 	addTestFlatRoles()
 }
 
 func TestRepository_ListEmpty(t *testing.T) {
 	permissions, err := repository.List(spec.PermissionWithAccountIdAndRoleId{
-		AccountId: sharedMock.ExistsAccountId,
-		RoleId:    sharedMock.ExistsRoleId,
+		AccountId:      sharedMock.ExistsAccountId,
+		RoleId:         sharedMock.ExistsRoleId,
+		RolesVersionId: sharedMock.ExistsRolesVersionId,
+	})
+
+	assert.Nil(t, err)
+	assert.Empty(t, permissions)
+}
+
+func TestRepository_ListEmptyDueVersion(t *testing.T) {
+	initTestData()
+	defer sharedMock.MustReinstall(db)
+
+	permissions, err := repository.List(spec.PermissionWithAccountIdAndRoleId{
+		AccountId:      sharedMock.ExistsAccountId,
+		RoleId:         mock.FlatRoleId1,
+		RolesVersionId: "foo-bar",
 	})
 
 	assert.Nil(t, err)
@@ -49,8 +65,9 @@ func TestRepository_ListFlatRolePermissions(t *testing.T) {
 	defer sharedMock.MustReinstall(db)
 
 	permissions, err := repository.List(spec.PermissionWithAccountIdAndRoleId{
-		AccountId: sharedMock.ExistsAccountId,
-		RoleId:    mock.FlatRoleId1,
+		AccountId:      sharedMock.ExistsAccountId,
+		RoleId:         mock.FlatRoleId1,
+		RolesVersionId: sharedMock.ExistsRolesVersionId,
 	})
 
 	assert.Nil(t, err)
@@ -59,14 +76,31 @@ func TestRepository_ListFlatRolePermissions(t *testing.T) {
 	}
 }
 
-func TestRepository_ListOneDepthLevelExtending(t *testing.T) {
+func TestRepository_ListFlatRoleWithAnotherVersion(t *testing.T) {
 	initTestData()
-	addTestOneLevelDepthExtendingRole()
 	defer sharedMock.MustReinstall(db)
 
 	permissions, err := repository.List(spec.PermissionWithAccountIdAndRoleId{
-		AccountId: sharedMock.ExistsAccountId,
-		RoleId:    mock.OneDepthLevelExtendingRoleId,
+		AccountId:      sharedMock.ExistsAccountId,
+		RoleId:         mock.FlatRoleId1,
+		RolesVersionId: sharedMock.ExistsRolesVersionId2,
+	})
+
+	assert.Nil(t, err)
+	for _, role1Permission := range mock.MakeRole2Permissions() {
+		assert.Contains(t, permissions, role1Permission)
+	}
+}
+
+func TestRepository_ListOneDepthLevelExtending(t *testing.T) {
+	initTestData()
+	addTestOneDepthLevelExtendingRole()
+	defer sharedMock.MustReinstall(db)
+
+	permissions, err := repository.List(spec.PermissionWithAccountIdAndRoleId{
+		AccountId:      sharedMock.ExistsAccountId,
+		RoleId:         mock.OneDepthLevelExtendingRoleId,
+		RolesVersionId: sharedMock.ExistsRolesVersionId,
 	})
 
 	assert.Nil(t, err)
@@ -85,13 +119,14 @@ func TestRepository_ListOneDepthLevelExtending(t *testing.T) {
 
 func TestRepository_ListTwoDepthLevelExtending(t *testing.T) {
 	initTestData()
-	addTestOneLevelDepthExtendingRole()
-	addTestTwoLevelDepthExtendingRole()
+	addTestOneDepthLevelExtendingRole()
+	addTestTwoDepthLevelExtendingRole()
 	defer sharedMock.MustReinstall(db)
 
 	permissions, err := repository.List(spec.PermissionWithAccountIdAndRoleId{
-		AccountId: sharedMock.ExistsAccountId,
-		RoleId:    mock.TwoDepthLevelExtendingRoleId,
+		AccountId:      sharedMock.ExistsAccountId,
+		RoleId:         mock.TwoDepthLevelExtendingRoleId,
+		RolesVersionId: sharedMock.ExistsRolesVersionId,
 	})
 
 	assert.Nil(t, err)
@@ -106,8 +141,9 @@ func TestRepository_ListRecursiveRolesExtending(t *testing.T) {
 	defer sharedMock.MustReinstall(db)
 
 	permissions, err := repository.List(spec.PermissionWithAccountIdAndRoleId{
-		AccountId: sharedMock.ExistsAccountId,
-		RoleId:    mock.RecursiveExtendingRoleId1,
+		AccountId:      sharedMock.ExistsAccountId,
+		RoleId:         mock.RecursiveExtendingRoleId1,
+		RolesVersionId: sharedMock.ExistsRolesVersionId,
 	})
 
 	assert.Nil(t, err)
@@ -121,22 +157,23 @@ func TestRepository_ListRecursiveRolesExtending(t *testing.T) {
 
 func TestRepository_ListError(t *testing.T) {
 	dropFunctionQuery := `
-	drop function recursive_permissions(entry_point_role_id character(32), _account_hash character(32), depth int, exclude character(32)[])`
+	drop function if exists recursive_permissions(roles_version_id character(32), entry_point_role_id character(32), _account_hash character(32), depth int, exclude character(32)[])`
 	db.MustExec(dropFunctionQuery)
 	db.MustExec(`
-	create or replace function recursive_permissions(a character(32), b character(32), c int, e character(32)[])
+	create or replace function recursive_permissions(a character(32), b character(32), c character(32), d int, e character(32)[])
 	returns void
 	language plpgsql
 	as $$
 	    begin
-	        raise log 'hello, % % % %', a, b, c, e;
+	        raise log 'hello, % % % % %', a, b, c, d, e;
 		end
 	$$`)
 	defer db.MustExec(dropFunctionQuery)
 
 	_, err := repository.List(spec.PermissionWithAccountIdAndRoleId{
-		AccountId: sharedMock.ExistsAccountId,
-		RoleId:    sharedMock.ExistsRoleId,
+		AccountId:      sharedMock.ExistsAccountId,
+		RoleId:         sharedMock.ExistsRoleId,
+		RolesVersionId: sharedMock.ExistsRolesVersionId,
 	})
 
 	assert.NotNil(t, err)
@@ -190,32 +227,16 @@ func addTestPermissions() {
 }
 
 func addTestFlatRoles() {
-	tx := db.MustBegin()
 	for _, flatRole := range mock.FlatRoles {
-		_, err := tx.NamedExec(
-			`insert into role(role_id, permissions, account_hash) values(:role_id, :permissions, :account_hash)`,
-			map[string]interface{}{
-				"role_id":      flatRole.Id,
-				"permissions":  pq.Array(flatRole.Permissions),
-				"account_hash": sharedMock.ExistsAccountId,
-			},
-		)
-		if err != nil {
-			panic(err)
-		}
-	}
-
-	err := tx.Commit()
-	if err != nil {
-		panic(err)
+		mustAddRole(flatRole)
 	}
 }
 
-func addTestOneLevelDepthExtendingRole() {
+func addTestOneDepthLevelExtendingRole() {
 	mustAddRole(mock.OneDepthLevelExtendingRole)
 }
 
-func addTestTwoLevelDepthExtendingRole() {
+func addTestTwoDepthLevelExtendingRole() {
 	mustAddRole(mock.TwoDepthLevelExtendingRole)
 }
 
@@ -230,9 +251,10 @@ func addTestRecursiveExtendingRoles() {
 
 func mustAddRole(role sharedModels.Role) {
 	_, err := db.NamedExec(
-		`insert into role(role_id, permissions, extends, account_hash) values(:role_id, :permissions, :extends, :account_hash)`,
+		`insert into role(role_id, permissions, extends, account_hash, version_id) values(:role_id, :permissions, :extends, :account_hash, :version_id)`,
 		map[string]interface{}{
 			"role_id":      role.Id,
+			"version_id":   role.VersionId,
 			"permissions":  pq.Array(role.Permissions),
 			"extends":      pq.Array(role.Extends),
 			"account_hash": sharedMock.ExistsAccountId,

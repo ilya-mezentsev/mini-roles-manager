@@ -33,8 +33,9 @@ func init() {
 func TestRepository_ListSuccess(t *testing.T) {
 	defer sharedMock.MustReinstall(db)
 	someRole := sharedModels.Role{
-		Id:    "super-user",
-		Title: "Damn Super User",
+		Id:        "super-user",
+		VersionId: sharedMock.ExistsRolesVersionId,
+		Title:     "Damn Super User",
 		Permissions: []sharedModels.PermissionId{
 			"permission-id-1",
 			"permission-id-2",
@@ -45,7 +46,7 @@ func TestRepository_ListSuccess(t *testing.T) {
 		},
 	}
 	_, err := db.NamedExec(
-		`insert into role(role_id, title, permissions, extends, account_hash) values(:role_id, :title, :permissions, :extends, :account_hash)`,
+		`insert into role(role_id, version_id, title, permissions, extends, account_hash) values(:role_id, :version_id, :title, :permissions, :extends, :account_hash)`,
 		repository.mapFromRole(sharedMock.ExistsAccountId, someRole),
 	)
 	assert.Nil(t, err)
@@ -70,8 +71,9 @@ func TestRepository_ListSuccessEmpty(t *testing.T) {
 func TestRepository_CreateSuccess(t *testing.T) {
 	defer sharedMock.MustReinstall(db)
 	someRole := sharedModels.Role{
-		Id:    "super-user",
-		Title: "Damn Super User",
+		Id:        "super-user",
+		VersionId: sharedMock.ExistsRolesVersionId,
+		Title:     "Damn Super User",
 		Permissions: []sharedModels.PermissionId{
 			"permission-id-1",
 			"permission-id-2",
@@ -94,8 +96,9 @@ func TestRepository_CreateSuccess(t *testing.T) {
 func TestRepository_CreateDuplicateRoleId(t *testing.T) {
 	defer sharedMock.MustReinstall(db)
 	someRole := sharedModels.Role{
-		Id:    "super-user",
-		Title: "Damn Super User",
+		Id:        "super-user",
+		VersionId: sharedMock.ExistsRolesVersionId,
+		Title:     "Damn Super User",
 		Permissions: []sharedModels.PermissionId{
 			"permission-id-1",
 			"permission-id-2",
@@ -107,7 +110,7 @@ func TestRepository_CreateDuplicateRoleId(t *testing.T) {
 	}
 
 	_, err := db.NamedExec(
-		`insert into role(role_id, title, permissions, extends, account_hash) values(:role_id, :title, :permissions, :extends, :account_hash)`,
+		`insert into role(role_id, version_id, title, permissions, extends, account_hash) values(:role_id, :version_id, :title, :permissions, :extends, :account_hash)`,
 		repository.mapFromRole(sharedMock.ExistsAccountId, someRole),
 	)
 	assert.Nil(t, err)
@@ -120,8 +123,9 @@ func TestRepository_CreateDuplicateRoleId(t *testing.T) {
 func TestRepository_CreateDuplicateRoleIdButAnotherAccount(t *testing.T) {
 	defer sharedMock.MustReinstall(db)
 	someRole := sharedModels.Role{
-		Id:    "super-user",
-		Title: "Damn Super User",
+		Id:        "super-user",
+		VersionId: sharedMock.ExistsRolesVersionId,
+		Title:     "Damn Super User",
 		Permissions: []sharedModels.PermissionId{
 			"permission-id-1",
 			"permission-id-2",
@@ -151,8 +155,9 @@ func TestRepository_CreateDuplicateRoleIdButAnotherAccount(t *testing.T) {
 func TestRepository_UpdateSuccess(t *testing.T) {
 	defer sharedMock.MustReinstall(db)
 	someRole := sharedModels.Role{
-		Id:    "super-user",
-		Title: "Damn Super User",
+		Id:        "super-user",
+		VersionId: sharedMock.ExistsRolesVersionId,
+		Title:     "Damn Super User",
 		Permissions: []sharedModels.PermissionId{
 			"permission-id-1",
 			"permission-id-2",
@@ -179,10 +184,12 @@ func TestRepository_UpdateSuccess(t *testing.T) {
 }
 
 func TestRepository_DeleteSuccess(t *testing.T) {
+	sharedMock.MustAddRolesVersion(db, sharedMock.ExistsRolesVersionId2)
 	defer sharedMock.MustReinstall(db)
 	someRole := sharedModels.Role{
-		Id:    "super-user",
-		Title: "Damn Super User",
+		Id:        "super-user",
+		VersionId: sharedMock.ExistsRolesVersionId,
+		Title:     "Damn Super User",
 		Permissions: []sharedModels.PermissionId{
 			"permission-id-1",
 			"permission-id-2",
@@ -192,45 +199,75 @@ func TestRepository_DeleteSuccess(t *testing.T) {
 			"guest",
 		},
 	}
+	roleWithAnotherVersionId := sharedModels.Role{
+		Id:        someRole.Id,
+		VersionId: sharedMock.ExistsRolesVersionId2,
+	}
 
-	err := repository.Create(sharedMock.ExistsAccountId, someRole)
-	assert.Nil(t, err)
+	assert.Nil(t, repository.Create(sharedMock.ExistsAccountId, someRole))
+	assert.Nil(t, repository.Create(sharedMock.ExistsAccountId, roleWithAnotherVersionId))
 
-	err = repository.Delete(sharedMock.ExistsAccountId, someRole.Id)
+	err := repository.Delete(sharedMock.ExistsAccountId, sharedMock.ExistsRolesVersionId, someRole.Id)
 	assert.Nil(t, err)
 
 	var roleExists bool
-	_ = db.Get(&roleExists, `select 1 from role where role_id = $1 and account_hash = $2`, someRole.Id, sharedMock.ExistsAccountId)
-
+	_ = db.Get(
+		&roleExists,
+		`select 1 from role where role_id = $1 and account_hash = $2 and version_id = $3`,
+		someRole.Id,
+		sharedMock.ExistsAccountId,
+		someRole.VersionId,
+	)
 	assert.False(t, roleExists)
+
+	var anotherRolesExists bool
+	_ = db.Get(
+		&anotherRolesExists,
+		`select 1 from role where role_id = $1 and account_hash = $2 and version_id = $3`,
+		roleWithAnotherVersionId.Id,
+		sharedMock.ExistsAccountId,
+		roleWithAnotherVersionId.VersionId,
+	)
+	assert.True(t, anotherRolesExists)
 }
 
 func TestRepository_DeleteFromExtendsSuccess(t *testing.T) {
+	sharedMock.MustAddRolesVersion(db, sharedMock.ExistsRolesVersionId2)
 	defer sharedMock.MustReinstall(db)
 	user := sharedModels.Role{
-		Id:    "user",
-		Title: "Damn Super User",
+		Id:        "user",
+		VersionId: sharedMock.ExistsRolesVersionId,
+		Title:     "Damn User",
 		Permissions: []sharedModels.PermissionId{
 			"permission-id-3",
 		},
 	}
 	superUser := sharedModels.Role{
-		Id:    "super-user",
-		Title: "Damn Super User",
+		Id:        "super-user",
+		VersionId: sharedMock.ExistsRolesVersionId,
+		Title:     "Damn Super User",
 		Permissions: []sharedModels.PermissionId{
 			"permission-id-1",
 			"permission-id-2",
 		},
 		Extends: []sharedModels.RoleId{
-			"user",
+			user.Id,
 			"guest",
+		},
+	}
+	roleWithAnotherVersionId := sharedModels.Role{
+		Id:        "some-user",
+		VersionId: sharedMock.ExistsRolesVersionId2,
+		Extends: []sharedModels.RoleId{
+			user.Id,
 		},
 	}
 
 	assert.Nil(t, repository.Create(sharedMock.ExistsAccountId, user))
 	assert.Nil(t, repository.Create(sharedMock.ExistsAccountId, superUser))
+	assert.Nil(t, repository.Create(sharedMock.ExistsAccountId, roleWithAnotherVersionId))
 
-	err := repository.Delete(sharedMock.ExistsAccountId, user.Id)
+	err := repository.Delete(sharedMock.ExistsAccountId, sharedMock.ExistsRolesVersionId, user.Id)
 	assert.Nil(t, err)
 
 	var superUserExtends pq.StringArray
@@ -238,15 +275,21 @@ func TestRepository_DeleteFromExtendsSuccess(t *testing.T) {
 	for id, extends := range superUserExtends {
 		superUserExtends[id] = strings.TrimSpace(extends)
 	}
-
 	assert.Contains(t, superUserExtends, "guest")
 	assert.NotContains(t, superUserExtends, "user")
+
+	var roleWithAnotherVersionIdExtends pq.StringArray
+	_ = db.Get(&roleWithAnotherVersionIdExtends, `select extends from role where role_id = $1`, roleWithAnotherVersionId.Id)
+	for id, extends := range roleWithAnotherVersionIdExtends {
+		roleWithAnotherVersionIdExtends[id] = strings.TrimSpace(extends)
+	}
+	assert.Contains(t, roleWithAnotherVersionIdExtends, string(user.Id))
 }
 
 func TestRepository_DeleteError(t *testing.T) {
 	sharedMock.MustDropRoleTable(db)
 	defer sharedMock.MustReinstall(db)
 
-	err := repository.Delete(sharedMock.ExistsAccountId, "user")
+	err := repository.Delete(sharedMock.ExistsAccountId, sharedMock.ExistsRolesVersionId, "user")
 	assert.NotNil(t, err)
 }

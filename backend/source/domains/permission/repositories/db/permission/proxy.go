@@ -1,4 +1,4 @@
-package permission_db
+package permission
 
 import (
 	"github.com/lib/pq"

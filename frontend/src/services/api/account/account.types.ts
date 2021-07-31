@@ -16,6 +16,7 @@ export interface AccountInfo {
 }
 
 export interface PermissionAccessRequest {
+    rolesVersionId: string;
     roleId: string;
     resourceId: string;
     operation: Operation;

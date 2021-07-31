@@ -20,7 +20,8 @@ type (
 	}
 
 	DeleteRole struct {
-		AccountId sharedModels.AccountId `validate:"required"`
-		RoleId    sharedModels.RoleId    `validate:"required"`
+		AccountId      sharedModels.AccountId      `validate:"required"`
+		RoleId         sharedModels.RoleId         `validate:"required"`
+		RolesVersionId sharedModels.RolesVersionId `validate:"required"`
 	}
 )

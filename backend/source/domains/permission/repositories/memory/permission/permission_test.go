@@ -1,4 +1,4 @@
-package permission_memory
+package permission
 
 import (
 	"github.com/stretchr/testify/assert"
@@ -19,10 +19,22 @@ func TestRepository_ListEmpty(t *testing.T) {
 	assert.Empty(t, permissions)
 }
 
+func TestRepository_ListEmptyDueVersion(t *testing.T) {
+	permissions, err := New(mock.MakeAppDataForAllRoles(mock.FlatRoleId1)).List(spec.PermissionWithAccountIdAndRoleId{
+		AccountId:      sharedMock.ExistsAccountId,
+		RoleId:         mock.FlatRoleId1,
+		RolesVersionId: "foo-bar",
+	})
+
+	assert.Nil(t, err)
+	assert.Empty(t, permissions)
+}
+
 func TestRepository_ListFlatRolePermissions(t *testing.T) {
 	permissions, err := New(mock.MakeAppDataForAllRoles(mock.FlatRoleId1)).List(spec.PermissionWithAccountIdAndRoleId{
-		AccountId: sharedMock.ExistsAccountId,
-		RoleId:    mock.FlatRoleId1,
+		AccountId:      sharedMock.ExistsAccountId,
+		RoleId:         mock.FlatRoleId1,
+		RolesVersionId: sharedMock.ExistsRolesVersionId,
 	})
 
 	assert.Nil(t, err)
@@ -31,10 +43,24 @@ func TestRepository_ListFlatRolePermissions(t *testing.T) {
 	}
 }
 
+func TestRepository_ListFlatRoleWithAnotherVersionPermissions(t *testing.T) {
+	permissions, err := New(mock.MakeAppDataForAllRoles(mock.FlatRoleId1)).List(spec.PermissionWithAccountIdAndRoleId{
+		AccountId:      sharedMock.ExistsAccountId,
+		RoleId:         mock.FlatRoleId1,
+		RolesVersionId: sharedMock.ExistsRolesVersionId2,
+	})
+
+	assert.Nil(t, err)
+	for _, rolesWithAnotherVersionPermission := range mock.MakeRoles1WithAnotherVersionPermissions() {
+		assert.Contains(t, permissions, rolesWithAnotherVersionPermission)
+	}
+}
+
 func TestRepository_ListOneDepthLevelExtending(t *testing.T) {
 	permissions, err := New(mock.MakeAppDataForAllRoles(mock.OneDepthLevelExtendingRoleId)).List(spec.PermissionWithAccountIdAndRoleId{
-		AccountId: sharedMock.ExistsAccountId,
-		RoleId:    mock.OneDepthLevelExtendingRoleId,
+		AccountId:      sharedMock.ExistsAccountId,
+		RoleId:         mock.OneDepthLevelExtendingRoleId,
+		RolesVersionId: sharedMock.ExistsRolesVersionId,
 	})
 
 	assert.Nil(t, err)
@@ -53,8 +79,9 @@ func TestRepository_ListOneDepthLevelExtending(t *testing.T) {
 
 func TestRepository_ListTwoDepthLevelExtending(t *testing.T) {
 	permissions, err := New(mock.MakeAppDataForAllRoles(mock.TwoDepthLevelExtendingRoleId)).List(spec.PermissionWithAccountIdAndRoleId{
-		AccountId: sharedMock.ExistsAccountId,
-		RoleId:    mock.TwoDepthLevelExtendingRoleId,
+		AccountId:      sharedMock.ExistsAccountId,
+		RoleId:         mock.TwoDepthLevelExtendingRoleId,
+		RolesVersionId: sharedMock.ExistsRolesVersionId,
 	})
 
 	assert.Nil(t, err)
@@ -65,8 +92,9 @@ func TestRepository_ListTwoDepthLevelExtending(t *testing.T) {
 
 func TestRepository_ListRecursiveRolesExtending(t *testing.T) {
 	permissions, err := New(mock.MakeAppDataForAllRoles(mock.RecursiveExtendingRoleId1)).List(spec.PermissionWithAccountIdAndRoleId{
-		AccountId: sharedMock.ExistsAccountId,
-		RoleId:    mock.RecursiveExtendingRoleId1,
+		AccountId:      sharedMock.ExistsAccountId,
+		RoleId:         mock.RecursiveExtendingRoleId1,
+		RolesVersionId: sharedMock.ExistsRolesVersionId,
 	})
 
 	assert.Nil(t, err)

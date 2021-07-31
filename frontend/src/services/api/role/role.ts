@@ -32,8 +32,8 @@ export async function updateRole(role: Role): Promise<ParsedAPIResponse<APIError
     return errorResponseOrDefault(response);
 }
 
-export async function deleteRole(roleId: string): Promise<ParsedAPIResponse<APIError | null>> {
-    const response = await DELETE<ErrorAPIResponse | EmptyAPIResponse>(`/role/${roleId}`);
+export async function deleteRole(rolesVersionId: string, roleId: string): Promise<ParsedAPIResponse<APIError | null>> {
+    const response = await DELETE<ErrorAPIResponse | EmptyAPIResponse>(`/role/${rolesVersionId}/${roleId}`);
 
     return errorResponseOrDefault(response);
 }

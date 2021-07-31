@@ -46,13 +46,10 @@ func (s Service) CreateResource(request request.CreateResource) sharedInterfaces
 		}
 
 		log.WithFields(log.Fields{
-			"resource": request.Resource,
+			"request": request,
 		}).Errorf("Unable to create resource in DB: %v", err)
 
-		return response_factory.ServerError(sharedError.ServiceError{
-			Code:        sharedError.ServerErrorCode,
-			Description: sharedError.ServerErrorDescription,
-		})
+		return response_factory.DefaultServerError()
 	}
 
 	err = s.permissionRepository.AddResourcePermissions(
@@ -62,7 +59,7 @@ func (s Service) CreateResource(request request.CreateResource) sharedInterfaces
 	)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"resource": request.Resource,
+			"request": request,
 		}).Errorf("Unable to create permissions for new resource in DB: %v", err)
 
 		// if resource deleting failed - this log will help to find it and delete manually
@@ -72,10 +69,7 @@ func (s Service) CreateResource(request request.CreateResource) sharedInterfaces
 			request.Resource.Id,
 		)
 
-		return response_factory.ServerError(sharedError.ServiceError{
-			Code:        sharedError.ServerErrorCode,
-			Description: sharedError.ServerErrorDescription,
-		})
+		return response_factory.DefaultServerError()
 	}
 
 	return response_factory.DefaultResponse()
@@ -114,12 +108,11 @@ func (s Service) ResourcesList(request request.ResourcesList) sharedInterfaces.R
 		AccountId: request.AccountId,
 	})
 	if err != nil {
-		log.Errorf("Unable to fetch resources from DB: %v", err)
+		log.WithFields(log.Fields{
+			"request": request,
+		}).Errorf("Unable to fetch resources from DB: %v", err)
 
-		return response_factory.ServerError(sharedError.ServiceError{
-			Code:        sharedError.ServerErrorCode,
-			Description: sharedError.ServerErrorDescription,
-		})
+		return response_factory.DefaultServerError()
 	}
 
 	return response_factory.SuccessResponse(resources)
@@ -134,13 +127,10 @@ func (s Service) UpdateResource(request request.UpdateResource) sharedInterfaces
 	err := s.resourceRepository.Update(request.AccountId, request.Resource)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"resource": request.Resource,
+			"request": request,
 		}).Errorf("Unable to fetch resources from DB: %v", err)
 
-		return response_factory.ServerError(sharedError.ServiceError{
-			Code:        sharedError.ServerErrorCode,
-			Description: sharedError.ServerErrorDescription,
-		})
+		return response_factory.DefaultServerError()
 	}
 
 	return response_factory.DefaultResponse()
@@ -154,12 +144,11 @@ func (s Service) DeleteResource(request request.DeleteResource) sharedInterfaces
 
 	err := s.resourceRepository.Delete(request.AccountId, request.ResourceId)
 	if err != nil {
-		log.Errorf("Unable to update resource in DB: %v", err)
+		log.WithFields(log.Fields{
+			"request": request,
+		}).Errorf("Unable to update resource in DB: %v", err)
 
-		return response_factory.ServerError(sharedError.ServiceError{
-			Code:        sharedError.ServerErrorCode,
-			Description: sharedError.ServerErrorDescription,
-		})
+		return response_factory.DefaultServerError()
 	}
 
 	return response_factory.DefaultResponse()

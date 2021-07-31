@@ -43,11 +43,10 @@ func (s Service) checkSession(request request.SessionExists, token string) share
 		Id: sharedModels.AccountId(token),
 	})
 	if err != nil {
-		log.Errorf("Unable to check account existance: %v", err)
-		return response_factory.ServerError(sharedError.ServiceError{
-			Code:        sharedError.ServerErrorCode,
-			Description: sharedError.ServerErrorDescription,
-		})
+		log.WithFields(log.Fields{
+			"account_id": token,
+		}).Errorf("Unable to check account existance: %v", err)
+		return response_factory.DefaultServerError()
 	}
 
 	if accountExists {

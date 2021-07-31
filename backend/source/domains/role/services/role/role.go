@@ -36,13 +36,10 @@ func (s Service) Create(request request.CreateRole) sharedInterfaces.Response {
 		}
 
 		log.WithFields(log.Fields{
-			"role": request.Role,
+			"request": request,
 		}).Errorf("Unable to create role: %v", err)
 
-		return response_factory.ServerError(sharedError.ServiceError{
-			Code:        sharedError.ServerErrorCode,
-			Description: sharedError.ServerErrorDescription,
-		})
+		return response_factory.DefaultServerError()
 	}
 
 	return response_factory.DefaultResponse()
@@ -58,12 +55,11 @@ func (s Service) RolesList(request request.RolesList) sharedInterfaces.Response 
 		AccountId: request.AccountId,
 	})
 	if err != nil {
-		log.Errorf("Unable to fetch roles from DB: %v", err)
+		log.WithFields(log.Fields{
+			"request": request,
+		}).Errorf("Unable to fetch roles from DB: %v", err)
 
-		return response_factory.ServerError(sharedError.ServiceError{
-			Code:        sharedError.ServerErrorCode,
-			Description: sharedError.ServerErrorDescription,
-		})
+		return response_factory.DefaultServerError()
 	}
 
 	return response_factory.SuccessResponse(roles)
@@ -78,13 +74,10 @@ func (s Service) UpdateRole(request request.UpdateRole) sharedInterfaces.Respons
 	err := s.repository.Update(request.AccountId, request.Role)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"role": request.Role,
+			"request": request,
 		}).Errorf("Unable to update role: %v", err)
 
-		return response_factory.ServerError(sharedError.ServiceError{
-			Code:        sharedError.ServerErrorCode,
-			Description: sharedError.ServerErrorDescription,
-		})
+		return response_factory.DefaultServerError()
 	}
 
 	return response_factory.DefaultResponse()
@@ -96,14 +89,17 @@ func (s Service) DeleteRole(request request.DeleteRole) sharedInterfaces.Respons
 		return invalidRequestResponse
 	}
 
-	err := s.repository.Delete(request.AccountId, request.RoleId)
+	err := s.repository.Delete(
+		request.AccountId,
+		request.RolesVersionId,
+		request.RoleId,
+	)
 	if err != nil {
-		log.Errorf("Unable to delete role: %v", err)
+		log.WithFields(log.Fields{
+			"request": request,
+		}).Errorf("Unable to delete role: %v", err)
 
-		return response_factory.ServerError(sharedError.ServiceError{
-			Code:        sharedError.ServerErrorCode,
-			Description: sharedError.ServerErrorDescription,
-		})
+		return response_factory.DefaultServerError()
 	}
 
 	return response_factory.DefaultResponse()

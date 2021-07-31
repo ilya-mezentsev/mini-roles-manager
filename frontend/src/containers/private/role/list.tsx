@@ -27,7 +27,10 @@ export const RolesList = (props: RolesListProps) => {
 
     const deleteRole = () => {
         if (deletingRole) {
-            props.deleteRoleAction(deletingRole.id);
+            props.deleteRoleAction(
+                props.rolesVersionResult.currentRolesVersion!.id,
+                deletingRole.id,
+            );
             setDeletingRole(null);
         }
     };
@@ -62,7 +65,10 @@ export const RolesList = (props: RolesListProps) => {
     return (
         <>
             <RolesListComponent
-                roles={props.rolesResult.list || []}
+                roles={
+                    (props.rolesResult.list || [])
+                        .filter(r => r.versionId === props.rolesVersionResult.currentRolesVersion?.id)
+                }
                 tryEdit={r => {
                     setEditingRole(r);
                     e.emit(openEditResourceEventName);
@@ -78,6 +84,7 @@ export const RolesList = (props: RolesListProps) => {
                 openDialogueEventName={openEditResourceEventName}
                 existRoles={props.rolesResult.list || []}
                 existsResources={props.resourcesResult.list || []}
+                roleVersionId={props.rolesVersionResult.currentRolesVersion?.id || ''}
                 save={r => props.updateRoleAction(r)}
                 initialRole={editingRole}
             />
@@ -112,6 +119,7 @@ export const mapDispatchToProps: DispatchToPropsFn<RolesListActions> = () => dis
 });
 
 export const mapStateToProps: StateToPropsFn<RolesListState> = () => state => ({
+    rolesVersionResult: state.rolesVersionResult,
     rolesResult: state.rolesResult,
     resourcesResult: state.resourcesResult,
 });

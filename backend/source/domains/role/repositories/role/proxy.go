@@ -7,10 +7,11 @@ import (
 )
 
 type roleProxy struct {
-	Id          sharedModels.RoleId `db:"role_id"`
-	Title       string              `db:"title"`
-	Permissions pq.StringArray      `db:"permissions"`
-	Extends     pq.StringArray      `db:"extends"`
+	Id          sharedModels.RoleId         `db:"role_id"`
+	VersionId   sharedModels.RolesVersionId `db:"version_id"`
+	Title       string                      `db:"title"`
+	Permissions pq.StringArray              `db:"permissions"`
+	Extends     pq.StringArray              `db:"extends"`
 }
 
 func (r roleProxy) makePermissions() []sharedModels.PermissionId {

@@ -14,6 +14,7 @@ describe('role api tests', () => {
     it('create role success', async () => {
         const d: Role = {
             id: 'role-id',
+            versionId: 'version-id',
         };
         // @ts-ignore
         request.POST = jest.fn().mockResolvedValue(null);
@@ -29,6 +30,7 @@ describe('role api tests', () => {
     it('create tole error', async () => {
         const d: Role = {
             id: 'role-id',
+            versionId: 'version-id',
         };
         // @ts-ignore
         request.POST = jest.fn().mockResolvedValue({
@@ -46,8 +48,8 @@ describe('role api tests', () => {
 
     it('roles list success', async () => {
         const d: Role[] = [
-            { id: 'role-1' },
-            { id: 'role-2' },
+            { id: 'role-1', versionId: 'version-id' },
+            { id: 'role-2', versionId: 'version-id' },
         ];
         // @ts-ignore
         request.GET = jest.fn().mockResolvedValue({
@@ -81,6 +83,7 @@ describe('role api tests', () => {
     it('update role success', async () => {
         const d: Role = {
             id: 'role-id',
+            versionId: 'version-id',
         };
         // @ts-ignore
         request.PATCH = jest.fn().mockResolvedValue(null);
@@ -96,6 +99,7 @@ describe('role api tests', () => {
     it('update role error', async () => {
         const d: Role = {
             id: 'role-id',
+            versionId: 'version-id',
         };
         // @ts-ignore
         request.PATCH = jest.fn().mockResolvedValue({
@@ -112,29 +116,31 @@ describe('role api tests', () => {
     });
 
     it('delete role success', async () => {
-        const d = 'role-1';
+        const roleId = 'role-id';
+        const rolesVersionId = 'roles-version-id';
         // @ts-ignore
         request.DELETE = jest.fn().mockResolvedValue(null);
 
-        const response = await deleteRole(d);
+        const response = await deleteRole(rolesVersionId, roleId);
 
-        expect(request.DELETE).toBeCalledWith(`/role/${d}`);
+        expect(request.DELETE).toBeCalledWith(`/role/${rolesVersionId}/${roleId}`);
         expect(response).toBeInstanceOf(SuccessResponse);
         expect(response.isOk()).toBeTruthy();
         expect(response.data()).toBeNull();
     });
 
     it('delete role error', async () => {
-        const d = 'role-1';
+        const roleId = 'role-id';
+        const rolesVersionId = 'roles-version-id';
         // @ts-ignore
         request.DELETE = jest.fn().mockResolvedValue({
             status: APIResponseStatus.ERROR,
             data: 'some-error',
         });
 
-        const response = await deleteRole(d);
+        const response = await deleteRole(rolesVersionId, roleId);
 
-        expect(request.DELETE).toBeCalledWith(`/role/${d}`);
+        expect(request.DELETE).toBeCalledWith(`/role/${rolesVersionId}/${roleId}`);
         expect(response).toBeInstanceOf(ErrorResponse);
         expect(response.isOk()).toBeFalsy();
         expect(response.data()).toEqual('some-error');

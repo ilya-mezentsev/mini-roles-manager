@@ -10,21 +10,21 @@ import (
 
 const (
 	selectRolesQuery = `
-	select trim(role_id) role_id, trim(title) title, permissions, extends
+	select trim(role_id) role_id, trim(title) title, trim(version_id) version_id, permissions, extends
 	from role where account_hash = $1
 	order by created_at`
 
 	addRoleQuery = `
-	insert into role(account_hash, role_id, title, permissions, extends)
-	values(:account_hash, :role_id, :title, :permissions, :extends)`
+	insert into role(account_hash, role_id, version_id, title, permissions, extends)
+	values(:account_hash, :role_id, :version_id, :title, :permissions, :extends)`
 
 	updateRoleQuery = `
 	update role
 	set title = :title, permissions = :permissions, extends = :extends
-	where account_hash = :account_hash and role_id = :role_id`
+	where account_hash = :account_hash and role_id = :role_id and version_id = :version_id`
 
-	deleteRoleQuery       = `delete from role where account_hash = $1 and role_id = $2`
-	deleteRoleFromExtends = `update role set extends = array_remove(extends, $2) where account_hash = $1`
+	deleteRoleQuery       = `delete from role where account_hash = $1 and version_id = $2 and role_id = $3`
+	deleteRoleFromExtends = `update role set extends = array_remove(extends, $3) where account_hash = $1 and version_id = $2`
 )
 
 type Repository struct {
@@ -47,6 +47,7 @@ func (r Repository) Create(accountId sharedModels.AccountId, role sharedModels.R
 func (r Repository) mapFromRole(accountId sharedModels.AccountId, role sharedModels.Role) map[string]interface{} {
 	return map[string]interface{}{
 		"role_id":      role.Id,
+		"version_id":   role.VersionId,
 		"title":        role.Title,
 		"permissions":  pq.Array(role.Permissions),
 		"extends":      pq.Array(role.Extends),
@@ -66,6 +67,7 @@ func (r Repository) makeRoles(proxies []roleProxy) []sharedModels.Role {
 	for _, proxy := range proxies {
 		roles = append(roles, sharedModels.Role{
 			Id:          proxy.Id,
+			VersionId:   proxy.VersionId,
 			Title:       proxy.Title,
 			Permissions: proxy.makePermissions(),
 			Extends:     proxy.makeExtends(),
@@ -81,13 +83,17 @@ func (r Repository) Update(accountId sharedModels.AccountId, role sharedModels.R
 	return err
 }
 
-func (r Repository) Delete(accountId sharedModels.AccountId, roleId sharedModels.RoleId) error {
-	_, err := r.db.Exec(deleteRoleQuery, accountId, roleId)
+func (r Repository) Delete(
+	accountId sharedModels.AccountId,
+	rolesVersionId sharedModels.RolesVersionId,
+	roleId sharedModels.RoleId,
+) error {
+	_, err := r.db.Exec(deleteRoleQuery, accountId, rolesVersionId, roleId)
 	if err != nil {
 		return err
 	}
 
-	_, err = r.db.Exec(deleteRoleFromExtends, accountId, roleId)
+	_, err = r.db.Exec(deleteRoleFromExtends, accountId, rolesVersionId, roleId)
 
 	return err
 }

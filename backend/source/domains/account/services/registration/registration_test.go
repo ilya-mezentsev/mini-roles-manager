@@ -8,6 +8,8 @@ import (
 	"mini-roles-backend/source/domains/account/request"
 	"mini-roles-backend/source/domains/account/services/shared"
 	sharedError "mini-roles-backend/source/domains/shared/error"
+	sharedMock "mini-roles-backend/source/domains/shared/mock"
+	sharedModels "mini-roles-backend/source/domains/shared/models"
 	"mini-roles-backend/source/domains/shared/services/response_factory"
 	"mini-roles-backend/source/domains/shared/services/validation"
 	"testing"
@@ -15,26 +17,36 @@ import (
 
 var (
 	mockRegistrationRepository = &mock.RegistrationRepository{}
+	mockRolesVersionRepository = &sharedMock.RolesVersionRepository{}
+	service                    = New(mockRegistrationRepository, mockRolesVersionRepository)
 	expectedOkStatus           = response_factory.DefaultResponse().ApplicationStatus()
 	expectedErrorStatus        = response_factory.EmptyServerError().ApplicationStatus()
 )
 
 func init() {
+	reset()
+}
+
+func reset() {
 	mockRegistrationRepository.Reset()
+	mockRolesVersionRepository.Reset()
 }
 
 func TestService_RegisterSuccess(t *testing.T) {
-	defer mockRegistrationRepository.Reset()
+	defer reset()
 	credentials := models.AccountCredentials{
 		Login:    "SomeLogin",
 		Password: "SomePassword",
 	}
 
-	response := New(mockRegistrationRepository).Register(request.Registration{
+	response := service.Register(request.Registration{
 		Credentials: credentials,
 	})
 	credentials.Password = shared.MakePassword(credentials)
 
+	assert.True(t, mockRolesVersionRepository.Has(sharedModels.RolesVersion{
+		Id: defaultRolesVersionId,
+	}))
 	assert.Contains(t, mockRegistrationRepository.GetAll(), credentials)
 	assert.Equal(t, expectedOkStatus, response.ApplicationStatus())
 	assert.False(t, response.HasData())
@@ -43,7 +55,7 @@ func TestService_RegisterSuccess(t *testing.T) {
 func TestService_RegisterValidationError(t *testing.T) {
 	req := request.Registration{}
 
-	response := New(mockRegistrationRepository).Register(req)
+	response := service.Register(req)
 
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
@@ -56,7 +68,7 @@ func TestService_RegisterValidationError(t *testing.T) {
 }
 
 func TestService_RegisterLoginExistsError(t *testing.T) {
-	response := New(mockRegistrationRepository).Register(request.Registration{
+	response := service.Register(request.Registration{
 		Credentials: models.AccountCredentials{
 			Login:    mock.ExistsLogin,
 			Password: "SomePassword",
@@ -70,12 +82,30 @@ func TestService_RegisterLoginExistsError(t *testing.T) {
 }
 
 func TestService_RegisterServerError(t *testing.T) {
-	response := New(mockRegistrationRepository).Register(request.Registration{
+	response := service.Register(request.Registration{
 		Credentials: models.AccountCredentials{
 			Login:    mock.BadLogin,
 			Password: "SomePassword",
 		},
 	})
+
+	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.True(t, response.HasData())
+	assert.Equal(t, sharedError.ServerErrorCode, response.Data().(sharedError.ServiceError).Code)
+	assert.Equal(t, sharedError.ServerErrorDescription, response.Data().(sharedError.ServiceError).Description)
+}
+
+func TestService_RegisterServerError2(t *testing.T) {
+	defer reset()
+	credentials := models.AccountCredentials{
+		Login:    "SomeLogin",
+		Password: "SomePassword",
+	}
+
+	response := New(mockRegistrationRepository, mock.FailingRolesVersionCreatorRepository{}).Register(request.Registration{
+		Credentials: credentials,
+	})
+	credentials.Password = shared.MakePassword(credentials)
 
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())

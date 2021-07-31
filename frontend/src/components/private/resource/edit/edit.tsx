@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { EditResourceProps } from './edit.types';
 import {
     Button,
     Dialog,
@@ -9,6 +8,8 @@ import {
     DialogTitle,
     TextField,
 } from '@material-ui/core';
+
+import { EditResourceProps } from './edit.types';
 
 export const EditResource = (props: EditResourceProps) => {
     const { id: initialResourceId, title: initialResourceTitle } = props.initialResource || {

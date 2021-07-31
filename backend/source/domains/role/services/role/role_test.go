@@ -34,8 +34,9 @@ func TestMain(m *testing.M) {
 func TestService_CreateSuccess(t *testing.T) {
 	defer mockRepository.Reset()
 	newRole := sharedModels.Role{
-		Id:    "some-new-role",
-		Title: "Some New Role Title",
+		Id:        "some-new-role",
+		VersionId: sharedMock.ExistsRolesVersionId,
+		Title:     "Some New Role Title",
 	}
 
 	response := New(mockRepository).Create(request.CreateRole{
@@ -51,7 +52,8 @@ func TestService_CreateSuccess(t *testing.T) {
 func TestService_CreateDuplicateKeyError(t *testing.T) {
 	defer mockRepository.Reset()
 	newRole := sharedModels.Role{
-		Id: sharedMock.ExistsRoleId,
+		Id:        sharedMock.ExistsRoleId,
+		VersionId: sharedMock.ExistsRolesVersionId,
 	}
 	assert.True(t, mockRepository.Has(newRole))
 
@@ -90,8 +92,9 @@ func TestService_CreateValidationError(t *testing.T) {
 func TestService_CreateDBError(t *testing.T) {
 	defer mockRepository.Reset()
 	newRole := sharedModels.Role{
-		Id:    "some-new-role",
-		Title: "Some New Role Title",
+		Id:        "some-new-role",
+		VersionId: sharedMock.ExistsRolesVersionId,
+		Title:     "Some New Role Title",
 	}
 
 	response := New(mockRepository).Create(request.CreateRole{
@@ -159,8 +162,9 @@ func TestService_RolesListDBError(t *testing.T) {
 func TestService_UpdateRoleSuccess(t *testing.T) {
 	defer mockRepository.Reset()
 	updatingRole := sharedModels.Role{
-		Id:    sharedMock.ExistsRoleId,
-		Title: "some-title",
+		Id:        sharedMock.ExistsRoleId,
+		VersionId: sharedMock.ExistsRolesVersionId,
+		Title:     "some-title",
 	}
 
 	response := New(mockRepository).UpdateRole(request.UpdateRole{
@@ -196,8 +200,9 @@ func TestService_UpdateRoleValidationError(t *testing.T) {
 
 func TestService_UpdateRoleDBError(t *testing.T) {
 	updatingRole := sharedModels.Role{
-		Id:    sharedMock.ExistsRoleId,
-		Title: "some-title",
+		Id:        sharedMock.ExistsRoleId,
+		VersionId: sharedMock.ExistsRolesVersionId,
+		Title:     "some-title",
 	}
 
 	response := New(mockRepository).UpdateRole(request.UpdateRole{
@@ -214,8 +219,9 @@ func TestService_DeleteRoleSuccess(t *testing.T) {
 	defer mockRepository.Reset()
 
 	response := New(mockRepository).DeleteRole(request.DeleteRole{
-		AccountId: sharedMock.ExistsAccountId,
-		RoleId:    sharedMock.ExistsRoleId,
+		AccountId:      sharedMock.ExistsAccountId,
+		RoleId:         sharedMock.ExistsRoleId,
+		RolesVersionId: sharedMock.ExistsRolesVersionId,
 	})
 
 	assert.Equal(t, expectedOkStatus, response.ApplicationStatus())
@@ -240,8 +246,9 @@ func TestService_DeleteRoleValidationError(t *testing.T) {
 
 func TestService_DeleteRoleDBError(t *testing.T) {
 	response := New(mockRepository).DeleteRole(request.DeleteRole{
-		AccountId: sharedMock.BadAccountId,
-		RoleId:    sharedMock.ExistsRoleId,
+		AccountId:      sharedMock.BadAccountId,
+		RoleId:         sharedMock.ExistsRoleId,
+		RolesVersionId: sharedMock.ExistsRolesVersionId,
 	})
 
 	assert.True(t, mockRepository.Has(sharedModels.Role{Id: sharedMock.ExistsRoleId}))

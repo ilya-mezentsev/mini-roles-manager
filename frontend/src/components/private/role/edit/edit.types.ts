@@ -6,6 +6,7 @@ export interface EditRoleProps {
     eventEmitter: EventEmitter;
     existRoles: Role[];
     existsResources: Resource[];
+    roleVersionId: string;
     save: (r: Role) => void;
     initialRole?: Role | null;
 }

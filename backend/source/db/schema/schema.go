@@ -54,6 +54,22 @@ references resource(resource_id, account_hash)
 on delete cascade;
 
 
+create table if not exists roles_version(
+	id serial,
+	version_id character(32),
+	title character(100) default '',
+	account_hash character(32),
+	created_at timestamp default current_timestamp,
+	unique(version_id, account_hash)
+);
+alter table roles_version drop constraint if exists fk_roles_version;
+alter table roles_version
+add constraint fk_roles_version
+foreign key(account_hash)
+references account(hash)
+on delete cascade;
+
+
 create table if not exists role(
 	id serial,
 	role_id character(32),
@@ -61,13 +77,14 @@ create table if not exists role(
 	permissions character(32)[] default array[]::character(32)[],
 	extends character(32)[] default array[]::character(32)[],
 	account_hash character(32),
+	version_id character(32),
 	created_at timestamp default current_timestamp,
-	unique(role_id, account_hash)
+	unique(role_id, version_id, account_hash)
 );
 alter table role drop constraint if exists fk_role;
 alter table role
 add constraint fk_role
-foreign key(account_hash)
-references account(hash)
+foreign key(version_id, account_hash)
+references roles_version(version_id, account_hash)
 on delete cascade;
 `

@@ -51,10 +51,7 @@ func (s Service) CreateSession(request request.CreateSession) sharedInterfaces.R
 		}
 
 		log.Errorf("Unable to fetch session from DB: %v", err)
-		return response_factory.ServerError(sharedError.ServiceError{
-			Code:        sharedError.ServerErrorCode,
-			Description: sharedError.ServerErrorDescription,
-		})
+		return response_factory.DefaultServerError()
 	}
 
 	s.setCookie(request.Context, accountSession.Id)
@@ -84,11 +81,10 @@ func (s Service) GetSession(request request.GetSession) sharedInterfaces.Respons
 	}
 	accountExists, err := s.repository.SessionExists(spec.SessionWithId(accountSession))
 	if err != nil {
-		log.Errorf("Unable to check account existance: %v", err)
-		return response_factory.ServerError(sharedError.ServiceError{
-			Code:        sharedError.ServerErrorCode,
-			Description: sharedError.ServerErrorDescription,
-		})
+		log.WithFields(log.Fields{
+			"account_id": accountSession.Id,
+		}).Errorf("Unable to check account existance: %v", err)
+		return response_factory.DefaultServerError()
 	}
 
 	if accountExists {

@@ -6,19 +6,26 @@ import (
 	"mini-roles-backend/source/domains/permission/models"
 	"mini-roles-backend/source/domains/permission/request"
 	"mini-roles-backend/source/domains/permission/spec"
-	sharedError "mini-roles-backend/source/domains/shared/error"
 	sharedInterfaces "mini-roles-backend/source/domains/shared/interfaces"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
 	"mini-roles-backend/source/domains/shared/services/response_factory"
 	"mini-roles-backend/source/domains/shared/services/validation"
+	sharedSpec "mini-roles-backend/source/domains/shared/spec"
 )
 
 type Service struct {
-	repository interfaces.PermissionRepository
+	permissionRepository          interfaces.PermissionRepository
+	defaultRolesVersionRepository sharedInterfaces.DefaultRolesVersionFetcherRepository
 }
 
-func New(repository interfaces.PermissionRepository) Service {
-	return Service{repository}
+func New(
+	permissionRepository interfaces.PermissionRepository,
+	defaultRolesVersionRepository sharedInterfaces.DefaultRolesVersionFetcherRepository,
+) Service {
+	return Service{
+		permissionRepository:          permissionRepository,
+		defaultRolesVersionRepository: defaultRolesVersionRepository,
+	}
 }
 
 func (s Service) HasPermission(
@@ -30,20 +37,50 @@ func (s Service) HasPermission(
 		return invalidRequestResponse
 	}
 
-	permissions, err := s.repository.List(spec.PermissionWithAccountIdAndRoleId{
-		AccountId: accountId,
-		RoleId:    request.RoleId,
+	rolesVersionId, err := s.rolesVersionId(
+		accountId,
+		request,
+	)
+	if err != nil {
+		return response_factory.DefaultServerError()
+	}
+
+	permissions, err := s.permissionRepository.List(spec.PermissionWithAccountIdAndRoleId{
+		AccountId:      accountId,
+		RoleId:         request.RoleId,
+		RolesVersionId: rolesVersionId,
 	})
 	if err != nil {
-		log.Errorf("Unable to fetch permissions from DB: %v", err)
+		log.WithFields(log.Fields{
+			"account_id": accountId,
+			"request":    request,
+		}).Errorf("Unable to fetch permissions from DB: %v", err)
 
-		return response_factory.ServerError(sharedError.ServiceError{
-			Code:        sharedError.ServerErrorCode,
-			Description: sharedError.ServerErrorDescription,
-		})
+		return response_factory.DefaultServerError()
 	}
 
 	return s.makePermissionsResponse(request, permissions)
+}
+
+func (s Service) rolesVersionId(
+	accountId sharedModels.AccountId,
+	request request.PermissionAccess,
+) (sharedModels.RolesVersionId, error) {
+	if request.RolesVersionId != "" {
+		return request.RolesVersionId, nil
+	}
+
+	defaultRolesVersion, err := s.defaultRolesVersionRepository.Fetch(sharedSpec.AccountWithId{
+		AccountId: accountId,
+	})
+	if err != nil {
+		log.WithFields(log.Fields{
+			"account_id": accountId,
+			"request":    request,
+		}).Errorf("Unable to fetch default roles version from DB: %v", err)
+	}
+
+	return defaultRolesVersion.Id, err
 }
 
 func (s Service) makePermissionsResponse(
