@@ -1,0 +1,145 @@
+openapi: 3.0.3
+
+info:
+  title: Mini-Roles-Manager API
+  description: Mini-Roles-Manager minimal public API
+  version: 1.0.0
+
+servers:
+  - url: 'localhost:8080/permissions'
+    description: Depends on your configuration
+
+paths:
+  /permissions:
+    get:
+      summary: Recieve permission effect for particular role
+      parameters:
+        - in: query
+          name: roleId
+          required: true
+          schema:
+            type: string
+          description: Id of role that are going to perform operation under resource
+          example: guest
+
+        - in: query
+          name: resourceId
+          required: true
+          schema:
+            type: string
+          description: Id of resource
+          example: article
+
+        - in: query
+          name: operation
+          required: true
+          schema:
+            type: string
+            enum:
+              - create
+              - read
+              - update
+              - delete
+          description: Operation that are going to perform
+          example: read
+
+        - in: query
+          name: rolesVersionId
+          required: false
+          schema:
+            type: string
+          description: Id of version that supposed to be used for role permission resolving
+          example: high-load
+
+      responses:
+        200:
+          description: Response with resolved effect
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - $ref: "#/components/schemas/ResolvedPermissionEffect"
+                  - $ref: "#/components/schemas/OkStatusCode"
+
+        400:
+          description: Bad request (validation error for instance)
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - $ref: "#/components/schemas/ValidationError"
+                  - $ref: "#/components/schemas/ErrorStatusCode"
+
+        500:
+          description: Server Error (Something horrible happened)
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - $ref: "#/components/schemas/InternalError"
+                  - $ref: "#/components/schemas/ErrorStatusCode"
+
+components:
+  schemas:
+    OkStatusCode:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - ok
+
+    ErrorStatusCode:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - error
+
+    ResolvedPermissionEffect:
+      type: object
+      properties:
+        effect:
+          type: string
+          enum:
+            - permit
+            - deny
+
+    ValidationError:
+      type: object
+      properties:
+        code:
+          type: string
+          enum:
+            - validation-error
+
+        description:
+          type: string
+          example: Validation failed. Field - PermissionAccess.Operation. Failed rule - required
+          description: Full error description
+
+    InternalError:
+      type: object
+      properties:
+        code:
+          type: string
+          enum:
+            - unknown-error
+
+        description:
+          type: string
+          example: Unknown error happened
+          description: Full error description

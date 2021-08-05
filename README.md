@@ -6,7 +6,10 @@ This project can help you to manage access to your resources for different roles
 All you need is Sign-Up, create resources and roles and adapt your system to this project API
 
 ### Deployment
-Deployment instructions is available [here](./deployment.md)
+Deployment instructions is available [here](docs/deployment.md)
+
+### Minimal startup
+Minimal startup instructions is available [here](docs/minimal_startup.md)
 
 ### API usage
 After you created account, needed resources and roles, added permissions for your roles you can use API for checking access for users. <br/>

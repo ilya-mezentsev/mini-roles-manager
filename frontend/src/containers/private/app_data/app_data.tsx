@@ -12,7 +12,7 @@ import { SharedListNavigation } from '../../../components/shared';
 import { Export } from './export';
 import { Import } from './import';
 
-const fallbackPath = '/files/export';
+const fallbackPath = '/app-data/export';
 const routes: (ListItemRoute & { component: () => JSX.Element })[] = [
     {
         path: fallbackPath,
@@ -21,14 +21,14 @@ const routes: (ListItemRoute & { component: () => JSX.Element })[] = [
         iconComponent: () => <GetAppIcon/>,
     },
     {
-        path: '/files/import',
+        path: '/app-data/import',
         name: 'Import',
         component: () => <Import/>,
         iconComponent: () => <PublishIcon/>
     },
 ];
 
-export const Files = () => (
+export const AppData = () => (
     <>
         <Grid container spacing={3}>
             <Grid item xs={4}>

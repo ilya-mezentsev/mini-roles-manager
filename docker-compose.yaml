@@ -4,7 +4,7 @@ services:
   db:
     image: postgres:latest
     ports:
-      - 5555:5432
+      - "5555:5432"
     environment:
       TZ: Europe/Moscow
       POSTGRES_USER: roles-manager
@@ -24,7 +24,8 @@ services:
     restart: on-failure
     volumes:
       - ./frontend:/var/www/apps/frontend
+      - ./backend/api/public:/var/www/public/docs/api
     ports:
-      - 8000:80
+      - "8000:80"
     depends_on:
       - api
