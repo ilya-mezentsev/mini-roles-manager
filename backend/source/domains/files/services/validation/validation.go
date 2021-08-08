@@ -10,6 +10,18 @@ import (
 
 type CheckFn func(appData sharedModels.AppData) []string
 
+var resourcesCheckFns = []CheckFn{
+	resourcesIdsAreUnique,
+	allLinksAreExist,
+	permissionsIdsAreUnique,
+	allOperationsAreExist,
+	rolesIdsAreUnique,
+	extendsIdsAreExist,
+	permissionsAreExist,
+	permissionsDoNotConflict,
+	defaultRolesVersionIdIsPresent,
+}
+
 func Validate(appDataBytes []byte) (sharedModels.AppData, []string) {
 	var appData sharedModels.AppData
 	err := json.Unmarshal(appDataBytes, &appData)
@@ -32,17 +44,7 @@ func checkFields(appData sharedModels.AppData) []string {
 	)
 	errorsChan := make(chan []string)
 
-	for _, resourcesCheckFn := range []CheckFn{
-		resourcesIdsAreUnique,
-		allLinksAreExist,
-		permissionsIdsAreUnique,
-		allOperationsAreExist,
-		rolesIdsAreUnique,
-		extendsIdsAreExist,
-		permissionsAreExist,
-		permissionsDoNotConflict,
-		defaultRolesVersionIdIsPresent,
-	} {
+	for _, resourcesCheckFn := range resourcesCheckFns {
 		messagesCount++
 		go func(resourcesCheckFn CheckFn) {
 			errorsChan <- resourcesCheckFn(appData)

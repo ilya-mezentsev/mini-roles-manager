@@ -11,7 +11,7 @@ import {
     SignOut,
 } from '../connected';
 import { SecondaryButton } from '../../../components/shared/navigation/navigation.types';
-import { Files } from '../files/files';
+import { AppData } from '../app_data/app_data';
 
 const routes: NavigationRoute[] = [
     {
@@ -30,9 +30,9 @@ const routes: NavigationRoute[] = [
         component: () => <Roles/>
     },
     {
-        path: '/files',
-        name: 'Import / Export',
-        component: () => <Files/>,
+        path: '/app-data',
+        name: 'App data',
+        component: () => <AppData/>,
     },
     {
         path: '/account',

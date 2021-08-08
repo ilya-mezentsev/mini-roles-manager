@@ -80,7 +80,7 @@ func FullInit(
 		cookieTokenAuthorizedGroup.PATCH("/role", roleController.UpdateRole)
 		cookieTokenAuthorizedGroup.DELETE("/role/:roles_version_id/:role_id", roleController.DeleteRole)
 
-		cookieTokenAuthorizedGroup.GET("/files/export", filesController.Export)
+		cookieTokenAuthorizedGroup.GET("/app-data/export", filesController.Export)
 	}
 
 	headerTokenAuthorized := r.Group("/public")

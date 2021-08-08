@@ -1,0 +1,1268 @@
+openapi: 3.0.3
+
+info:
+  title: Mini-Roles-Manager API
+  description: Mini-Roles-Manager public API
+  version: 1.0.0
+
+servers:
+  - url: 'http://localhost:8000/api/web-app'
+    description: Example of URL (local example; no public domain for now)
+
+tags:
+  - name: User-Session
+    description: User session actions
+
+  - name: Account
+    description: Account actions
+
+  - name: Permissions
+    description: Permissions actions
+
+  - name: Resource
+    description: Resource actions
+
+  - name: Roles-Version
+    description: Roles version actions
+
+  - name: Role
+    description: Role actions
+
+  - name: App-Data-File
+    description: App-data file actions
+
+paths:
+  /registration/user:
+    post:
+      summary: Perform user registration
+      tags:
+        - User-Session
+
+      requestBody:
+        description: New user data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AccountCredentials"
+
+      responses:
+        204:
+          description: Registration is successfully perfomred
+
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestResponse"
+
+        500:
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServerErrorResponse"
+
+  /session:
+    get:
+      summary: Get session from cookies
+      tags:
+        - User-Session
+
+      responses:
+        200:
+          description: User session object
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountSessionResponse"
+
+        204:
+          description: No session in cookies
+
+        500:
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServerErrorResponse"
+
+    post:
+      summary: Sign-In to app
+      tags:
+        - User-Session
+
+      requestBody:
+        description: User credentials
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AccountCredentials"
+
+      responses:
+        200:
+          description: User session object
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountSessionResponse"
+
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestResponse"
+
+        500:
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServerErrorResponse"
+
+    delete:
+      summary: Sign-Out from app
+      tags:
+        - User-Session
+
+      responses:
+        204:
+          description: Successfully signed-out
+
+  /account/info:
+    get:
+      summary: Get account info
+      tags:
+        - Account
+
+      responses:
+        200:
+          description: Account info object
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountInfoResponse"
+
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestResponse"
+
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedResponse"
+
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ForbiddenResponse"
+
+        500:
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServerErrorResponse"
+
+  /account/credentials:
+    patch:
+      summary: Update account credentials
+      tags:
+        - Account
+
+      requestBody:
+        description: New user credentials
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewAccountCredentials"
+
+      responses:
+        204:
+          description: Credentials is update successfully
+
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestResponse"
+
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedResponse"
+
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ForbiddenResponse"
+
+        500:
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServerErrorResponse"
+
+  /permissions:
+    get:
+      summary: Resolve permissions
+      tags:
+        - Permissions
+
+      responses:
+        200:
+          description: Resolved permission effect
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResolvedPermissionEffectResponse"
+
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestResponse"
+
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedResponse"
+
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ForbiddenResponse"
+
+        500:
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServerErrorResponse"
+
+  /resources:
+    get:
+      summary: Fetch account resources
+      tags:
+        - Resource
+
+      responses:
+        200:
+          description: Resources list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourcesResponse"
+
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestResponse"
+
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedResponse"
+
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ForbiddenResponse"
+
+        500:
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServerErrorResponse"
+
+  /resource:
+    post:
+      summary: Create resource
+      tags:
+        - Resource
+
+      requestBody:
+        description: New resource
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUpdateResourceRequest"
+
+      responses:
+        204:
+          description: Resource is created successfully
+
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestResponse"
+
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedResponse"
+
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ForbiddenResponse"
+
+        500:
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServerErrorResponse"
+
+    patch:
+      summary: Update resource
+      tags:
+        - Resource
+
+      requestBody:
+        description: Update resource data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUpdateResourceRequest"
+
+      responses:
+        204:
+          description: Resource is updated successfully
+
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestResponse"
+
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedResponse"
+
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ForbiddenResponse"
+
+        500:
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServerErrorResponse"
+
+  /resource/{resourceId}:
+    delete:
+      summary: Delete resource
+      tags:
+        - Resource
+
+      parameters:
+        - in: path
+          name: resourceId
+          required: true
+          description: Resource id
+          example: article-comment
+          schema:
+            type: string
+
+      responses:
+        204:
+          description: Resource is deleted successfully
+
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestResponse"
+
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedResponse"
+
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ForbiddenResponse"
+
+        500:
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServerErrorResponse"
+
+  /roles-versions:
+    get:
+      summary: Fetch account roles version
+      tags:
+        - Roles-Version
+
+      responses:
+        200:
+          description: Roles versions list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RolesVersionsResponse"
+
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestResponse"
+
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedResponse"
+
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ForbiddenResponse"
+
+        500:
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServerErrorResponse"
+
+  /roles-version:
+    post:
+      summary: Create roles version
+      tags:
+        - Roles-Version
+
+      requestBody:
+        description: New roles version
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUpdateRolesVersionRequest"
+
+      responses:
+        204:
+          description: Roles version is created successfully
+
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestResponse"
+
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedResponse"
+
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ForbiddenResponse"
+
+        500:
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServerErrorResponse"
+
+    patch:
+      summary: Update roles version
+      tags:
+        - Roles-Version
+
+      requestBody:
+        description: New roles version
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUpdateRolesVersionRequest"
+
+      responses:
+        204:
+          description: Roles version is updated successfully
+
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestResponse"
+
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedResponse"
+
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ForbiddenResponse"
+
+        500:
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServerErrorResponse"
+
+  /roles-version/{rolesVersionId}:
+    delete:
+      summary: Delete roles version
+      tags:
+        - Roles-Version
+
+      parameters:
+        - in: path
+          name: rolesVersionId
+          required: true
+          description: Roles version id
+          example: medium-load
+          schema:
+            type: string
+
+
+      responses:
+        204:
+          description: Roles version is deleted successfully
+
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestResponse"
+
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedResponse"
+
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ForbiddenResponse"
+
+        500:
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServerErrorResponse"
+
+  /roles:
+    get:
+      summary: Fetch account roles
+      tags:
+        - Role
+
+      responses:
+        200:
+          description: Roles list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RolesResponse"
+
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestResponse"
+
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedResponse"
+
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ForbiddenResponse"
+
+        500:
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServerErrorResponse"
+
+  /role:
+    post:
+      summary: Create role
+      tags:
+        - Role
+
+      requestBody:
+        description: New role data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUpdateRoleRequest"
+
+      responses:
+        204:
+          description: Role is created successfully
+
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestResponse"
+
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedResponse"
+
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ForbiddenResponse"
+
+        500:
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServerErrorResponse"
+
+    patch:
+      summary: Update role
+      tags:
+        - Role
+
+      requestBody:
+        description: Update role data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUpdateRoleRequest"
+
+      responses:
+        204:
+          description: Role is updated successfully
+
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestResponse"
+
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedResponse"
+
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ForbiddenResponse"
+
+        500:
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServerErrorResponse"
+
+  /role/{rolesVersionId}/{roleId}:
+    delete:
+      summary: Delete role
+      tags:
+        - Role
+
+      parameters:
+        - in: path
+          name: rolesVersionId
+          required: true
+          description: Roles version id
+          example: medium-load
+          schema:
+            type: string
+
+        - in: path
+          name: roleId
+          required: true
+          description: Role id
+          example: guest
+          schema:
+            type: string
+
+      responses:
+        204:
+          description: Role is deleted successfully
+
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestResponse"
+
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedResponse"
+
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ForbiddenResponse"
+
+        500:
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServerErrorResponse"
+
+  /app-data/export:
+    get:
+      summary: Make file with account app data (resources, roles etc)
+      tags:
+        - App-Data-File
+
+      responses:
+        200:
+          description: App data file content
+
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestResponse"
+
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedResponse"
+
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ForbiddenResponse"
+
+        500:
+          description: Empty server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServerErrorResponse"
+
+components:
+  schemas:
+    OkStatusCode:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - ok
+
+    ErrorStatusCode:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - error
+
+    AccountLogin:
+      type: string
+      required: true
+      example: some-login
+
+    AccountCredentials:
+      type: object
+      properties:
+        credentials:
+          type: object
+          required: true
+          properties:
+            login:
+              $ref: "#/components/schemas/AccountLogin"
+            password:
+              type: string
+              required: true
+              example: some-password
+
+    AccountSession:
+      type: object
+      properties:
+        id:
+          type: string
+          required: true
+          description: Account id
+          example: 6ac07e29fd63dc02ee8a23236a0d95f2
+
+    AccountSessionResponse:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/OkStatusCode"
+        - type: object
+          properties:
+            data:
+              allOf:
+                - $ref: "#/components/schemas/AccountSession"
+
+    AccountInfo:
+      type: object
+      properties:
+        apiKey:
+          type: string
+          required: true
+          description: Account API key
+          example: 6ac07e29fd63dc02ee8a23236a0d95f2
+
+        created:
+          type: string
+          required: true
+          description: Account created date
+          example: 2021-08-07T16:35:35.896492Z
+
+        login:
+          type: string
+          required: true
+          description: Account login
+          example: some-login
+
+    AccountInfoResponse:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/OkStatusCode"
+        - type: object
+          properties:
+            data:
+              allOf:
+                - $ref: "#/components/schemas/AccountInfo"
+
+    NewAccountCredentials:
+      type: object
+      properties:
+        credentials:
+          type: object
+          required: true
+          properties:
+            login:
+              $ref: "#/components/schemas/AccountLogin"
+            password:
+              type: string
+              required: false
+              example: new-password
+
+    ResolvedPermissionEffect:
+      type: object
+      properties:
+        effect:
+          type: string
+          enum:
+            - permit
+            - deny
+
+    ResolvedPermissionEffectResponse:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/OkStatusCode"
+        - type: object
+          properties:
+            data:
+              allOf:
+                - $ref: "#/components/schemas/ResolvedPermissionEffect"
+
+    ResourceId:
+      type: string
+      required: true
+      description: Resource id
+      example: user-profile
+
+    ResourceTitle:
+      type: string
+      required: false
+      description: Resource title
+      example: Profile of user
+
+    ResourceLinksTo:
+      type: array
+      required: false
+      description: List of resources ids on which current resource is linking
+      items:
+        $ref: "#/components/schemas/ResourceIdExample"
+
+    ResourceIdExample:
+      type: string
+      required: true
+      description: Resource id
+      example: user-avatar
+
+    ResourceModel:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/ResourceId"
+
+        title:
+          $ref: "#/components/schemas/ResourceTitle"
+
+        linksTo:
+          $ref: "#/components/schemas/ResourceLinksTo"
+
+        permissions:
+          type: array
+          required: true
+          description: List of permissions of current resource
+          items:
+            $ref: "#/components/schemas/PermissionModel"
+
+    ResourcesResponse:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/OkStatusCode"
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: "#/components/schemas/ResourceModel"
+
+    NewResourceModel:
+      type: object
+      description: Resource data for creation
+      properties:
+        id:
+          $ref: "#/components/schemas/ResourceId"
+
+        title:
+          $ref: "#/components/schemas/ResourceTitle"
+
+        linksTo:
+          $ref: "#/components/schemas/ResourceLinksTo"
+
+    CreateUpdateResourceRequest:
+      type: object
+      properties:
+        resource:
+          type: object
+          required: true
+          allOf:
+            - $ref: "#/components/schemas/NewResourceModel"
+
+    PermissionId:
+      type: string
+      required: true
+      description: Permission id
+      example: 99c178f95ed92357feb95eebc03172c7
+
+    PermissionModel:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/PermissionId"
+
+        operation:
+          type: string
+          required: true
+          description: Permission operation
+          enum:
+            - create
+            - read
+            - update
+            - delete
+
+        effect:
+          type: string
+          required: true
+          description: Permission effect
+          enum:
+            - permit
+            - deny
+
+    RolesVersionModel:
+      type: object
+      properties:
+        id:
+          type: string
+          required: true
+          description: Roles version id
+          example: medium-load
+
+        title:
+          type: string
+          required: false
+          description: Roles version title
+          example: Medium load version
+
+    RolesVersionsResponse:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/OkStatusCode"
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: "#/components/schemas/RolesVersionModel"
+
+    CreateUpdateRolesVersionRequest:
+      type: object
+      properties:
+        rolesVersion:
+          type: object
+          required: true
+          allOf:
+            - $ref: "#/components/schemas/RolesVersionModel"
+
+    RoleId:
+      type: string
+      required: true
+      description: Role id
+      example: moderator
+
+    RoleIdExample:
+      type: string
+      required: true
+      description: Role id
+      example: guest
+
+    RoleModel:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/RoleId"
+
+        versionId:
+          type: string
+          required: true
+          description: Roles version id
+          example: high-load
+
+        title:
+          type: string
+          required: false
+          description: Role title
+          example: Moderator role
+
+        permissions:
+          type: array
+          required: false
+          description: Role permissions ids
+          items:
+            $ref: "#/components/schemas/PermissionId"
+
+        extends:
+          type: array
+          required: false
+          description: Roles ids that current role is extending from
+          items:
+            $ref: "#/components/schemas/RoleIdExample"
+
+    RolesResponse:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/OkStatusCode"
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: "#/components/schemas/RoleModel"
+
+    CreateUpdateRoleRequest:
+      type: object
+      properties:
+        role:
+          type: object
+          required: true
+          allOf:
+            - $ref: "#/components/schemas/RoleModel"
+
+    ValidationError:
+      type: object
+      properties:
+        code:
+          type: string
+          enum:
+            - validation-error
+
+        description:
+          type: string
+          example: Validation failed. Field - SomeModel.SomeField. Failed rule - required
+          description: Full error description
+
+    BadRequestResponse:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/ErrorStatusCode"
+        - type: object
+          properties:
+            data:
+              allOf:
+                - $ref: "#/components/schemas/ValidationError"
+
+    Unauthorized:
+      type: object
+      properties:
+        code:
+          type: string
+          enum:
+            - missed-token-in-cookies
+
+        description:
+          type: string
+          example: No auth token in cookies
+          description: Full error description
+
+    UnauthorizedResponse:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/ErrorStatusCode"
+        - type: object
+          properties:
+            data:
+              allOf:
+                  - $ref: "#/components/schemas/Unauthorized"
+
+    Forbidden:
+      type: object
+      properties:
+        code:
+          type: string
+          enum:
+            - no-account-by-token
+
+        description:
+          type: string
+          example: Unable to find account by provided token
+          description: Full error description
+
+    ForbiddenResponse:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/ErrorStatusCode"
+        - type: object
+          properties:
+            data:
+              allOf:
+                - $ref: "#/components/schemas/Forbidden"
+
+    ServerError:
+      type: object
+      properties:
+        code:
+          type: string
+          enum:
+            - unknown-error
+
+        description:
+          type: string
+          example: Unknown error happened
+          description: Full error description
+
+    ServerErrorResponse:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/ErrorStatusCode"
+        - type: object
+          properties:
+            data:
+              allOf:
+                - $ref: "#/components/schemas/ServerError"

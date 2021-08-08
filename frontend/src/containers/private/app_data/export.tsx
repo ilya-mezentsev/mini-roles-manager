@@ -6,7 +6,7 @@ export const Export = () => (
         <Link
             download
             target="_blank"
-            href={`${window.location.origin}/api/web-app/files/export`}
+            href={`${window.location.origin}/api/web-app/app-data/export`}
         >
             Download
         </Link>
