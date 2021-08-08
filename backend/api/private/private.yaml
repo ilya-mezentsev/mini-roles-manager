@@ -226,6 +226,44 @@ paths:
       tags:
         - Permissions
 
+      parameters:
+        - in: query
+          name: roleId
+          required: true
+          schema:
+            type: string
+          description: Id of role that are going to perform operation under resource
+          example: guest
+
+        - in: query
+          name: resourceId
+          required: true
+          schema:
+            type: string
+          description: Id of resource
+          example: article
+
+        - in: query
+          name: operation
+          required: true
+          schema:
+            type: string
+            enum:
+              - create
+              - read
+              - update
+              - delete
+          description: Operation that are going to perform
+          example: read
+
+        - in: query
+          name: rolesVersionId
+          required: false
+          schema:
+            type: string
+          description: Id of version that supposed to be used for role permission resolving
+          example: high-load
+
       responses:
         200:
           description: Resolved permission effect
