@@ -8,7 +8,7 @@ import { ApiKeyProps, ApiKeyState } from './api_key.types';
 export const ApiKey = (props: ApiKeyProps) => {
     const [shouldShowCopiedNotification, setShouldShowCopiedNotification] = useState(false);
     const tryCopy = () => {
-        if (props.accountInfoResult?.info.apiKey) {
+        if (props.accountInfoResult?.info?.apiKey) {
             navigator.clipboard.writeText(props.accountInfoResult.info.apiKey)
                 .then(() => notifyCopied());
         }
@@ -22,7 +22,7 @@ export const ApiKey = (props: ApiKeyProps) => {
                 margin="dense"
                 fullWidth
                 disabled
-                value={props.accountInfoResult?.info.apiKey}
+                value={props.accountInfoResult?.info?.apiKey}
                 onClick={tryCopy}
             />
 
