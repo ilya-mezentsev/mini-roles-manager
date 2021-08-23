@@ -16,7 +16,7 @@ import {
     CheckPermissionsProps,
     CheckPermissionsActions,
     CheckPermissionsState,
-} from './check_permission.types';
+} from './check_permissions.types';
 import { DispatchToPropsFn, StateToPropsFn } from '../../../shared/types';
 import { cleanFetchPermissionResult, fetchPermission } from '../../../store/permission/actions';
 import { Operation } from '../../../services/api/shared/types';

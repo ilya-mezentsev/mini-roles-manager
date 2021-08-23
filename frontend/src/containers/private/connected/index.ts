@@ -43,13 +43,8 @@ import {
 } from '../role/list';
 
 import {
-    Account as AccountContainer,
-    mapDispatchToProps as AccountContainerMapDispatchToProps,
-    mapStateToProps as AccountContainerMapStateToProps,
-} from '../account/account';
-
-import {
     Info as InfoContainer,
+    mapDispatchToProps as InfoContainerMapDispatchToProps,
     mapStateToProps as InfoContainerMapStateToProps,
 } from '../account/info';
 
@@ -111,13 +106,9 @@ export const RolesList = connect(
     RolesListContainerMapDispatchToProps(),
 )(RolesListContainer);
 
-export const Account = connect(
-    AccountContainerMapStateToProps(),
-    AccountContainerMapDispatchToProps(),
-)(AccountContainer);
-
 export const AccountInfo = connect(
     InfoContainerMapStateToProps(),
+    InfoContainerMapDispatchToProps(),
 )(InfoContainer);
 
 export const AccountApiKey = connect(

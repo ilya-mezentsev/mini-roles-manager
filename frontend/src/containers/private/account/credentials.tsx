@@ -18,8 +18,8 @@ export const Credentials = (props: CredentialsProps) => {
     const [password, setPassword] = useState('');
 
     useEffect(() => {
-        setLogin(props.accountInfoResult?.info.login || '');
-    }, [props.accountInfoResult?.info.login]);
+        setLogin(props.accountInfoResult?.info?.login || '');
+    }, [props.accountInfoResult?.info?.login]);
 
     // eslint-disable-next-line
     useEffect(() => () => props.cleanUpdateCredentialsErrorAction(), []);
@@ -52,7 +52,7 @@ export const Credentials = (props: CredentialsProps) => {
             />
 
             <Button
-                disabled={login === props.accountInfoResult?.info.login && !password}
+                disabled={login === props.accountInfoResult?.info?.login && !password}
                 variant="contained"
                 color="primary"
                 onClick={updateCredentials}

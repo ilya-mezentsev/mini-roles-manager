@@ -2,7 +2,6 @@ import { Container } from '@material-ui/core';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { Provider } from 'react-redux';
 
-import './App.css';
 import { store } from './store';
 import Entrypoint from './containers/entrypoint';
 

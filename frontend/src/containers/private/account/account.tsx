@@ -1,4 +1,3 @@
-import { bindActionCreators } from 'redux';
 import Grid from '@material-ui/core/Grid';
 import InfoIcon from '@material-ui/icons/Info';
 import LockOpenIcon from '@material-ui/icons/LockOpen';
@@ -17,14 +16,7 @@ import {
     CheckPermissions,
 } from '../connected';
 import { ListItemRoute } from '../../../components/shared/navigation/navigation.types';
-import { Alert, SharedListNavigation } from '../../../components/shared';
-import { DispatchToPropsFn, StateToPropsFn } from '../../../shared/types';
-import {
-    AccountActions,
-    AccountProps,
-    AccountState,
-} from './account.types';
-import { cleanFetchInfoError } from '../../../store/account_info/actions';
+import { SharedListNavigation } from '../../../components/shared';
 
 const fallbackPath = '/account/info';
 const routes: (ListItemRoute & { component: () => JSX.Element })[] = [
@@ -54,7 +46,7 @@ const routes: (ListItemRoute & { component: () => JSX.Element })[] = [
     },
 ];
 
-export const Account = (props: AccountProps) => (
+export const Account = () => (
     <>
         <Grid container spacing={3}>
             <Grid item xs={4}>
@@ -77,20 +69,5 @@ export const Account = (props: AccountProps) => (
                 </Switch>
             </Grid>
         </Grid>
-
-        <Alert
-            shouldShow={!!props.accountInfoResult?.fetchInfoError}
-            severity="error"
-            message={props.accountInfoResult?.fetchInfoError?.description || 'Unknown error'}
-            onCloseCb={() => props.cleanFetchInfoErrorAction()}
-        />
     </>
 );
-
-export const mapDispatchToProps: DispatchToPropsFn<AccountActions> = () => dispatch => ({
-    cleanFetchInfoErrorAction: bindActionCreators(cleanFetchInfoError, dispatch),
-});
-
-export const mapStateToProps: StateToPropsFn<AccountState> = () => state => ({
-    accountInfoResult: state.accountInfoResult,
-});

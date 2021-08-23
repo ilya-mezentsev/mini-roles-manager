@@ -7,11 +7,11 @@ import {
     Resources,
     RolesVersion,
     Roles,
-    Account,
     SignOut,
 } from '../connected';
 import { SecondaryButton } from '../../../components/shared/navigation/navigation.types';
 import { AppData } from '../app_data/app_data';
+import { Account } from '../account/account';
 
 const routes: NavigationRoute[] = [
     {
