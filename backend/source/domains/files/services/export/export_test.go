@@ -2,12 +2,12 @@ package export
 
 import (
 	"encoding/json"
+	responseFactory "github.com/ilya-mezentsev/response-factory"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"mini-roles-backend/source/domains/files/request"
 	sharedMock "mini-roles-backend/source/domains/shared/mock"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
-	"mini-roles-backend/source/domains/shared/services/response_factory"
 	sharedSpec "mini-roles-backend/source/domains/shared/spec"
 	"testing"
 )
@@ -16,8 +16,8 @@ var (
 	mockResourceRepository            = &sharedMock.ResourceRepository{}
 	mockDefaultRolesVersionRepository = &sharedMock.DefaultRolesVersionRepository{}
 	mockRoleRepository                = &sharedMock.RoleRepository{}
-	expectedOkStatus                  = response_factory.DefaultResponse().ApplicationStatus()
-	expectedErrorStatus               = response_factory.EmptyServerError().ApplicationStatus()
+	expectedOkStatus                  = responseFactory.DefaultResponse().ApplicationStatus()
+	expectedErrorStatus               = responseFactory.EmptyServerError().ApplicationStatus()
 
 	service = New(
 		mockRoleRepository,

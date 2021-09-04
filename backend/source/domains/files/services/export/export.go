@@ -2,12 +2,12 @@ package export
 
 import (
 	"encoding/json"
+	responseFactory "github.com/ilya-mezentsev/response-factory"
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"mini-roles-backend/source/domains/files/request"
 	sharedInterfaces "mini-roles-backend/source/domains/shared/interfaces"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
-	"mini-roles-backend/source/domains/shared/services/response_factory"
 	"mini-roles-backend/source/domains/shared/services/validation"
 	sharedSpec "mini-roles-backend/source/domains/shared/spec"
 	"os"
@@ -31,9 +31,9 @@ func New(
 	}
 }
 
-func (s Service) MakeExportFile(request request.ExportRequest) sharedInterfaces.Response {
+func (s Service) MakeExportFile(request request.ExportRequest) responseFactory.Response {
 	if validation.MakeErrorResponse(request) != nil {
-		return response_factory.EmptyClientError()
+		return responseFactory.EmptyClientError()
 	}
 
 	spec := sharedSpec.AccountWithId{
@@ -45,7 +45,7 @@ func (s Service) MakeExportFile(request request.ExportRequest) sharedInterfaces.
 			"request": request,
 		}).Errorf("Unable to fetch resources from DB: %v", err)
 
-		return response_factory.EmptyServerError()
+		return responseFactory.EmptyServerError()
 	}
 
 	roles, err := s.rolesFetcherRepository.List(spec)
@@ -54,7 +54,7 @@ func (s Service) MakeExportFile(request request.ExportRequest) sharedInterfaces.
 			"request": request,
 		}).Errorf("Unable to fetch roles from DB: %v", err)
 
-		return response_factory.EmptyServerError()
+		return responseFactory.EmptyServerError()
 	}
 
 	defaultRolesVersion, err := s.defaultRolesVersionFetcherRepository.Fetch(spec)
@@ -63,7 +63,7 @@ func (s Service) MakeExportFile(request request.ExportRequest) sharedInterfaces.
 			"request": request,
 		}).Errorf("Unable to fetch default roles version from db: %v", err)
 
-		return response_factory.EmptyServerError()
+		return responseFactory.EmptyServerError()
 	}
 
 	jsonBytes, err := s.makeJSON(resources, roles, defaultRolesVersion)
@@ -72,7 +72,7 @@ func (s Service) MakeExportFile(request request.ExportRequest) sharedInterfaces.
 			"request": request,
 		}).Errorf("Unable to marshal data to json: %v", err)
 
-		return response_factory.EmptyServerError()
+		return responseFactory.EmptyServerError()
 	}
 
 	tmpExportFilePath, err := s.createTmpFile(jsonBytes)
@@ -81,10 +81,10 @@ func (s Service) MakeExportFile(request request.ExportRequest) sharedInterfaces.
 			"request": request,
 		}).Errorf("Unable to create tmp export file: %v", err)
 
-		return response_factory.EmptyServerError()
+		return responseFactory.EmptyServerError()
 	}
 
-	return response_factory.SuccessResponse(tmpExportFilePath)
+	return responseFactory.SuccessResponse(tmpExportFilePath)
 }
 
 func (s Service) makeJSON(

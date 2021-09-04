@@ -2,11 +2,11 @@ package roles_version
 
 import (
 	"errors"
+	responseFactory "github.com/ilya-mezentsev/response-factory"
 	log "github.com/sirupsen/logrus"
 	"mini-roles-backend/source/domains/role/interfaces"
 	"mini-roles-backend/source/domains/role/request"
 	sharedError "mini-roles-backend/source/domains/shared/error"
-	sharedInterfaces "mini-roles-backend/source/domains/shared/interfaces"
 	"mini-roles-backend/source/domains/shared/services/response_factory"
 	"mini-roles-backend/source/domains/shared/services/validation"
 	sharedSpec "mini-roles-backend/source/domains/shared/spec"
@@ -20,7 +20,7 @@ func New(repository interfaces.RolesVersionRepository) Service {
 	return Service{repository}
 }
 
-func (s Service) CreateRolesVersion(request request.CreateRolesVersion) sharedInterfaces.Response {
+func (s Service) CreateRolesVersion(request request.CreateRolesVersion) responseFactory.Response {
 	invalidRequestResponse := validation.MakeErrorResponse(request)
 	if invalidRequestResponse != nil {
 		return invalidRequestResponse
@@ -29,7 +29,7 @@ func (s Service) CreateRolesVersion(request request.CreateRolesVersion) sharedIn
 	err := s.repository.Create(request.AccountId, request.RolesVersion)
 	if err != nil {
 		if errors.As(err, &sharedError.DuplicateUniqueKey{}) {
-			return response_factory.ClientError(sharedError.ServiceError{
+			return responseFactory.ClientError(sharedError.ServiceError{
 				Code:        rolesVersionExistsCode,
 				Description: rolesVersionExistsDescription,
 			})
@@ -42,10 +42,10 @@ func (s Service) CreateRolesVersion(request request.CreateRolesVersion) sharedIn
 		return response_factory.DefaultServerError()
 	}
 
-	return response_factory.DefaultResponse()
+	return responseFactory.DefaultResponse()
 }
 
-func (s Service) RolesVersionList(request request.RolesVersionList) sharedInterfaces.Response {
+func (s Service) RolesVersionList(request request.RolesVersionList) responseFactory.Response {
 	invalidRequestResponse := validation.MakeErrorResponse(request)
 	if invalidRequestResponse != nil {
 		return invalidRequestResponse
@@ -62,10 +62,10 @@ func (s Service) RolesVersionList(request request.RolesVersionList) sharedInterf
 		return response_factory.DefaultServerError()
 	}
 
-	return response_factory.SuccessResponse(rolesVersionList)
+	return responseFactory.SuccessResponse(rolesVersionList)
 }
 
-func (s Service) UpdateRolesVersion(request request.UpdateRolesVersion) sharedInterfaces.Response {
+func (s Service) UpdateRolesVersion(request request.UpdateRolesVersion) responseFactory.Response {
 	invalidRequestResponse := validation.MakeErrorResponse(request)
 	if invalidRequestResponse != nil {
 		return invalidRequestResponse
@@ -80,10 +80,10 @@ func (s Service) UpdateRolesVersion(request request.UpdateRolesVersion) sharedIn
 		return response_factory.DefaultServerError()
 	}
 
-	return response_factory.DefaultResponse()
+	return responseFactory.DefaultResponse()
 }
 
-func (s Service) DeleteRolesVersion(request request.DeleteRolesVersion) sharedInterfaces.Response {
+func (s Service) DeleteRolesVersion(request request.DeleteRolesVersion) responseFactory.Response {
 	invalidRequestResponse := validation.MakeErrorResponse(request)
 	if invalidRequestResponse != nil {
 		return invalidRequestResponse
@@ -101,7 +101,7 @@ func (s Service) DeleteRolesVersion(request request.DeleteRolesVersion) sharedIn
 	}
 
 	if len(rolesVersionList) < 2 {
-		return response_factory.ClientError(sharedError.ServiceError{
+		return responseFactory.ClientError(sharedError.ServiceError{
 			Code:        cannotDeleteLastRolesVersionCode,
 			Description: cannotDeleteLastRolesVersionDescription,
 		})
@@ -116,5 +116,5 @@ func (s Service) DeleteRolesVersion(request request.DeleteRolesVersion) sharedIn
 		return response_factory.DefaultServerError()
 	}
 
-	return response_factory.DefaultResponse()
+	return responseFactory.DefaultResponse()
 }

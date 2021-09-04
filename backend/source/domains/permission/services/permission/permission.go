@@ -1,6 +1,7 @@
 package permission
 
 import (
+	responseFactory "github.com/ilya-mezentsev/response-factory"
 	log "github.com/sirupsen/logrus"
 	"mini-roles-backend/source/domains/permission/interfaces"
 	"mini-roles-backend/source/domains/permission/models"
@@ -31,7 +32,7 @@ func New(
 func (s Service) HasPermission(
 	accountId sharedModels.AccountId,
 	request request.PermissionAccess,
-) sharedInterfaces.Response {
+) responseFactory.Response {
 	invalidRequestResponse := validation.MakeErrorResponse(request)
 	if invalidRequestResponse != nil {
 		return invalidRequestResponse
@@ -86,7 +87,7 @@ func (s Service) rolesVersionId(
 func (s Service) makePermissionsResponse(
 	request request.PermissionAccess,
 	rolePermissions []sharedModels.Permission,
-) sharedInterfaces.Response {
+) responseFactory.Response {
 	effect := s.effectForRequestedRole(request, rolePermissions)
 	if effect.IsEmpty() {
 		return s.checkPermissionsForLinkingResources(request, rolePermissions)
@@ -113,13 +114,13 @@ func (s Service) effectForRequestedRole(
 	return models.MissedEffect{}
 }
 
-func (s Service) makeResponseFromEffect(effect interfaces.Effect) sharedInterfaces.Response {
+func (s Service) makeResponseFromEffect(effect interfaces.Effect) responseFactory.Response {
 	if effect.IsPermit() {
-		return response_factory.SuccessResponse(models.EffectResponse{
+		return responseFactory.SuccessResponse(models.EffectResponse{
 			Effect: permitEffectCode,
 		})
 	} else {
-		return response_factory.SuccessResponse(models.EffectResponse{
+		return responseFactory.SuccessResponse(models.EffectResponse{
 			Effect: denyEffectCode,
 		})
 	}
@@ -128,7 +129,7 @@ func (s Service) makeResponseFromEffect(effect interfaces.Effect) sharedInterfac
 func (s Service) checkPermissionsForLinkingResources(
 	request request.PermissionAccess,
 	rolePermissions []sharedModels.Permission,
-) sharedInterfaces.Response {
+) responseFactory.Response {
 	linkingResource, resourceFound := s.findLinkingResources(request.ResourceId, rolePermissions)
 	if resourceFound {
 		return s.makePermissionsResponse(

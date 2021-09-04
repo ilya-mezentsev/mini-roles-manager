@@ -2,11 +2,11 @@ package role
 
 import (
 	"errors"
+	responseFactory "github.com/ilya-mezentsev/response-factory"
 	log "github.com/sirupsen/logrus"
 	"mini-roles-backend/source/domains/role/interfaces"
 	"mini-roles-backend/source/domains/role/request"
 	sharedError "mini-roles-backend/source/domains/shared/error"
-	sharedInterfaces "mini-roles-backend/source/domains/shared/interfaces"
 	"mini-roles-backend/source/domains/shared/services/response_factory"
 	"mini-roles-backend/source/domains/shared/services/validation"
 	sharedSpec "mini-roles-backend/source/domains/shared/spec"
@@ -20,7 +20,7 @@ func New(repository interfaces.RoleRepository) Service {
 	return Service{repository}
 }
 
-func (s Service) Create(request request.CreateRole) sharedInterfaces.Response {
+func (s Service) Create(request request.CreateRole) responseFactory.Response {
 	invalidRequestResponse := validation.MakeErrorResponse(request)
 	if invalidRequestResponse != nil {
 		return invalidRequestResponse
@@ -29,7 +29,7 @@ func (s Service) Create(request request.CreateRole) sharedInterfaces.Response {
 	err := s.repository.Create(request.AccountId, request.Role)
 	if err != nil {
 		if errors.As(err, &sharedError.DuplicateUniqueKey{}) {
-			return response_factory.ClientError(sharedError.ServiceError{
+			return responseFactory.ClientError(sharedError.ServiceError{
 				Code:        roleExistsCode,
 				Description: roleExistsDescription,
 			})
@@ -42,10 +42,10 @@ func (s Service) Create(request request.CreateRole) sharedInterfaces.Response {
 		return response_factory.DefaultServerError()
 	}
 
-	return response_factory.DefaultResponse()
+	return responseFactory.DefaultResponse()
 }
 
-func (s Service) RolesList(request request.RolesList) sharedInterfaces.Response {
+func (s Service) RolesList(request request.RolesList) responseFactory.Response {
 	invalidRequestResponse := validation.MakeErrorResponse(request)
 	if invalidRequestResponse != nil {
 		return invalidRequestResponse
@@ -62,10 +62,10 @@ func (s Service) RolesList(request request.RolesList) sharedInterfaces.Response 
 		return response_factory.DefaultServerError()
 	}
 
-	return response_factory.SuccessResponse(roles)
+	return responseFactory.SuccessResponse(roles)
 }
 
-func (s Service) UpdateRole(request request.UpdateRole) sharedInterfaces.Response {
+func (s Service) UpdateRole(request request.UpdateRole) responseFactory.Response {
 	invalidRequestResponse := validation.MakeErrorResponse(request)
 	if invalidRequestResponse != nil {
 		return invalidRequestResponse
@@ -80,10 +80,10 @@ func (s Service) UpdateRole(request request.UpdateRole) sharedInterfaces.Respons
 		return response_factory.DefaultServerError()
 	}
 
-	return response_factory.DefaultResponse()
+	return responseFactory.DefaultResponse()
 }
 
-func (s Service) DeleteRole(request request.DeleteRole) sharedInterfaces.Response {
+func (s Service) DeleteRole(request request.DeleteRole) responseFactory.Response {
 	invalidRequestResponse := validation.MakeErrorResponse(request)
 	if invalidRequestResponse != nil {
 		return invalidRequestResponse
@@ -102,5 +102,5 @@ func (s Service) DeleteRole(request request.DeleteRole) sharedInterfaces.Respons
 		return response_factory.DefaultServerError()
 	}
 
-	return response_factory.DefaultResponse()
+	return responseFactory.DefaultResponse()
 }

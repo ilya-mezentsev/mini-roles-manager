@@ -2,6 +2,7 @@ package info
 
 import (
 	"github.com/go-playground/validator/v10"
+	responseFactory "github.com/ilya-mezentsev/response-factory"
 	"github.com/stretchr/testify/assert"
 	"mini-roles-backend/source/domains/account/mock"
 	"mini-roles-backend/source/domains/account/models"
@@ -9,7 +10,6 @@ import (
 	"mini-roles-backend/source/domains/account/services/shared"
 	sharedError "mini-roles-backend/source/domains/shared/error"
 	sharedMock "mini-roles-backend/source/domains/shared/mock"
-	"mini-roles-backend/source/domains/shared/services/response_factory"
 	"mini-roles-backend/source/domains/shared/services/validation"
 	sharedSpec "mini-roles-backend/source/domains/shared/spec"
 	"testing"
@@ -17,8 +17,8 @@ import (
 
 var (
 	mockInfoRepository  = &mock.InfoRepository{}
-	expectedOkStatus    = response_factory.DefaultResponse().ApplicationStatus()
-	expectedErrorStatus = response_factory.EmptyServerError().ApplicationStatus()
+	expectedOkStatus    = responseFactory.DefaultResponse().ApplicationStatus()
+	expectedErrorStatus = responseFactory.EmptyServerError().ApplicationStatus()
 )
 
 func init() {

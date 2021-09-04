@@ -1,13 +1,13 @@
 package session_check
 
 import (
+	responseFactory "github.com/ilya-mezentsev/response-factory"
 	log "github.com/sirupsen/logrus"
 	"mini-roles-backend/source/domains/account/interfaces"
 	"mini-roles-backend/source/domains/account/request"
 	"mini-roles-backend/source/domains/account/services/shared"
 	"mini-roles-backend/source/domains/account/spec"
 	sharedError "mini-roles-backend/source/domains/shared/error"
-	sharedInterfaces "mini-roles-backend/source/domains/shared/interfaces"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
 	"mini-roles-backend/source/domains/shared/services/response_factory"
 	sharedKeys "mini-roles-backend/source/shared/keys"
@@ -26,10 +26,10 @@ func New(
 }
 
 // CheckSessionFromCookie used for middleware. nil return result is meaning that request can be processed
-func (s Service) CheckSessionFromCookie(request request.SessionExists) sharedInterfaces.Response {
+func (s Service) CheckSessionFromCookie(request request.SessionExists) responseFactory.Response {
 	cookieToken, err := request.Context.Cookie(shared.CookieTokenKey)
 	if err != nil {
-		return response_factory.UnauthorizedError(sharedError.ServiceError{
+		return responseFactory.UnauthorizedError(sharedError.ServiceError{
 			Code:        missedTokenInCookiesCode,
 			Description: missedTokenInCookiesDescription,
 		})
@@ -38,7 +38,7 @@ func (s Service) CheckSessionFromCookie(request request.SessionExists) sharedInt
 	return s.checkSession(request, cookieToken)
 }
 
-func (s Service) checkSession(request request.SessionExists, token string) sharedInterfaces.Response {
+func (s Service) checkSession(request request.SessionExists, token string) responseFactory.Response {
 	accountExists, err := s.repository.SessionExists(spec.SessionWithId{
 		Id: sharedModels.AccountId(token),
 	})
@@ -53,7 +53,7 @@ func (s Service) checkSession(request request.SessionExists, token string) share
 		request.Context.Set(sharedKeys.ContextTokenKey, token)
 		return nil
 	} else {
-		return response_factory.ForbiddenError(sharedError.ServiceError{
+		return responseFactory.ForbiddenError(sharedError.ServiceError{
 			Code:        noAccountByTokenCode,
 			Description: noAccountByTokenDescription,
 		})
@@ -61,10 +61,10 @@ func (s Service) checkSession(request request.SessionExists, token string) share
 }
 
 // CheckSessionFromHeader used for middleware. nil return result is meaning that request can be processed
-func (s Service) CheckSessionFromHeader(request request.SessionExists) sharedInterfaces.Response {
+func (s Service) CheckSessionFromHeader(request request.SessionExists) responseFactory.Response {
 	tokenFromHeader := request.Context.GetHeader(headerTokenKey)
 	if tokenFromHeader == "" {
-		return response_factory.UnauthorizedError(sharedError.ServiceError{
+		return responseFactory.UnauthorizedError(sharedError.ServiceError{
 			Code:        missedTokenInHeadersCode,
 			Description: missedTokenInHeadersDescription,
 		})

@@ -2,6 +2,7 @@ package resource
 
 import (
 	"github.com/go-playground/validator/v10"
+	responseFactory "github.com/ilya-mezentsev/response-factory"
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
@@ -10,7 +11,6 @@ import (
 	sharedError "mini-roles-backend/source/domains/shared/error"
 	sharedMock "mini-roles-backend/source/domains/shared/mock"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
-	"mini-roles-backend/source/domains/shared/services/response_factory"
 	"mini-roles-backend/source/domains/shared/services/validation"
 	"os"
 	"testing"
@@ -20,8 +20,8 @@ var (
 	mockResourceRepository   = &sharedMock.ResourceRepository{}
 	mockPermissionRepository = &mock.PermissionRepository{}
 	service                  = New(mockResourceRepository, mockPermissionRepository)
-	expectedOkStatus         = response_factory.DefaultResponse().ApplicationStatus()
-	expectedErrorStatus      = response_factory.EmptyServerError().ApplicationStatus()
+	expectedOkStatus         = responseFactory.DefaultResponse().ApplicationStatus()
+	expectedErrorStatus      = responseFactory.EmptyServerError().ApplicationStatus()
 )
 
 func init() {

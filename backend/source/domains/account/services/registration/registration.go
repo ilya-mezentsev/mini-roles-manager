@@ -3,6 +3,7 @@ package registration
 import (
 	"errors"
 	"fmt"
+	responseFactory "github.com/ilya-mezentsev/response-factory"
 	log "github.com/sirupsen/logrus"
 	"mini-roles-backend/source/domains/account/interfaces"
 	"mini-roles-backend/source/domains/account/models"
@@ -31,7 +32,7 @@ func New(
 	}
 }
 
-func (s Service) Register(request request.Registration) sharedInterfaces.Response {
+func (s Service) Register(request request.Registration) responseFactory.Response {
 	invalidRequestResponse := validation.MakeErrorResponse(request)
 	if invalidRequestResponse != nil {
 		return invalidRequestResponse
@@ -45,7 +46,7 @@ func (s Service) Register(request request.Registration) sharedInterfaces.Respons
 	)
 	if err != nil {
 		if errors.As(err, &sharedError.DuplicateUniqueKey{}) {
-			return response_factory.ClientError(sharedError.ServiceError{
+			return responseFactory.ClientError(sharedError.ServiceError{
 				Code:        shared.LoginAlreadyExistsCode,
 				Description: shared.LoginAlreadyExistsDescription,
 			})
@@ -68,7 +69,7 @@ func (s Service) Register(request request.Registration) sharedInterfaces.Respons
 		return response_factory.DefaultServerError()
 	}
 
-	return response_factory.DefaultResponse()
+	return responseFactory.DefaultResponse()
 }
 
 func (s Service) createSession(request request.Registration) models.AccountSession {
