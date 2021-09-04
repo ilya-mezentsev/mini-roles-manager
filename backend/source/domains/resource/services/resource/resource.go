@@ -3,11 +3,11 @@ package resource
 import (
 	"errors"
 	"fmt"
+	responseFactory "github.com/ilya-mezentsev/response-factory"
 	log "github.com/sirupsen/logrus"
 	"mini-roles-backend/source/domains/resource/interfaces"
 	"mini-roles-backend/source/domains/resource/request"
 	sharedError "mini-roles-backend/source/domains/shared/error"
-	sharedInterfaces "mini-roles-backend/source/domains/shared/interfaces"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
 	"mini-roles-backend/source/domains/shared/services/hash"
 	"mini-roles-backend/source/domains/shared/services/response_factory"
@@ -30,7 +30,7 @@ func New(
 	}
 }
 
-func (s Service) CreateResource(request request.CreateResource) sharedInterfaces.Response {
+func (s Service) CreateResource(request request.CreateResource) responseFactory.Response {
 	invalidRequestResponse := validation.MakeErrorResponse(request)
 	if invalidRequestResponse != nil {
 		return invalidRequestResponse
@@ -39,7 +39,7 @@ func (s Service) CreateResource(request request.CreateResource) sharedInterfaces
 	err := s.resourceRepository.Create(request.AccountId, request.Resource)
 	if err != nil {
 		if errors.As(err, &sharedError.DuplicateUniqueKey{}) {
-			return response_factory.ClientError(sharedError.ServiceError{
+			return responseFactory.ClientError(sharedError.ServiceError{
 				Code:        resourceExistsCode,
 				Description: resourceExistsDescription,
 			})
@@ -72,7 +72,7 @@ func (s Service) CreateResource(request request.CreateResource) sharedInterfaces
 		return response_factory.DefaultServerError()
 	}
 
-	return response_factory.DefaultResponse()
+	return responseFactory.DefaultResponse()
 }
 
 func (s Service) generateResourcePermissions(resource sharedModels.Resource) []sharedModels.Permission {
@@ -98,7 +98,7 @@ func (s Service) generateResourcePermissions(resource sharedModels.Resource) []s
 	return permissions
 }
 
-func (s Service) ResourcesList(request request.ResourcesList) sharedInterfaces.Response {
+func (s Service) ResourcesList(request request.ResourcesList) responseFactory.Response {
 	invalidRequestResponse := validation.MakeErrorResponse(request)
 	if invalidRequestResponse != nil {
 		return invalidRequestResponse
@@ -115,10 +115,10 @@ func (s Service) ResourcesList(request request.ResourcesList) sharedInterfaces.R
 		return response_factory.DefaultServerError()
 	}
 
-	return response_factory.SuccessResponse(resources)
+	return responseFactory.SuccessResponse(resources)
 }
 
-func (s Service) UpdateResource(request request.UpdateResource) sharedInterfaces.Response {
+func (s Service) UpdateResource(request request.UpdateResource) responseFactory.Response {
 	invalidRequestResponse := validation.MakeErrorResponse(request)
 	if invalidRequestResponse != nil {
 		return invalidRequestResponse
@@ -133,10 +133,10 @@ func (s Service) UpdateResource(request request.UpdateResource) sharedInterfaces
 		return response_factory.DefaultServerError()
 	}
 
-	return response_factory.DefaultResponse()
+	return responseFactory.DefaultResponse()
 }
 
-func (s Service) DeleteResource(request request.DeleteResource) sharedInterfaces.Response {
+func (s Service) DeleteResource(request request.DeleteResource) responseFactory.Response {
 	invalidRequestResponse := validation.MakeErrorResponse(request)
 	if invalidRequestResponse != nil {
 		return invalidRequestResponse
@@ -151,5 +151,5 @@ func (s Service) DeleteResource(request request.DeleteResource) sharedInterfaces
 		return response_factory.DefaultServerError()
 	}
 
-	return response_factory.DefaultResponse()
+	return responseFactory.DefaultResponse()
 }

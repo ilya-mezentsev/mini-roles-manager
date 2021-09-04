@@ -2,6 +2,7 @@ package registration
 
 import (
 	"github.com/go-playground/validator/v10"
+	responseFactory "github.com/ilya-mezentsev/response-factory"
 	"github.com/stretchr/testify/assert"
 	"mini-roles-backend/source/domains/account/mock"
 	"mini-roles-backend/source/domains/account/models"
@@ -10,7 +11,6 @@ import (
 	sharedError "mini-roles-backend/source/domains/shared/error"
 	sharedMock "mini-roles-backend/source/domains/shared/mock"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
-	"mini-roles-backend/source/domains/shared/services/response_factory"
 	"mini-roles-backend/source/domains/shared/services/validation"
 	"testing"
 )
@@ -19,8 +19,8 @@ var (
 	mockRegistrationRepository = &mock.RegistrationRepository{}
 	mockRolesVersionRepository = &sharedMock.RolesVersionRepository{}
 	service                    = New(mockRegistrationRepository, mockRolesVersionRepository)
-	expectedOkStatus           = response_factory.DefaultResponse().ApplicationStatus()
-	expectedErrorStatus        = response_factory.EmptyServerError().ApplicationStatus()
+	expectedOkStatus           = responseFactory.DefaultResponse().ApplicationStatus()
+	expectedErrorStatus        = responseFactory.EmptyServerError().ApplicationStatus()
 )
 
 func init() {

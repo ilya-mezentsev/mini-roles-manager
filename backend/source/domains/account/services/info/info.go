@@ -2,13 +2,13 @@ package info
 
 import (
 	"errors"
+	responseFactory "github.com/ilya-mezentsev/response-factory"
 	log "github.com/sirupsen/logrus"
 	"mini-roles-backend/source/domains/account/interfaces"
 	"mini-roles-backend/source/domains/account/models"
 	"mini-roles-backend/source/domains/account/request"
 	"mini-roles-backend/source/domains/account/services/shared"
 	sharedError "mini-roles-backend/source/domains/shared/error"
-	sharedInterfaces "mini-roles-backend/source/domains/shared/interfaces"
 	"mini-roles-backend/source/domains/shared/services/response_factory"
 	"mini-roles-backend/source/domains/shared/services/validation"
 	sharedSpec "mini-roles-backend/source/domains/shared/spec"
@@ -22,7 +22,7 @@ func New(repository interfaces.AccountInfoRepository) Service {
 	return Service{repository}
 }
 
-func (s Service) GetInfo(request request.GetInfoRequest) sharedInterfaces.Response {
+func (s Service) GetInfo(request request.GetInfoRequest) responseFactory.Response {
 	invalidRequestResponse := validation.MakeErrorResponse(request)
 	if invalidRequestResponse != nil {
 		return invalidRequestResponse
@@ -39,10 +39,10 @@ func (s Service) GetInfo(request request.GetInfoRequest) sharedInterfaces.Respon
 		return response_factory.DefaultServerError()
 	}
 
-	return response_factory.SuccessResponse(info)
+	return responseFactory.SuccessResponse(info)
 }
 
-func (s Service) UpdateCredentials(request request.UpdateCredentialsRequest) sharedInterfaces.Response {
+func (s Service) UpdateCredentials(request request.UpdateCredentialsRequest) responseFactory.Response {
 	invalidRequestResponse := validation.MakeErrorResponse(request)
 	if invalidRequestResponse != nil {
 		return invalidRequestResponse
@@ -58,7 +58,7 @@ func (s Service) UpdateCredentials(request request.UpdateCredentialsRequest) sha
 
 	if err != nil {
 		if errors.As(err, &sharedError.DuplicateUniqueKey{}) {
-			return response_factory.ClientError(sharedError.ServiceError{
+			return responseFactory.ClientError(sharedError.ServiceError{
 				Code:        shared.LoginAlreadyExistsCode,
 				Description: shared.LoginAlreadyExistsDescription,
 			})
@@ -69,5 +69,5 @@ func (s Service) UpdateCredentials(request request.UpdateCredentialsRequest) sha
 		return response_factory.DefaultServerError()
 	}
 
-	return response_factory.DefaultResponse()
+	return responseFactory.DefaultResponse()
 }

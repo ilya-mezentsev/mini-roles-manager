@@ -2,13 +2,13 @@ package session_check
 
 import (
 	"github.com/gin-gonic/gin"
+	responseFactory "github.com/ilya-mezentsev/response-factory"
 	"github.com/stretchr/testify/assert"
 	"mini-roles-backend/source/domains/account/mock"
 	"mini-roles-backend/source/domains/account/request"
 	"mini-roles-backend/source/domains/account/services/shared"
 	sharedError "mini-roles-backend/source/domains/shared/error"
 	sharedMock "mini-roles-backend/source/domains/shared/mock"
-	"mini-roles-backend/source/domains/shared/services/response_factory"
 	sharedKeys "mini-roles-backend/source/shared/keys"
 	"net/http/httptest"
 	"testing"
@@ -16,7 +16,7 @@ import (
 
 var (
 	sessionRepositoryMock = &mock.SessionRepository{}
-	expectedErrorStatus   = response_factory.EmptyServerError().ApplicationStatus()
+	expectedErrorStatus   = responseFactory.EmptyServerError().ApplicationStatus()
 	service               = New(sessionRepositoryMock)
 )
 

@@ -24,6 +24,12 @@ tests: backend-tests frontend-tests
 
 check: backend-check frontend-check
 
+backend-tidy:
+	unset GOPATH && cd $(BACKEND_DIR) && GOMODCACHE=$(BACKEND_LIBS_PATH) go mod tidy
+
+backend-install:
+	unset GOPATH && cd $(BACKEND_DIR) && GOMODCACHE=$(BACKEND_LIBS_PATH) go mod download
+
 backend-build:
 	unset GOPATH && cd $(BACKEND_DIR) && GOMODCACHE=$(BACKEND_LIBS_PATH) go build -o main
 

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	responseFactory "github.com/ilya-mezentsev/response-factory"
 	"github.com/stretchr/testify/assert"
 	"mini-roles-backend/source/config"
 	"mini-roles-backend/source/domains/account/mock"
@@ -12,7 +13,6 @@ import (
 	"mini-roles-backend/source/domains/account/services/shared"
 	sharedError "mini-roles-backend/source/domains/shared/error"
 	sharedMock "mini-roles-backend/source/domains/shared/mock"
-	"mini-roles-backend/source/domains/shared/services/response_factory"
 	"mini-roles-backend/source/domains/shared/services/validation"
 	"net/http/httptest"
 	"strings"
@@ -22,8 +22,8 @@ import (
 var (
 	configRepository      = config.Default()
 	sessionRepositoryMock = &mock.SessionRepository{}
-	expectedOkStatus      = response_factory.DefaultResponse().ApplicationStatus()
-	expectedErrorStatus   = response_factory.EmptyServerError().ApplicationStatus()
+	expectedOkStatus      = responseFactory.DefaultResponse().ApplicationStatus()
+	expectedErrorStatus   = responseFactory.EmptyServerError().ApplicationStatus()
 	service               = New(sessionRepositoryMock, configRepository)
 )
 

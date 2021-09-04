@@ -3,16 +3,15 @@ package validation
 import (
 	"fmt"
 	"github.com/go-playground/validator/v10"
+	responseFactory "github.com/ilya-mezentsev/response-factory"
 	sharedError "mini-roles-backend/source/domains/shared/error"
-	sharedInterfaces "mini-roles-backend/source/domains/shared/interfaces"
-	"mini-roles-backend/source/domains/shared/services/response_factory"
 	"strings"
 )
 
-func MakeErrorResponse(request interface{}) sharedInterfaces.Response {
+func MakeErrorResponse(request interface{}) responseFactory.Response {
 	err := validator.New().Struct(request)
 	if err != nil {
-		return response_factory.ClientError(sharedError.ServiceError{
+		return responseFactory.ClientError(sharedError.ServiceError{
 			Code:        sharedError.ValidationErrorCode,
 			Description: MakeFailedValidationDescription(err),
 		})
