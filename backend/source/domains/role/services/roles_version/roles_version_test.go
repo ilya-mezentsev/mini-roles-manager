@@ -14,23 +14,30 @@ import (
 )
 
 var (
-	mockRepository      = &sharedMock.RolesVersionRepository{}
-	expectedOkStatus    = responseFactory.DefaultResponse().ApplicationStatus()
-	expectedErrorStatus = responseFactory.EmptyServerError().ApplicationStatus()
+	mockRepository                 = &sharedMock.RolesVersionRepository{}
+	mockPermissionCacheInvalidator = &sharedMock.InMemoryCacheInvalidator{}
+	service                        = New(mockRepository, mockPermissionCacheInvalidator)
+	expectedOkStatus               = responseFactory.DefaultResponse().ApplicationStatus()
+	expectedErrorStatus            = responseFactory.EmptyServerError().ApplicationStatus()
 )
 
 func init() {
+	reset()
+}
+
+func reset() {
 	mockRepository.Reset()
+	mockPermissionCacheInvalidator.Reset()
 }
 
 func TestService_CreateRolesVersionSuccess(t *testing.T) {
-	defer mockRepository.Reset()
+	defer reset()
 
 	newRolesVersion := sharedModels.RolesVersion{
 		Id: "some-new-roles-version",
 	}
 
-	response := New(mockRepository).CreateRolesVersion(request.CreateRolesVersion{
+	response := service.CreateRolesVersion(request.CreateRolesVersion{
 		AccountId:    sharedMock.ExistsAccountId,
 		RolesVersion: newRolesVersion,
 	})
@@ -38,16 +45,17 @@ func TestService_CreateRolesVersionSuccess(t *testing.T) {
 	assert.True(t, mockRepository.Has(newRolesVersion))
 	assert.Equal(t, expectedOkStatus, response.ApplicationStatus())
 	assert.False(t, response.HasData())
+	assert.True(t, mockPermissionCacheInvalidator.InvalidateCalledWith(sharedMock.ExistsAccountId))
 }
 
 func TestService_CreateRolesVersionDuplicateKeyError(t *testing.T) {
-	defer mockRepository.Reset()
+	defer reset()
 
 	newRolesVersion := sharedModels.RolesVersion{
 		Id: sharedMock.ExistsRolesVersionId,
 	}
 
-	response := New(mockRepository).CreateRolesVersion(request.CreateRolesVersion{
+	response := service.CreateRolesVersion(request.CreateRolesVersion{
 		AccountId:    sharedMock.ExistsAccountId,
 		RolesVersion: newRolesVersion,
 	})
@@ -59,7 +67,7 @@ func TestService_CreateRolesVersionDuplicateKeyError(t *testing.T) {
 }
 
 func TestService_CreateRolesVersionValidationError(t *testing.T) {
-	defer mockRepository.Reset()
+	defer reset()
 
 	newRolesVersion := sharedModels.RolesVersion{}
 	req := request.CreateRolesVersion{
@@ -67,7 +75,7 @@ func TestService_CreateRolesVersionValidationError(t *testing.T) {
 		RolesVersion: newRolesVersion,
 	}
 
-	response := New(mockRepository).CreateRolesVersion(req)
+	response := service.CreateRolesVersion(req)
 
 	assert.False(t, mockRepository.Has(newRolesVersion))
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
@@ -81,13 +89,13 @@ func TestService_CreateRolesVersionValidationError(t *testing.T) {
 }
 
 func TestService_CreateRolesVersionDBError(t *testing.T) {
-	defer mockRepository.Reset()
+	defer reset()
 
 	newRolesVersion := sharedModels.RolesVersion{
 		Id: "some-new-roles-version",
 	}
 
-	response := New(mockRepository).CreateRolesVersion(request.CreateRolesVersion{
+	response := service.CreateRolesVersion(request.CreateRolesVersion{
 		AccountId:    sharedMock.BadAccountId,
 		RolesVersion: newRolesVersion,
 	})
@@ -105,7 +113,7 @@ func TestService_RolesVersionListSuccess(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotEmpty(t, expectedRolesVersionList)
 
-	response := New(mockRepository).RolesVersionList(request.RolesVersionList{
+	response := service.RolesVersionList(request.RolesVersionList{
 		AccountId: sharedMock.ExistsAccountId,
 	})
 
@@ -117,7 +125,7 @@ func TestService_RolesVersionListSuccess(t *testing.T) {
 func TestService_RolesVersionListValidationError(t *testing.T) {
 	req := request.RolesVersionList{}
 
-	response := New(mockRepository).RolesVersionList(req)
+	response := service.RolesVersionList(req)
 
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
@@ -130,7 +138,7 @@ func TestService_RolesVersionListValidationError(t *testing.T) {
 }
 
 func TestService_RolesVersionListDBError(t *testing.T) {
-	response := New(mockRepository).RolesVersionList(request.RolesVersionList{
+	response := service.RolesVersionList(request.RolesVersionList{
 		AccountId: sharedMock.BadAccountId,
 	})
 
@@ -140,14 +148,14 @@ func TestService_RolesVersionListDBError(t *testing.T) {
 }
 
 func TestService_UpdateRolesVersionSuccess(t *testing.T) {
-	defer mockRepository.Reset()
+	defer reset()
 
 	updatingRolesVersion := sharedModels.RolesVersion{
 		Id:    sharedMock.ExistsRolesVersionId,
 		Title: "Some-Title",
 	}
 
-	response := New(mockRepository).UpdateRolesVersion(request.UpdateRolesVersion{
+	response := service.UpdateRolesVersion(request.UpdateRolesVersion{
 		AccountId:    sharedMock.ExistsAccountId,
 		RolesVersion: updatingRolesVersion,
 	})
@@ -155,12 +163,13 @@ func TestService_UpdateRolesVersionSuccess(t *testing.T) {
 	assert.Equal(t, expectedOkStatus, response.ApplicationStatus())
 	assert.False(t, response.HasData())
 	assert.True(t, mockRepository.Has(updatingRolesVersion))
+	assert.True(t, mockPermissionCacheInvalidator.InvalidateCalledWith(sharedMock.ExistsAccountId))
 }
 
 func TestService_UpdateRolesVersionValidationError(t *testing.T) {
 	req := request.UpdateRolesVersion{}
 
-	response := New(mockRepository).UpdateRolesVersion(req)
+	response := service.UpdateRolesVersion(req)
 
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
@@ -178,7 +187,7 @@ func TestService_UpdateRolesVersionDBError(t *testing.T) {
 		Title: "Some-Title",
 	}
 
-	response := New(mockRepository).UpdateRolesVersion(request.UpdateRolesVersion{
+	response := service.UpdateRolesVersion(request.UpdateRolesVersion{
 		AccountId:    sharedMock.BadAccountId,
 		RolesVersion: updatingRolesVersion,
 	})
@@ -189,13 +198,13 @@ func TestService_UpdateRolesVersionDBError(t *testing.T) {
 }
 
 func TestService_DeleteRolesVersionSuccess(t *testing.T) {
-	defer mockRepository.Reset()
+	defer reset()
 
 	deletingRolesVersion := sharedModels.RolesVersion{
 		Id: sharedMock.ExistsRolesVersionId,
 	}
 
-	response := New(mockRepository).DeleteRolesVersion(request.DeleteRolesVersion{
+	response := service.DeleteRolesVersion(request.DeleteRolesVersion{
 		AccountId:      sharedMock.ExistsAccountId,
 		RolesVersionId: deletingRolesVersion.Id,
 	})
@@ -203,17 +212,18 @@ func TestService_DeleteRolesVersionSuccess(t *testing.T) {
 	assert.Equal(t, expectedOkStatus, response.ApplicationStatus())
 	assert.False(t, response.HasData())
 	assert.False(t, mockRepository.Has(deletingRolesVersion))
+	assert.True(t, mockPermissionCacheInvalidator.InvalidateCalledWith(sharedMock.ExistsAccountId))
 }
 
 func TestService_DeleteRolesVersionCannotDeleteLast(t *testing.T) {
-	defer mockRepository.Reset()
+	defer reset()
 	_ = mockRepository.Delete(sharedMock.ExistsAccountId, sharedMock.ExistsRolesVersionId2)
 
 	deletingRolesVersion := sharedModels.RolesVersion{
 		Id: sharedMock.ExistsRolesVersionId,
 	}
 
-	response := New(mockRepository).DeleteRolesVersion(request.DeleteRolesVersion{
+	response := service.DeleteRolesVersion(request.DeleteRolesVersion{
 		AccountId:      sharedMock.ExistsAccountId,
 		RolesVersionId: deletingRolesVersion.Id,
 	})
@@ -232,7 +242,7 @@ func TestService_DeleteRolesVersionCannotDeleteLast(t *testing.T) {
 func TestService_DeleteRolesVersionValidationError(t *testing.T) {
 	req := request.DeleteRolesVersion{}
 
-	response := New(mockRepository).DeleteRolesVersion(req)
+	response := service.DeleteRolesVersion(req)
 
 	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
 	assert.True(t, response.HasData())
@@ -245,7 +255,7 @@ func TestService_DeleteRolesVersionValidationError(t *testing.T) {
 }
 
 func TestService_DeleteRolesVersionDBErrorInDeleting(t *testing.T) {
-	response := New(mockRepository).DeleteRolesVersion(request.DeleteRolesVersion{
+	response := service.DeleteRolesVersion(request.DeleteRolesVersion{
 		AccountId:      sharedMock.ExistsAccountId,
 		RolesVersionId: sharedMock.BadRolesVersionId,
 	})
@@ -260,7 +270,7 @@ func TestService_DeleteRolesVersionDBErrorInFetching(t *testing.T) {
 		Id: sharedMock.ExistsRolesVersionId,
 	}
 
-	response := New(mockRepository).DeleteRolesVersion(request.DeleteRolesVersion{
+	response := service.DeleteRolesVersion(request.DeleteRolesVersion{
 		AccountId:      sharedMock.BadAccountId,
 		RolesVersionId: deletingRolesVersion.Id,
 	})

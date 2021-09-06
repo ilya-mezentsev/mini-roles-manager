@@ -8,6 +8,7 @@ import (
 	"mini-roles-backend/source/domains/resource/interfaces"
 	"mini-roles-backend/source/domains/resource/request"
 	sharedError "mini-roles-backend/source/domains/shared/error"
+	sharedInterfaces "mini-roles-backend/source/domains/shared/interfaces"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
 	"mini-roles-backend/source/domains/shared/services/hash"
 	"mini-roles-backend/source/domains/shared/services/response_factory"
@@ -16,17 +17,20 @@ import (
 )
 
 type Service struct {
-	resourceRepository   interfaces.ResourceRepository
-	permissionRepository interfaces.PermissionRepository
+	resourceRepository         interfaces.ResourceRepository
+	permissionRepository       interfaces.PermissionRepository
+	permissionCacheInvalidator sharedInterfaces.InMemoryCacheInvalidator
 }
 
 func New(
 	resourceRepository interfaces.ResourceRepository,
 	permissionRepository interfaces.PermissionRepository,
+	permissionCacheInvalidator sharedInterfaces.InMemoryCacheInvalidator,
 ) Service {
 	return Service{
-		resourceRepository:   resourceRepository,
-		permissionRepository: permissionRepository,
+		resourceRepository:         resourceRepository,
+		permissionRepository:       permissionRepository,
+		permissionCacheInvalidator: permissionCacheInvalidator,
 	}
 }
 
@@ -72,6 +76,7 @@ func (s Service) CreateResource(request request.CreateResource) responseFactory.
 		return response_factory.DefaultServerError()
 	}
 
+	s.permissionCacheInvalidator.Invalidate(request.AccountId)
 	return responseFactory.DefaultResponse()
 }
 
@@ -133,6 +138,7 @@ func (s Service) UpdateResource(request request.UpdateResource) responseFactory.
 		return response_factory.DefaultServerError()
 	}
 
+	s.permissionCacheInvalidator.Invalidate(request.AccountId)
 	return responseFactory.DefaultResponse()
 }
 
@@ -151,5 +157,6 @@ func (s Service) DeleteResource(request request.DeleteResource) responseFactory.
 		return response_factory.DefaultServerError()
 	}
 
+	s.permissionCacheInvalidator.Invalidate(request.AccountId)
 	return responseFactory.DefaultResponse()
 }

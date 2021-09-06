@@ -18,6 +18,7 @@ var (
 
 var (
 	ExistsAccountId       = sharedModels.AccountId(hash.Md5WithTimeAsKey("exists-account-id"))
+	ExistsAccountId2      = sharedModels.AccountId(hash.Md5WithTimeAsKey("exists-account-id-2"))
 	ExistsLogin           = "ExistsLogin"
 	ExistsPassword        = "exists-password"
 	ExistsRolesVersionId  = sharedModels.RolesVersionId("exists-version-id")

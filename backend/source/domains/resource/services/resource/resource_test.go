@@ -17,11 +17,16 @@ import (
 )
 
 var (
-	mockResourceRepository   = &sharedMock.ResourceRepository{}
-	mockPermissionRepository = &mock.PermissionRepository{}
-	service                  = New(mockResourceRepository, mockPermissionRepository)
-	expectedOkStatus         = responseFactory.DefaultResponse().ApplicationStatus()
-	expectedErrorStatus      = responseFactory.EmptyServerError().ApplicationStatus()
+	mockResourceRepository         = &sharedMock.ResourceRepository{}
+	mockPermissionRepository       = &mock.PermissionRepository{}
+	mockPermissionCacheInvalidator = &sharedMock.InMemoryCacheInvalidator{}
+	service                        = New(
+		mockResourceRepository,
+		mockPermissionRepository,
+		mockPermissionCacheInvalidator,
+	)
+	expectedOkStatus    = responseFactory.DefaultResponse().ApplicationStatus()
+	expectedErrorStatus = responseFactory.EmptyServerError().ApplicationStatus()
 )
 
 func init() {
@@ -31,6 +36,7 @@ func init() {
 func resetRepositories() {
 	mockResourceRepository.Reset()
 	mockPermissionRepository.Reset()
+	mockPermissionCacheInvalidator.Reset()
 }
 
 func TestMain(m *testing.M) {
@@ -54,6 +60,7 @@ func TestService_CreateResourceSuccess(t *testing.T) {
 	assert.False(t, response.HasData())
 	assert.True(t, mockResourceRepository.Has(newResource))
 	assert.NotEmpty(t, mockPermissionRepository.Get(sharedMock.ExistsAccountId, newResource.Id))
+	assert.True(t, mockPermissionCacheInvalidator.InvalidateCalledWith(sharedMock.ExistsAccountId))
 }
 
 func TestService_CreateResourceValidationError(t *testing.T) {
@@ -184,6 +191,7 @@ func TestService_UpdateResourceSuccess(t *testing.T) {
 	assert.Equal(t, expectedOkStatus, response.ApplicationStatus())
 	assert.False(t, response.HasData())
 	assert.Contains(t, mockResourceRepository.Get(sharedMock.ExistsAccountId), updatingResource)
+	assert.True(t, mockPermissionCacheInvalidator.InvalidateCalledWith(sharedMock.ExistsAccountId))
 }
 
 func TestService_UpdateResourceValidationError(t *testing.T) {
@@ -238,6 +246,7 @@ func TestService_DeleteResourceSuccess(t *testing.T) {
 	assert.False(t, mockResourceRepository.Has(sharedModels.Resource{
 		Id: sharedMock.ExistsResourceId,
 	}))
+	assert.True(t, mockPermissionCacheInvalidator.InvalidateCalledWith(sharedMock.ExistsAccountId))
 }
 
 func TestService_DeleteResourceValidationError(t *testing.T) {
