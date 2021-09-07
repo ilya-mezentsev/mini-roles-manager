@@ -57,3 +57,7 @@ func (r Repository) DBPassword() string {
 func (r Repository) DBName() string {
 	return r.s.DB.DBName
 }
+
+func (r Repository) CachePermissionLifetime() uint {
+	return r.s.Cache.PermissionLifetime
+}

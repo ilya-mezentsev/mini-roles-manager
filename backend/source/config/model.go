@@ -15,8 +15,13 @@ type (
 		DBName   string `json:"db_name"`
 	}
 
+	cache struct {
+		PermissionLifetime uint `json:"permission_lifetime"`
+	}
+
 	settings struct {
 		Server server `json:"server"`
 		DB     db     `json:"db"`
+		Cache  cache  `json:"cache"`
 	}
 )

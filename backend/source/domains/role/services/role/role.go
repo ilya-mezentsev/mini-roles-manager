@@ -7,17 +7,25 @@ import (
 	"mini-roles-backend/source/domains/role/interfaces"
 	"mini-roles-backend/source/domains/role/request"
 	sharedError "mini-roles-backend/source/domains/shared/error"
+	sharedInterfaces "mini-roles-backend/source/domains/shared/interfaces"
 	"mini-roles-backend/source/domains/shared/services/response_factory"
 	"mini-roles-backend/source/domains/shared/services/validation"
 	sharedSpec "mini-roles-backend/source/domains/shared/spec"
 )
 
 type Service struct {
-	repository interfaces.RoleRepository
+	repository                 interfaces.RoleRepository
+	permissionCacheInvalidator sharedInterfaces.InMemoryCacheInvalidator
 }
 
-func New(repository interfaces.RoleRepository) Service {
-	return Service{repository}
+func New(
+	repository interfaces.RoleRepository,
+	permissionCacheInvalidator sharedInterfaces.InMemoryCacheInvalidator,
+) Service {
+	return Service{
+		repository:                 repository,
+		permissionCacheInvalidator: permissionCacheInvalidator,
+	}
 }
 
 func (s Service) Create(request request.CreateRole) responseFactory.Response {
@@ -42,6 +50,7 @@ func (s Service) Create(request request.CreateRole) responseFactory.Response {
 		return response_factory.DefaultServerError()
 	}
 
+	s.permissionCacheInvalidator.Invalidate(request.AccountId)
 	return responseFactory.DefaultResponse()
 }
 
@@ -80,6 +89,7 @@ func (s Service) UpdateRole(request request.UpdateRole) responseFactory.Response
 		return response_factory.DefaultServerError()
 	}
 
+	s.permissionCacheInvalidator.Invalidate(request.AccountId)
 	return responseFactory.DefaultResponse()
 }
 
@@ -102,5 +112,6 @@ func (s Service) DeleteRole(request request.DeleteRole) responseFactory.Response
 		return response_factory.DefaultServerError()
 	}
 
+	s.permissionCacheInvalidator.Invalidate(request.AccountId)
 	return responseFactory.DefaultResponse()
 }

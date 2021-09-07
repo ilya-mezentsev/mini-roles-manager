@@ -14,6 +14,7 @@ import (
 	"mini-roles-backend/source/domains/account/services/session"
 	"mini-roles-backend/source/domains/account/services/session_check"
 	"mini-roles-backend/source/domains/files/services/export"
+	permissionCacheConstructor "mini-roles-backend/source/domains/permission/cache/permission"
 	defaultRolesVersionRepositoryConstructor "mini-roles-backend/source/domains/permission/repositories/db/default_roles_version"
 	permissionRepositoryConstructor "mini-roles-backend/source/domains/permission/repositories/db/permission"
 	"mini-roles-backend/source/domains/permission/services/permission"
@@ -45,14 +46,23 @@ func fullInit(r *gin.Engine) int {
 	defaultRolesVersionRepository := defaultRolesVersionRepositoryConstructor.New(db)
 	roleRepository := roleRepositoryConstructor.New(db)
 
+	permissionCache := permissionCacheConstructor.New(
+		configsRepository.CachePermissionLifetime(),
+		permissionListRepository,
+	)
+
 	registrationService := registration.New(registrationRepository, rolesVersionRepository)
 	sessionService := session.New(sessionRepository, configsRepository)
 	accountInfoService := info.New(accountInfoRepository)
 	sessionCheckService := session_check.New(sessionRepository)
-	permissionService := permission.New(permissionListRepository, defaultRolesVersionRepository)
-	resourceService := resource.New(resourceRepository, permissionCreatorRepository)
-	rolesVersionService := roles_version.New(rolesVersionRepository)
-	roleService := role.New(roleRepository)
+	permissionService := permission.New(permissionCache, defaultRolesVersionRepository)
+	resourceService := resource.New(
+		resourceRepository,
+		permissionCreatorRepository,
+		permissionCache,
+	)
+	rolesVersionService := roles_version.New(rolesVersionRepository, permissionCache)
+	roleService := role.New(roleRepository, permissionCache)
 	exportService := export.New(
 		roleRepository,
 		resourceRepository,

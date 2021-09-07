@@ -10,5 +10,8 @@
     "user": "roles-manager",
     "password": "password",
     "db_name": "roles_manager"
+  },
+  "cache": {
+    "permission_lifetime": 300
   }
 }
