@@ -12,18 +12,16 @@ import {
     Input,
     MenuItem,
     Select,
-    TextField,
 } from '@material-ui/core';
 
 import { Permission } from '../../../../services/api';
 import { EditRoleProps } from './edit.types';
 import { Permissions } from './permissions';
+import { TextFields } from '../../shared';
 
 export const EditRole = (props: EditRoleProps) => {
     const [open, setOpen] = useState(false);
 
-    const initialRoleId = props.initialRole?.id || '';
-    const initialTitle = props.initialRole?.title || '';
     let permissions = props?.initialRole?.permissions || [];
     const initialExtends = props.initialRole?.extends || [];
 
@@ -35,22 +33,22 @@ export const EditRole = (props: EditRoleProps) => {
         };
     });
 
-    const [roleId, setRoleId] = useState('');
-    const [roleTitle, setRoleTitle] = useState('');
+    const [roleId, setRoleId] = useState(props.initialRole?.id || '');
+    const [roleTitle, setRoleTitle] = useState(props.initialRole?.title || '');
     const [extends_, setExtends] = useState<string[]>([]);
-    const canExtendsFrom = props.existRoles.filter(r => r.id !== initialRoleId && r.versionId === props.roleVersionId);
+    const canExtendsFrom = props.existRoles.filter(r => r.id !== props.initialRole?.id && r.versionId === props.roleVersionId);
 
     useEffect(() => {
-        (!roleId || initialRoleId) && setRoleId(initialRoleId || '');
-        (!roleTitle || initialTitle) && setRoleTitle(initialTitle || '');
+        (!roleId || props.initialRole?.id) && setRoleId(props.initialRole?.id || '');
+        (!roleTitle || props.initialRole?.title) && setRoleTitle(props.initialRole?.title || '');
 
         (!extends_ || !_.isEmpty(initialExtends)) && setExtends(initialExtends || []);
         // eslint-disable-next-line
-    }, [initialRoleId, initialTitle, initialExtends]);
+    }, [props.initialRole?.id, props.initialRole?.title, initialExtends]);
 
     const onPermissionsUpdate = (updatedPermissions: Permission[]) => {
         permissions = updatedPermissions.map(p => p.id);
-    }
+    };
 
     const handleClose = () => {
         setOpen(false);
@@ -85,21 +83,22 @@ export const EditRole = (props: EditRoleProps) => {
                     Enter new role data below
                 </DialogContentText>
 
-                <TextField
-                    margin="dense"
-                    label="Role Id"
-                    fullWidth
-                    disabled={!!initialRoleId}
-                    value={roleId}
-                    onChange={e => setRoleId((e.target as HTMLInputElement).value)}
-                />
-
-                <TextField
-                    margin="dense"
-                    label="Role Title"
-                    fullWidth
-                    value={roleTitle}
-                    onChange={e => setRoleTitle((e.target as HTMLInputElement).value)}
+                <TextFields
+                    fields={[
+                        {
+                            name: 'id',
+                            value: roleId,
+                            label: 'Role Id',
+                            disabled: !!props.initialRole?.id,
+                            onChange: newValue => setRoleId(newValue),
+                        },
+                        {
+                            name: 'title',
+                            value: roleTitle,
+                            label: 'Role Title',
+                            onChange: newValue => setRoleTitle(newValue),
+                        },
+                    ]}
                 />
 
                 <InputLabel id="select-role-extends">Extends from</InputLabel>

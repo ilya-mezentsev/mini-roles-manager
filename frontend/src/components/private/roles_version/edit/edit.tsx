@@ -6,17 +6,12 @@ import {
     DialogContent,
     DialogContentText,
     DialogTitle,
-    TextField
 } from '@material-ui/core';
 
 import { EditRolesVersionProps } from './edit.types';
+import { TextFields } from '../../shared';
 
 export const EditRolesVersion = (props: EditRolesVersionProps) => {
-    const { id: initialRolesVersionId, title: initialRolesVersionTitle } = props.initialRolesVersion || {
-        id: '',
-        title: '',
-    };
-
     const [open, setOpen] = useState(false);
 
     const openDialogue = () => setOpen(true);
@@ -27,16 +22,14 @@ export const EditRolesVersion = (props: EditRolesVersionProps) => {
         };
     });
 
-    const [rolesVersionId, setRolesVersionId] = useState('');
-    const [rolesVersionTitle, setRolesVersionTitle] = useState('');
+    const [rolesVersionId, setRolesVersionId] = useState(props.initialRolesVersion?.id || '');
+    const [rolesVersionTitle, setRolesVersionTitle] = useState(props.initialRolesVersion?.title || '');
 
-    useEffect(
-        () => {
-            setRolesVersionId(initialRolesVersionId || '');
-            setRolesVersionTitle(initialRolesVersionTitle || '');
-        },
-        [initialRolesVersionId, initialRolesVersionTitle],
-    );
+    useEffect(() => {
+        !rolesVersionId && setRolesVersionId(props.initialRolesVersion?.id || '');
+        (!rolesVersionTitle || props.initialRolesVersion?.title) && setRolesVersionTitle(props.initialRolesVersion?.title || '');
+        // eslint-disable-next-line
+    }, [props.initialRolesVersion?.id, props.initialRolesVersion?.title]);
 
     const handleClose = () => {
         setOpen(false);
@@ -54,27 +47,28 @@ export const EditRolesVersion = (props: EditRolesVersionProps) => {
 
     return (
         <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
-            <DialogTitle id="form-dialog-title">New RolesVersion</DialogTitle>
+            <DialogTitle id="form-dialog-title">New Roles Version</DialogTitle>
             <DialogContent>
                 <DialogContentText>
                     Enter new roles version data below
                 </DialogContentText>
 
-                <TextField
-                    margin="dense"
-                    label="Roles Version Id"
-                    fullWidth
-                    disabled={!!initialRolesVersionId}
-                    value={rolesVersionId}
-                    onChange={e => setRolesVersionId((e.target as HTMLInputElement).value)}
-                />
-
-                <TextField
-                    margin="dense"
-                    label="Roles Version Title"
-                    fullWidth
-                    value={rolesVersionTitle}
-                    onChange={e => setRolesVersionTitle((e.target as HTMLInputElement).value)}
+                <TextFields
+                    fields={[
+                        {
+                            name: 'id',
+                            value: rolesVersionId,
+                            label: 'Roles Version Id',
+                            disabled: !!props.initialRolesVersion?.id,
+                            onChange: newValue => setRolesVersionId(newValue),
+                        },
+                        {
+                            name: 'title',
+                            value: rolesVersionTitle,
+                            label: 'Roles Version Title',
+                            onChange: newValue => setRolesVersionTitle(newValue),
+                        },
+                    ]}
                 />
             </DialogContent>
             <DialogActions>

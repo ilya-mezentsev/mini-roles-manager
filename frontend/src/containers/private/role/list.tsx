@@ -3,7 +3,7 @@ import { bindActionCreators } from 'redux';
 import EventEmitter from 'events';
 
 import { Alert } from '../../../components/shared';
-import { Prompter } from '../../../components/private/shared/prompter';
+import { Prompter } from '../../../components/private/shared';
 import { EditRole } from '../../../components/private/role';
 import { RolesListActions, RolesListState, RolesListProps } from './list.types';
 import { DispatchToPropsFn, StateToPropsFn } from '../../../shared/types';
@@ -43,14 +43,10 @@ export const RolesList = (props: RolesListProps) => {
         );
     };
 
-    const cleanError = () => {
-        if (props.rolesResult?.fetchError) {
-            props.cleanFetchRolesErrorAction();
-        } else if (props.rolesResult?.updateError) {
-            props.cleanUpdateRoleErrorAction();
-        } else if (props.rolesResult?.deleteError) {
-            props.cleanDeleteRoleErrorAction();
-        }
+    const cleanErrors = () => {
+        props.cleanFetchRolesErrorAction();
+        props.cleanUpdateRoleErrorAction();
+        props.cleanDeleteRoleErrorAction();
     };
 
     const errorMessage: () => string = () => {
@@ -102,7 +98,7 @@ export const RolesList = (props: RolesListProps) => {
                 shouldShow={hasAnyError()}
                 severity={'error'}
                 message={errorMessage()}
-                onCloseCb={() => cleanError()}
+                onCloseCb={() => cleanErrors()}
             />
         </>
     );

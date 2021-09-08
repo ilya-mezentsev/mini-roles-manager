@@ -23,7 +23,7 @@ import {
     EditRolesVersion,
     RolesVersionList as RolesVersionListComponent
 } from '../../../components/private/roles_version';
-import { Prompter } from '../../../components/private/shared/prompter';
+import { Prompter } from '../../../components/private/shared';
 import { Alert } from '../../../components/shared';
 import { cleanFetchRolesError, fetchRoles } from '../../../store/role/actions';
 
@@ -66,16 +66,11 @@ export const RolesVersionList = (props: RolesVersionListProps) => {
         );
     };
 
-    const cleanError = () => {
-        if (props.rolesVersionResult?.fetchError) {
-            props.cleanFetchRolesVersionsErrorAction();
-        } else if (props.rolesVersionResult?.updateError) {
-            props.cleanUpdateRolesVersionErrorAction();
-        } else if (props.rolesVersionResult?.deleteError) {
-            props.cleanDeleteRolesVersionErrorAction();
-        } else if (props.rolesResult?.fetchError) {
-            props.cleanFetchRolesErrorAction();
-        }
+    const cleanErrors = () => {
+        props.cleanFetchRolesVersionsErrorAction();
+        props.cleanUpdateRolesVersionErrorAction();
+        props.cleanDeleteRolesVersionErrorAction();
+        props.cleanFetchRolesErrorAction();
     };
 
     const errorMessage: () => string = () => {
@@ -121,7 +116,7 @@ export const RolesVersionList = (props: RolesVersionListProps) => {
                 shouldShow={hasAnyError()}
                 severity={'error'}
                 message={errorMessage()}
-                onCloseCb={() => cleanError()}
+                onCloseCb={() => cleanErrors()}
             />
         </>
     );
