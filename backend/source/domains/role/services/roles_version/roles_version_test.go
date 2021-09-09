@@ -2,7 +2,6 @@ package roles_version
 
 import (
 	"github.com/go-playground/validator/v10"
-	responseFactory "github.com/ilya-mezentsev/response-factory"
 	"github.com/stretchr/testify/assert"
 	"mini-roles-backend/source/domains/role/request"
 	sharedError "mini-roles-backend/source/domains/shared/error"
@@ -17,8 +16,6 @@ var (
 	mockRepository                 = &sharedMock.RolesVersionRepository{}
 	mockPermissionCacheInvalidator = &sharedMock.InMemoryCacheInvalidator{}
 	service                        = New(mockRepository, mockPermissionCacheInvalidator)
-	expectedOkStatus               = responseFactory.DefaultResponse().ApplicationStatus()
-	expectedErrorStatus            = responseFactory.EmptyServerError().ApplicationStatus()
 )
 
 func init() {
@@ -43,7 +40,7 @@ func TestService_CreateRolesVersionSuccess(t *testing.T) {
 	})
 
 	assert.True(t, mockRepository.Has(newRolesVersion))
-	assert.Equal(t, expectedOkStatus, response.ApplicationStatus())
+	assert.True(t, response.IsOk())
 	assert.False(t, response.HasData())
 	assert.True(t, mockPermissionCacheInvalidator.InvalidateCalledWith(sharedMock.ExistsAccountId))
 }
@@ -60,7 +57,7 @@ func TestService_CreateRolesVersionDuplicateKeyError(t *testing.T) {
 		RolesVersion: newRolesVersion,
 	})
 
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.IsOk())
 	assert.True(t, response.HasData())
 	assert.Equal(t, rolesVersionExistsCode, response.Data().(sharedError.ServiceError).Code)
 	assert.Equal(t, rolesVersionExistsDescription, response.Data().(sharedError.ServiceError).Description)
@@ -78,7 +75,7 @@ func TestService_CreateRolesVersionValidationError(t *testing.T) {
 	response := service.CreateRolesVersion(req)
 
 	assert.False(t, mockRepository.Has(newRolesVersion))
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.IsOk())
 	assert.True(t, response.HasData())
 	assert.Equal(t, sharedError.ValidationErrorCode, response.Data().(sharedError.ServiceError).Code)
 	assert.Equal(
@@ -101,7 +98,7 @@ func TestService_CreateRolesVersionDBError(t *testing.T) {
 	})
 
 	assert.False(t, mockRepository.Has(newRolesVersion))
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.IsOk())
 	assert.Equal(t, sharedError.ServerErrorCode, response.Data().(sharedError.ServiceError).Code)
 	assert.Equal(t, sharedError.ServerErrorDescription, response.Data().(sharedError.ServiceError).Description)
 }
@@ -117,7 +114,7 @@ func TestService_RolesVersionListSuccess(t *testing.T) {
 		AccountId: sharedMock.ExistsAccountId,
 	})
 
-	assert.Equal(t, expectedOkStatus, response.ApplicationStatus())
+	assert.True(t, response.IsOk())
 	assert.True(t, response.HasData())
 	assert.Equal(t, expectedRolesVersionList, response.Data())
 }
@@ -127,7 +124,7 @@ func TestService_RolesVersionListValidationError(t *testing.T) {
 
 	response := service.RolesVersionList(req)
 
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.IsOk())
 	assert.True(t, response.HasData())
 	assert.Equal(t, sharedError.ValidationErrorCode, response.Data().(sharedError.ServiceError).Code)
 	assert.Equal(
@@ -142,7 +139,7 @@ func TestService_RolesVersionListDBError(t *testing.T) {
 		AccountId: sharedMock.BadAccountId,
 	})
 
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.IsOk())
 	assert.Equal(t, sharedError.ServerErrorCode, response.Data().(sharedError.ServiceError).Code)
 	assert.Equal(t, sharedError.ServerErrorDescription, response.Data().(sharedError.ServiceError).Description)
 }
@@ -160,7 +157,7 @@ func TestService_UpdateRolesVersionSuccess(t *testing.T) {
 		RolesVersion: updatingRolesVersion,
 	})
 
-	assert.Equal(t, expectedOkStatus, response.ApplicationStatus())
+	assert.True(t, response.IsOk())
 	assert.False(t, response.HasData())
 	assert.True(t, mockRepository.Has(updatingRolesVersion))
 	assert.True(t, mockPermissionCacheInvalidator.InvalidateCalledWith(sharedMock.ExistsAccountId))
@@ -171,7 +168,7 @@ func TestService_UpdateRolesVersionValidationError(t *testing.T) {
 
 	response := service.UpdateRolesVersion(req)
 
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.IsOk())
 	assert.True(t, response.HasData())
 	assert.Equal(t, sharedError.ValidationErrorCode, response.Data().(sharedError.ServiceError).Code)
 	assert.Equal(
@@ -192,7 +189,7 @@ func TestService_UpdateRolesVersionDBError(t *testing.T) {
 		RolesVersion: updatingRolesVersion,
 	})
 
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.IsOk())
 	assert.Equal(t, sharedError.ServerErrorCode, response.Data().(sharedError.ServiceError).Code)
 	assert.Equal(t, sharedError.ServerErrorDescription, response.Data().(sharedError.ServiceError).Description)
 }
@@ -209,7 +206,7 @@ func TestService_DeleteRolesVersionSuccess(t *testing.T) {
 		RolesVersionId: deletingRolesVersion.Id,
 	})
 
-	assert.Equal(t, expectedOkStatus, response.ApplicationStatus())
+	assert.True(t, response.IsOk())
 	assert.False(t, response.HasData())
 	assert.False(t, mockRepository.Has(deletingRolesVersion))
 	assert.True(t, mockPermissionCacheInvalidator.InvalidateCalledWith(sharedMock.ExistsAccountId))
@@ -228,7 +225,7 @@ func TestService_DeleteRolesVersionCannotDeleteLast(t *testing.T) {
 		RolesVersionId: deletingRolesVersion.Id,
 	})
 
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.IsOk())
 	assert.True(t, response.HasData())
 	assert.Equal(t, cannotDeleteLastRolesVersionCode, response.Data().(sharedError.ServiceError).Code)
 	assert.Equal(
@@ -244,7 +241,7 @@ func TestService_DeleteRolesVersionValidationError(t *testing.T) {
 
 	response := service.DeleteRolesVersion(req)
 
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.IsOk())
 	assert.True(t, response.HasData())
 	assert.Equal(t, sharedError.ValidationErrorCode, response.Data().(sharedError.ServiceError).Code)
 	assert.Equal(
@@ -260,7 +257,7 @@ func TestService_DeleteRolesVersionDBErrorInDeleting(t *testing.T) {
 		RolesVersionId: sharedMock.BadRolesVersionId,
 	})
 
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.IsOk())
 	assert.Equal(t, sharedError.ServerErrorCode, response.Data().(sharedError.ServiceError).Code)
 	assert.Equal(t, sharedError.ServerErrorDescription, response.Data().(sharedError.ServiceError).Description)
 }
@@ -275,7 +272,7 @@ func TestService_DeleteRolesVersionDBErrorInFetching(t *testing.T) {
 		RolesVersionId: deletingRolesVersion.Id,
 	})
 
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.IsOk())
 	assert.Equal(t, sharedError.ServerErrorCode, response.Data().(sharedError.ServiceError).Code)
 	assert.Equal(t, sharedError.ServerErrorDescription, response.Data().(sharedError.ServiceError).Description)
 	assert.True(t, mockRepository.Has(deletingRolesVersion))

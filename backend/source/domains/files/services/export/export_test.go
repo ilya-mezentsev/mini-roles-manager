@@ -2,7 +2,6 @@ package export
 
 import (
 	"encoding/json"
-	responseFactory "github.com/ilya-mezentsev/response-factory"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"mini-roles-backend/source/domains/files/request"
@@ -16,8 +15,6 @@ var (
 	mockResourceRepository            = &sharedMock.ResourceRepository{}
 	mockDefaultRolesVersionRepository = &sharedMock.DefaultRolesVersionRepository{}
 	mockRoleRepository                = &sharedMock.RoleRepository{}
-	expectedOkStatus                  = responseFactory.DefaultResponse().ApplicationStatus()
-	expectedErrorStatus               = responseFactory.EmptyServerError().ApplicationStatus()
 
 	service = New(
 		mockRoleRepository,
@@ -37,7 +34,7 @@ func TestService_MakeExportFileSuccess(t *testing.T) {
 		AccountId: sharedMock.ExistsAccountId,
 	})
 
-	assert.Equal(t, expectedOkStatus, response.ApplicationStatus())
+	assert.True(t, response.IsOk())
 	assert.True(t, response.HasData())
 	assert.FileExists(t, response.Data().(string))
 
@@ -75,7 +72,7 @@ func TestService_MakeExportFileUnableToFetchResources(t *testing.T) {
 		AccountId: sharedMock.BadAccountId,
 	})
 
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.IsOk())
 	assert.False(t, response.HasData())
 }
 
@@ -84,7 +81,7 @@ func TestService_MakeExportFileUnableToFetchRoles(t *testing.T) {
 		AccountId: sharedMock.BadAccountIdForRoleRepository,
 	})
 
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.IsOk())
 	assert.False(t, response.HasData())
 }
 
@@ -93,7 +90,7 @@ func TestService_MakeExportFileUnableToFetchDefaultRolesVersion(t *testing.T) {
 		AccountId: sharedMock.BadAccountIdForDefaultRolesVersionRepository,
 	})
 
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.IsOk())
 	assert.False(t, response.HasData())
 }
 
@@ -101,6 +98,6 @@ func TestService_MakeExportFileValidationError(t *testing.T) {
 	req := request.ExportRequest{}
 	response := service.MakeExportFile(req)
 
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.IsOk())
 	assert.False(t, response.HasData())
 }

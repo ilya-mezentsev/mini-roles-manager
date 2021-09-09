@@ -58,6 +58,14 @@ func (r Repository) DBName() string {
 	return r.s.DB.DBName
 }
 
+func (r Repository) DBConnectionRetryCount() int {
+	return r.s.DB.Connection.RetryCount
+}
+
+func (r Repository) DBConnectionRetryTimeout() int {
+	return r.s.DB.Connection.RetryTimeout
+}
+
 func (r Repository) CachePermissionLifetime() uint {
 	return r.s.Cache.PermissionLifetime
 }

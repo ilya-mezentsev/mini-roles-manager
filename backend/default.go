@@ -30,7 +30,10 @@ import (
 
 var configFilePath = flag.String("config", "/dev/null", "Set path to configs file")
 
-func fullInit(r *gin.Engine) int {
+func fullInit(
+	r *gin.Engine,
+	sharedMiddlewares ...gin.HandlerFunc,
+) int {
 	configsRepository := config.MustNew(*configFilePath)
 
 	db := connection.MustGetConnection(configsRepository)
@@ -86,6 +89,8 @@ func fullInit(r *gin.Engine) int {
 		roleService,
 
 		exportService,
+
+		sharedMiddlewares...,
 	)
 
 	return configsRepository.ServerPort()

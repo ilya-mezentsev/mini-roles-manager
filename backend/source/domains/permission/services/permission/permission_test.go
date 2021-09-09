@@ -2,7 +2,6 @@ package permission
 
 import (
 	"github.com/go-playground/validator/v10"
-	responseFactory "github.com/ilya-mezentsev/response-factory"
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
@@ -20,8 +19,6 @@ import (
 var (
 	mockPermissionRepository          = mock.PermissionRepository{}
 	mockDefaultRolesVersionRepository = sharedMock.DefaultRolesVersionRepository{}
-	expectedOkStatus                  = responseFactory.DefaultResponse().ApplicationStatus()
-	expectedErrorStatus               = responseFactory.EmptyServerError().ApplicationStatus()
 )
 
 func init() {
@@ -44,7 +41,7 @@ func TestService_HasPermissionPermit(t *testing.T) {
 		},
 	)
 
-	assert.Equal(t, expectedOkStatus, response.ApplicationStatus())
+	assert.True(t, response.IsOk())
 	assert.True(t, response.HasData())
 	assert.Equal(t, permitEffectCode, response.Data().(models.EffectResponse).Effect)
 }
@@ -59,7 +56,7 @@ func TestService_HasPermissionPermitByLinkingResource(t *testing.T) {
 		},
 	)
 
-	assert.Equal(t, expectedOkStatus, response.ApplicationStatus())
+	assert.True(t, response.IsOk())
 	assert.True(t, response.HasData())
 	assert.Equal(t, permitEffectCode, response.Data().(models.EffectResponse).Effect)
 }
@@ -74,7 +71,7 @@ func TestService_HasPermissionDeny(t *testing.T) {
 		},
 	)
 
-	assert.Equal(t, expectedOkStatus, response.ApplicationStatus())
+	assert.True(t, response.IsOk())
 	assert.True(t, response.HasData())
 	assert.Equal(t, denyEffectCode, response.Data().(models.EffectResponse).Effect)
 }
@@ -90,7 +87,7 @@ func TestService_HasPermissionDenyDueRolesVersion(t *testing.T) {
 		},
 	)
 
-	assert.Equal(t, expectedOkStatus, response.ApplicationStatus())
+	assert.True(t, response.IsOk())
 	assert.True(t, response.HasData())
 	assert.Equal(t, denyEffectCode, response.Data().(models.EffectResponse).Effect)
 }
@@ -105,7 +102,7 @@ func TestService_HasPermissionDenyByUndefinedOperation(t *testing.T) {
 		},
 	)
 
-	assert.Equal(t, expectedOkStatus, response.ApplicationStatus())
+	assert.True(t, response.IsOk())
 	assert.True(t, response.HasData())
 	assert.Equal(t, denyEffectCode, response.Data().(models.EffectResponse).Effect)
 }
@@ -116,7 +113,7 @@ func TestService_HasPermissionValidationError(t *testing.T) {
 	}
 	response := New(mockPermissionRepository, mockDefaultRolesVersionRepository).HasPermission(sharedMock.BadAccountId, req)
 
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.IsOk())
 	assert.True(t, response.HasData())
 	assert.Equal(t, sharedError.ValidationErrorCode, response.Data().(sharedError.ServiceError).Code)
 	assert.Equal(
@@ -136,7 +133,7 @@ func TestService_HasPermissionUnableToFetchDefaultRolesVersion(t *testing.T) {
 		},
 	)
 
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.IsOk())
 	assert.True(t, response.HasData())
 	assert.Equal(t, sharedError.ServerErrorCode, response.Data().(sharedError.ServiceError).Code)
 	assert.Equal(t, sharedError.ServerErrorDescription, response.Data().(sharedError.ServiceError).Description)
@@ -156,7 +153,7 @@ func TestService_HasPermissionUnableToFetchPermissions(t *testing.T) {
 		},
 	)
 
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.IsOk())
 	assert.True(t, response.HasData())
 	assert.Equal(t, sharedError.ServerErrorCode, response.Data().(sharedError.ServiceError).Code)
 	assert.Equal(t, sharedError.ServerErrorDescription, response.Data().(sharedError.ServiceError).Description)

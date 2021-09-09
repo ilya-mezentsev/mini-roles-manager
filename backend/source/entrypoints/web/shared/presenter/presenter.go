@@ -10,9 +10,17 @@ func MakeJsonResponse(c *gin.Context, r responseFactory.Response) {
 	c.Status(r.HttpStatus())
 	if r.HasData() {
 		c.JSON(r.HttpStatus(), gin.H{
-			"status": r.ApplicationStatus(),
+			"status": applicationStatus(r),
 			"data":   r.Data(),
 		})
+	}
+}
+
+func applicationStatus(r responseFactory.Response) string {
+	if r.IsOk() {
+		return statusOk
+	} else {
+		return statusError
 	}
 }
 

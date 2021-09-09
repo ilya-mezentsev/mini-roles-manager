@@ -38,6 +38,8 @@ func FullInit(
 	roleService role.Service,
 
 	exportService export.Service,
+
+	sharedMiddlewares ...gin.HandlerFunc,
 ) {
 	checkCookieMiddleware := cookie.New(sessionCheckService)
 	checkHeaderMiddleware := header.New(sessionCheckService)
@@ -50,6 +52,7 @@ func FullInit(
 	filesController := filesControllerConstructor.New(exportService)
 
 	webAppGroup := r.Group("/web-app")
+	webAppGroup.Use(sharedMiddlewares...)
 
 	webAppGroup.POST("/registration/user", accountController.Register)
 
@@ -84,7 +87,12 @@ func FullInit(
 	}
 
 	headerTokenAuthorized := r.Group("/public")
-	headerTokenAuthorized.Use(checkHeaderMiddleware.HasSessionInHeader())
+	headerTokenAuthorized.Use(
+		append(
+			sharedMiddlewares,
+			checkHeaderMiddleware.HasSessionInHeader(),
+		)...,
+	)
 	{
 		headerTokenAuthorized.GET("/permissions", permissionController.ResolveResourceAccessEffect)
 	}
@@ -94,8 +102,12 @@ func MinimalInit(
 	r *gin.Engine,
 
 	permissionService permission.Service,
+
+	sharedMiddlewares ...gin.HandlerFunc,
 ) {
 	permissionController := permissionControllerConstructor.New(permissionService)
+
+	r.Use(sharedMiddlewares...)
 
 	r.GET("/permissions", permissionController.ResolveResourceAccessEffect)
 }

@@ -12,8 +12,8 @@ services:
       POSTGRES_DB: roles_manager
 
   api:
+    tty: true # so logrus can apply TextFormatter
     build: backend
-    restart: on-failure
     volumes:
       - ./backend:/var/www/apps/backend
     depends_on:
@@ -21,7 +21,6 @@ services:
 
   nginx:
     build: nginx
-    restart: on-failure
     volumes:
       - ./frontend:/var/www/apps/frontend
       - ./backend/api/public:/var/www/public/docs/api

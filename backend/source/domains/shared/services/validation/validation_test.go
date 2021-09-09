@@ -2,17 +2,12 @@ package validation
 
 import (
 	"github.com/go-playground/validator/v10"
-	responseFactory "github.com/ilya-mezentsev/response-factory"
 	"github.com/stretchr/testify/assert"
 	"mini-roles-backend/source/domains/role/request"
 	sharedError "mini-roles-backend/source/domains/shared/error"
 	sharedMock "mini-roles-backend/source/domains/shared/mock"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
 	"testing"
-)
-
-var (
-	expectedErrorStatus = responseFactory.EmptyServerError().ApplicationStatus()
 )
 
 func TestMakeErrorResponseInvalidRequest(t *testing.T) {
@@ -24,7 +19,7 @@ func TestMakeErrorResponseInvalidRequest(t *testing.T) {
 	response := MakeErrorResponse(req)
 
 	assert.NotNil(t, response)
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.IsOk())
 	assert.True(t, response.HasData())
 	assert.Equal(t, sharedError.ValidationErrorCode, response.Data().(sharedError.ServiceError).Code)
 	assert.Equal(
