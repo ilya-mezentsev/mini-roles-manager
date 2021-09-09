@@ -4,7 +4,7 @@ import * as _ from 'lodash';
 import EventEmitter from 'events';
 
 import { Alert } from '../../../components/shared';
-import { Prompter } from '../../../components/private/shared/prompter';
+import { Prompter } from '../../../components/private/shared';
 import {
     EditResource,
     ResourcesList as ResourcesListComponent,
@@ -75,16 +75,11 @@ export const ResourcesList = (props: ResourcesListProps) => {
         );
     };
 
-    const cleanError = () => {
-        if (props.resourcesResult?.fetchError) {
-            props.cleanLoadResourcesError();
-        } else if (props.resourcesResult?.updateError) {
-            props.cleanUpdateResourceErrorAction();
-        } else if (props.resourcesResult?.deleteError) {
-            props.cleanDeleteResourceErrorAction();
-        } else if (props.rolesResult?.fetchError) {
-            props.cleanFetchRolesErrorAction();
-        }
+    const cleanErrors = () => {
+        props.cleanLoadResourcesError();
+        props.cleanUpdateResourceErrorAction();
+        props.cleanDeleteResourceErrorAction();
+        props.cleanFetchRolesErrorAction();
     };
 
     const errorMessage: () => string = () => {
@@ -131,7 +126,7 @@ export const ResourcesList = (props: ResourcesListProps) => {
                 shouldShow={hasAnyError()}
                 severity={'error'}
                 message={errorMessage()}
-                onCloseCb={() => cleanError()}
+                onCloseCb={() => cleanErrors()}
             />
         </>
     );

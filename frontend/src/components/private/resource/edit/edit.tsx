@@ -6,17 +6,12 @@ import {
     DialogContent,
     DialogContentText,
     DialogTitle,
-    TextField,
 } from '@material-ui/core';
 
 import { EditResourceProps } from './edit.types';
+import { TextFields } from '../../shared';
 
 export const EditResource = (props: EditResourceProps) => {
-    const { id: initialResourceId, title: initialResourceTitle } = props.initialResource || {
-        id: '',
-        title: '',
-    };
-
     const [open, setOpen] = useState(false);
 
     const openDialogue = () => setOpen(true);
@@ -27,16 +22,14 @@ export const EditResource = (props: EditResourceProps) => {
         };
     });
 
-    const [resourceId, setResourceId] = useState('');
-    const [resourceTitle, setResourceTitle] = useState('');
+    const [resourceId, setResourceId] = useState(props.initialResource?.id || '');
+    const [resourceTitle, setResourceTitle] = useState(props.initialResource?.title || '');
 
-    useEffect(
-        () => {
-            setResourceId(initialResourceId || '');
-            setResourceTitle(initialResourceTitle || '');
-        },
-        [initialResourceId, initialResourceTitle],
-    );
+    useEffect(() => {
+        !resourceId && setResourceId(props.initialResource?.id || '');
+        (!resourceTitle || props.initialResource?.title) && setResourceTitle(props.initialResource?.title || '');
+        // eslint-disable-next-line
+    }, [props.initialResource?.id, props.initialResource?.title]);
 
     const handleClose = () => {
         setOpen(false);
@@ -60,21 +53,22 @@ export const EditResource = (props: EditResourceProps) => {
                     Enter new resource data below
                 </DialogContentText>
 
-                <TextField
-                    margin="dense"
-                    label="Resource Id"
-                    fullWidth
-                    disabled={!!initialResourceId}
-                    value={resourceId}
-                    onChange={e => setResourceId((e.target as HTMLInputElement).value)}
-                />
-
-                <TextField
-                    margin="dense"
-                    label="Resource Title"
-                    fullWidth
-                    value={resourceTitle}
-                    onChange={e => setResourceTitle((e.target as HTMLInputElement).value)}
+                <TextFields
+                    fields={[
+                        {
+                            name: 'id',
+                            value: resourceId,
+                            label: 'Resource Id',
+                            disabled: !!props.initialResource?.id,
+                            onChange: newValue => setResourceId(newValue),
+                        },
+                        {
+                            name: 'title',
+                            value: resourceTitle,
+                            label: 'Resource Title',
+                            onChange: newValue => setResourceTitle(newValue),
+                        },
+                    ]}
                 />
             </DialogContent>
             <DialogActions>
