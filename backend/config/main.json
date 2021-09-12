@@ -9,7 +9,11 @@
     "port": 5432,
     "user": "roles-manager",
     "password": "password",
-    "db_name": "roles_manager"
+    "db_name": "roles_manager",
+    "connection": {
+      "retry_count": 7,
+      "retry_timeout": 3
+    }
   },
   "cache": {
     "permission_lifetime": 300

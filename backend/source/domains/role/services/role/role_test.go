@@ -2,7 +2,6 @@ package role
 
 import (
 	"github.com/go-playground/validator/v10"
-	responseFactory "github.com/ilya-mezentsev/response-factory"
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
@@ -20,8 +19,6 @@ var (
 	mockRepository                 = &sharedMock.RoleRepository{}
 	mockPermissionCacheInvalidator = &sharedMock.InMemoryCacheInvalidator{}
 	service                        = New(mockRepository, mockPermissionCacheInvalidator)
-	expectedOkStatus               = responseFactory.DefaultResponse().ApplicationStatus()
-	expectedErrorStatus            = responseFactory.EmptyServerError().ApplicationStatus()
 )
 
 func init() {
@@ -52,7 +49,7 @@ func TestService_CreateSuccess(t *testing.T) {
 	})
 
 	assert.True(t, mockRepository.Has(newRole))
-	assert.Equal(t, expectedOkStatus, response.ApplicationStatus())
+	assert.True(t, response.IsOk())
 	assert.False(t, response.HasData())
 	assert.True(t, mockPermissionCacheInvalidator.InvalidateCalledWith(sharedMock.ExistsAccountId))
 }
@@ -70,7 +67,7 @@ func TestService_CreateDuplicateKeyError(t *testing.T) {
 		Role:      newRole,
 	})
 
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.IsOk())
 	assert.True(t, response.HasData())
 	assert.Equal(t, roleExistsCode, response.Data().(sharedError.ServiceError).Code)
 	assert.Equal(t, roleExistsDescription, response.Data().(sharedError.ServiceError).Description)
@@ -87,7 +84,7 @@ func TestService_CreateValidationError(t *testing.T) {
 	response := service.Create(req)
 
 	assert.False(t, mockRepository.Has(newRole))
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.IsOk())
 	assert.True(t, response.HasData())
 	assert.Equal(t, sharedError.ValidationErrorCode, response.Data().(sharedError.ServiceError).Code)
 	assert.Equal(
@@ -111,7 +108,7 @@ func TestService_CreateDBError(t *testing.T) {
 	})
 
 	assert.False(t, mockRepository.Has(newRole))
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.IsOk())
 	assert.Equal(t, sharedError.ServerErrorCode, response.Data().(sharedError.ServiceError).Code)
 	assert.Equal(t, sharedError.ServerErrorDescription, response.Data().(sharedError.ServiceError).Description)
 }
@@ -127,7 +124,7 @@ func TestService_RolesListSuccess(t *testing.T) {
 		AccountId: sharedMock.ExistsAccountId,
 	})
 
-	assert.Equal(t, expectedOkStatus, response.ApplicationStatus())
+	assert.True(t, response.IsOk())
 	assert.True(t, response.HasData())
 	assert.Equal(t, expectedRoles, response.Data())
 }
@@ -137,7 +134,7 @@ func TestService_RolesListEmpty(t *testing.T) {
 		AccountId: "some-id",
 	})
 
-	assert.Equal(t, expectedOkStatus, response.ApplicationStatus())
+	assert.True(t, response.IsOk())
 	assert.True(t, response.HasData())
 	assert.Empty(t, response.Data())
 }
@@ -147,7 +144,7 @@ func TestService_RolesListValidationError(t *testing.T) {
 
 	response := service.RolesList(req)
 
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.IsOk())
 	assert.True(t, response.HasData())
 	assert.Equal(t, sharedError.ValidationErrorCode, response.Data().(sharedError.ServiceError).Code)
 	assert.Equal(
@@ -162,7 +159,7 @@ func TestService_RolesListDBError(t *testing.T) {
 		AccountId: sharedMock.BadAccountId,
 	})
 
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.IsOk())
 	assert.Equal(t, sharedError.ServerErrorCode, response.Data().(sharedError.ServiceError).Code)
 	assert.Equal(t, sharedError.ServerErrorDescription, response.Data().(sharedError.ServiceError).Description)
 }
@@ -180,7 +177,7 @@ func TestService_UpdateRoleSuccess(t *testing.T) {
 		Role:      updatingRole,
 	})
 
-	assert.Equal(t, expectedOkStatus, response.ApplicationStatus())
+	assert.True(t, response.IsOk())
 	assert.False(t, response.HasData())
 	assert.Equal(t, mockRepository.Get(updatingRole.Id), updatingRole)
 	assert.True(t, mockPermissionCacheInvalidator.InvalidateCalledWith(sharedMock.ExistsAccountId))
@@ -197,7 +194,7 @@ func TestService_UpdateRoleValidationError(t *testing.T) {
 
 	response := service.UpdateRole(req)
 
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.IsOk())
 	assert.True(t, response.HasData())
 	assert.Equal(t, sharedError.ValidationErrorCode, response.Data().(sharedError.ServiceError).Code)
 	assert.Equal(
@@ -219,7 +216,7 @@ func TestService_UpdateRoleDBError(t *testing.T) {
 		Role:      updatingRole,
 	})
 
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.IsOk())
 	assert.Equal(t, sharedError.ServerErrorCode, response.Data().(sharedError.ServiceError).Code)
 	assert.Equal(t, sharedError.ServerErrorDescription, response.Data().(sharedError.ServiceError).Description)
 }
@@ -233,7 +230,7 @@ func TestService_DeleteRoleSuccess(t *testing.T) {
 		RolesVersionId: sharedMock.ExistsRolesVersionId,
 	})
 
-	assert.Equal(t, expectedOkStatus, response.ApplicationStatus())
+	assert.True(t, response.IsOk())
 	assert.False(t, response.HasData())
 	assert.False(t, mockRepository.Has(sharedModels.Role{Id: sharedMock.ExistsRoleId}))
 	assert.True(t, mockPermissionCacheInvalidator.InvalidateCalledWith(sharedMock.ExistsAccountId))
@@ -244,7 +241,7 @@ func TestService_DeleteRoleValidationError(t *testing.T) {
 	response := service.DeleteRole(req)
 
 	assert.True(t, mockRepository.Has(sharedModels.Role{Id: sharedMock.ExistsRoleId}))
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.IsOk())
 	assert.True(t, response.HasData())
 	assert.Equal(t, sharedError.ValidationErrorCode, response.Data().(sharedError.ServiceError).Code)
 	assert.Equal(
@@ -262,7 +259,7 @@ func TestService_DeleteRoleDBError(t *testing.T) {
 	})
 
 	assert.True(t, mockRepository.Has(sharedModels.Role{Id: sharedMock.ExistsRoleId}))
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.IsOk())
 	assert.True(t, response.HasData())
 	assert.Equal(t, sharedError.ServerErrorCode, response.Data().(sharedError.ServiceError).Code)
 	assert.Equal(t, sharedError.ServerErrorDescription, response.Data().(sharedError.ServiceError).Description)

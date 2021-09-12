@@ -2,7 +2,6 @@ package resource
 
 import (
 	"github.com/go-playground/validator/v10"
-	responseFactory "github.com/ilya-mezentsev/response-factory"
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
@@ -25,8 +24,6 @@ var (
 		mockPermissionRepository,
 		mockPermissionCacheInvalidator,
 	)
-	expectedOkStatus    = responseFactory.DefaultResponse().ApplicationStatus()
-	expectedErrorStatus = responseFactory.EmptyServerError().ApplicationStatus()
 )
 
 func init() {
@@ -56,7 +53,7 @@ func TestService_CreateResourceSuccess(t *testing.T) {
 		Resource:  newResource,
 	})
 
-	assert.Equal(t, expectedOkStatus, response.ApplicationStatus())
+	assert.True(t, response.IsOk())
 	assert.False(t, response.HasData())
 	assert.True(t, mockResourceRepository.Has(newResource))
 	assert.NotEmpty(t, mockPermissionRepository.Get(sharedMock.ExistsAccountId, newResource.Id))
@@ -75,7 +72,7 @@ func TestService_CreateResourceValidationError(t *testing.T) {
 	response := service.CreateResource(req)
 
 	assert.False(t, mockResourceRepository.Has(newResource))
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.IsOk())
 	assert.True(t, response.HasData())
 	assert.Equal(t, sharedError.ValidationErrorCode, response.Data().(sharedError.ServiceError).Code)
 	assert.Equal(
@@ -97,7 +94,7 @@ func TestService_CreateResourceDuplicateKeyError(t *testing.T) {
 		Resource:  newResource,
 	})
 
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.IsOk())
 	assert.True(t, response.HasData())
 	assert.Equal(t, resourceExistsCode, response.Data().(sharedError.ServiceError).Code)
 	assert.Equal(t, resourceExistsDescription, response.Data().(sharedError.ServiceError).Description)
@@ -114,7 +111,7 @@ func TestService_CreateResourceDBError(t *testing.T) {
 		Resource:  newResource,
 	})
 
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.IsOk())
 	assert.True(t, response.HasData())
 	assert.Equal(t, sharedError.ServerErrorCode, response.Data().(sharedError.ServiceError).Code)
 	assert.Equal(t, sharedError.ServerErrorDescription, response.Data().(sharedError.ServiceError).Description)
@@ -133,7 +130,7 @@ func TestService_CreateResourcePermissionDBError(t *testing.T) {
 		Resource:  newResource,
 	})
 
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.IsOk())
 	assert.True(t, response.HasData())
 	assert.Equal(t, sharedError.ServerErrorCode, response.Data().(sharedError.ServiceError).Code)
 	assert.Equal(t, sharedError.ServerErrorDescription, response.Data().(sharedError.ServiceError).Description)
@@ -146,7 +143,7 @@ func TestService_ResourcesListSuccess(t *testing.T) {
 		AccountId: sharedMock.ExistsAccountId,
 	})
 
-	assert.Equal(t, expectedOkStatus, response.ApplicationStatus())
+	assert.True(t, response.IsOk())
 	assert.True(t, response.HasData())
 	assert.Equal(t, mockResourceRepository.Get(sharedMock.ExistsAccountId), response.Data())
 }
@@ -155,7 +152,7 @@ func TestService_ResourcesListValidationError(t *testing.T) {
 	req := request.ResourcesList{}
 	response := service.ResourcesList(req)
 
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.IsOk())
 	assert.True(t, response.HasData())
 	assert.Equal(t, sharedError.ValidationErrorCode, response.Data().(sharedError.ServiceError).Code)
 	assert.Equal(
@@ -170,7 +167,7 @@ func TestService_ResourcesListDBError(t *testing.T) {
 		AccountId: sharedMock.BadAccountId,
 	})
 
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.IsOk())
 	assert.True(t, response.HasData())
 	assert.Equal(t, sharedError.ServerErrorCode, response.Data().(sharedError.ServiceError).Code)
 	assert.Equal(t, sharedError.ServerErrorDescription, response.Data().(sharedError.ServiceError).Description)
@@ -188,7 +185,7 @@ func TestService_UpdateResourceSuccess(t *testing.T) {
 		Resource:  updatingResource,
 	})
 
-	assert.Equal(t, expectedOkStatus, response.ApplicationStatus())
+	assert.True(t, response.IsOk())
 	assert.False(t, response.HasData())
 	assert.Contains(t, mockResourceRepository.Get(sharedMock.ExistsAccountId), updatingResource)
 	assert.True(t, mockPermissionCacheInvalidator.InvalidateCalledWith(sharedMock.ExistsAccountId))
@@ -205,7 +202,7 @@ func TestService_UpdateResourceValidationError(t *testing.T) {
 
 	response := service.UpdateResource(req)
 
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.IsOk())
 	assert.True(t, response.HasData())
 	assert.Equal(t, sharedError.ValidationErrorCode, response.Data().(sharedError.ServiceError).Code)
 	assert.Equal(
@@ -227,7 +224,7 @@ func TestService_UpdateResourceDBError(t *testing.T) {
 		Resource:  updatingResource,
 	})
 
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.IsOk())
 	assert.True(t, response.HasData())
 	assert.Equal(t, sharedError.ServerErrorCode, response.Data().(sharedError.ServiceError).Code)
 	assert.Equal(t, sharedError.ServerErrorDescription, response.Data().(sharedError.ServiceError).Description)
@@ -241,7 +238,7 @@ func TestService_DeleteResourceSuccess(t *testing.T) {
 		ResourceId: sharedMock.ExistsResourceId,
 	})
 
-	assert.Equal(t, expectedOkStatus, response.ApplicationStatus())
+	assert.True(t, response.IsOk())
 	assert.False(t, response.HasData())
 	assert.False(t, mockResourceRepository.Has(sharedModels.Resource{
 		Id: sharedMock.ExistsResourceId,
@@ -256,7 +253,7 @@ func TestService_DeleteResourceValidationError(t *testing.T) {
 
 	response := service.DeleteResource(req)
 
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.IsOk())
 	assert.True(t, response.HasData())
 	assert.Equal(t, sharedError.ValidationErrorCode, response.Data().(sharedError.ServiceError).Code)
 	assert.Equal(
@@ -275,7 +272,7 @@ func TestService_DeleteResourceDBError(t *testing.T) {
 		ResourceId: sharedMock.ExistsResourceId,
 	})
 
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.IsOk())
 	assert.True(t, response.HasData())
 	assert.Equal(t, sharedError.ServerErrorCode, response.Data().(sharedError.ServiceError).Code)
 	assert.Equal(t, sharedError.ServerErrorDescription, response.Data().(sharedError.ServiceError).Description)

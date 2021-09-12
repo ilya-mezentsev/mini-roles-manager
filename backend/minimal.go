@@ -3,8 +3,8 @@ package main
 import (
 	"flag"
 	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
 	"io/ioutil"
-	"log"
 	"mini-roles-backend/source/domains/files/services/validation"
 	defaultRolesVersionRepositoryConstructor "mini-roles-backend/source/domains/permission/repositories/memory/default_roles_version"
 	permissionRepositoryConstructor "mini-roles-backend/source/domains/permission/repositories/memory/permission"
@@ -26,7 +26,10 @@ var (
 	)
 )
 
-func minimalInit(r *gin.Engine) int {
+func minimalInit(
+	r *gin.Engine,
+	sharedMiddlewares ...gin.HandlerFunc,
+) int {
 	appDataBytes, err := ioutil.ReadFile(*appDataPath)
 	if err != nil {
 		log.Fatalf("Unable to read app data file by path %s: %v", *appDataPath, err)
@@ -46,6 +49,8 @@ func minimalInit(r *gin.Engine) int {
 		r,
 
 		permissionService,
+
+		sharedMiddlewares...,
 	)
 
 	return *serverPort

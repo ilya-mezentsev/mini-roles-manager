@@ -2,7 +2,6 @@ package registration
 
 import (
 	"github.com/go-playground/validator/v10"
-	responseFactory "github.com/ilya-mezentsev/response-factory"
 	"github.com/stretchr/testify/assert"
 	"mini-roles-backend/source/domains/account/mock"
 	"mini-roles-backend/source/domains/account/models"
@@ -19,8 +18,6 @@ var (
 	mockRegistrationRepository = &mock.RegistrationRepository{}
 	mockRolesVersionRepository = &sharedMock.RolesVersionRepository{}
 	service                    = New(mockRegistrationRepository, mockRolesVersionRepository)
-	expectedOkStatus           = responseFactory.DefaultResponse().ApplicationStatus()
-	expectedErrorStatus        = responseFactory.EmptyServerError().ApplicationStatus()
 )
 
 func init() {
@@ -48,7 +45,7 @@ func TestService_RegisterSuccess(t *testing.T) {
 		Id: defaultRolesVersionId,
 	}))
 	assert.Contains(t, mockRegistrationRepository.GetAll(), credentials)
-	assert.Equal(t, expectedOkStatus, response.ApplicationStatus())
+	assert.True(t, response.IsOk())
 	assert.False(t, response.HasData())
 }
 
@@ -57,7 +54,7 @@ func TestService_RegisterValidationError(t *testing.T) {
 
 	response := service.Register(req)
 
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.IsOk())
 	assert.True(t, response.HasData())
 	assert.Equal(t, sharedError.ValidationErrorCode, response.Data().(sharedError.ServiceError).Code)
 	assert.Equal(
@@ -75,7 +72,7 @@ func TestService_RegisterLoginExistsError(t *testing.T) {
 		},
 	})
 
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.IsOk())
 	assert.True(t, response.HasData())
 	assert.Equal(t, shared.LoginAlreadyExistsCode, response.Data().(sharedError.ServiceError).Code)
 	assert.Equal(t, shared.LoginAlreadyExistsDescription, response.Data().(sharedError.ServiceError).Description)
@@ -89,7 +86,7 @@ func TestService_RegisterServerError(t *testing.T) {
 		},
 	})
 
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.IsOk())
 	assert.True(t, response.HasData())
 	assert.Equal(t, sharedError.ServerErrorCode, response.Data().(sharedError.ServiceError).Code)
 	assert.Equal(t, sharedError.ServerErrorDescription, response.Data().(sharedError.ServiceError).Description)
@@ -107,7 +104,7 @@ func TestService_RegisterServerError2(t *testing.T) {
 	})
 	credentials.Password = shared.MakePassword(credentials)
 
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.IsOk())
 	assert.True(t, response.HasData())
 	assert.Equal(t, sharedError.ServerErrorCode, response.Data().(sharedError.ServiceError).Code)
 	assert.Equal(t, sharedError.ServerErrorDescription, response.Data().(sharedError.ServiceError).Description)

@@ -2,7 +2,6 @@ package session_check
 
 import (
 	"github.com/gin-gonic/gin"
-	responseFactory "github.com/ilya-mezentsev/response-factory"
 	"github.com/stretchr/testify/assert"
 	"mini-roles-backend/source/domains/account/mock"
 	"mini-roles-backend/source/domains/account/request"
@@ -16,7 +15,6 @@ import (
 
 var (
 	sessionRepositoryMock = &mock.SessionRepository{}
-	expectedErrorStatus   = responseFactory.EmptyServerError().ApplicationStatus()
 	service               = New(sessionRepositoryMock)
 )
 
@@ -59,7 +57,7 @@ func TestService_CheckSessionFromCookieNoCookieError(t *testing.T) {
 		Context: c,
 	})
 
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.IsOk())
 	assert.Equal(t, missedTokenInCookiesCode, response.Data().(sharedError.ServiceError).Code)
 	assert.Equal(t, missedTokenInCookiesDescription, response.Data().(sharedError.ServiceError).Description)
 }
@@ -73,7 +71,7 @@ func TestService_CheckSessionFromHeaderNotTokenError(t *testing.T) {
 		Context: c,
 	})
 
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.IsOk())
 	assert.Equal(t, missedTokenInHeadersCode, response.Data().(sharedError.ServiceError).Code)
 	assert.Equal(t, missedTokenInHeadersDescription, response.Data().(sharedError.ServiceError).Description)
 }
@@ -87,7 +85,7 @@ func TestService_CheckSessionFromCookieNoAccountByToken(t *testing.T) {
 		Context: c,
 	})
 
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.IsOk())
 	assert.Equal(t, noAccountByTokenCode, response.Data().(sharedError.ServiceError).Code)
 	assert.Equal(t, noAccountByTokenDescription, response.Data().(sharedError.ServiceError).Description)
 }
@@ -101,7 +99,7 @@ func TestService_CheckSessionFromCookieServerError(t *testing.T) {
 		Context: c,
 	})
 
-	assert.Equal(t, expectedErrorStatus, response.ApplicationStatus())
+	assert.False(t, response.IsOk())
 	assert.Equal(t, sharedError.ServerErrorCode, response.Data().(sharedError.ServiceError).Code)
 	assert.Equal(t, sharedError.ServerErrorDescription, response.Data().(sharedError.ServiceError).Description)
 }
