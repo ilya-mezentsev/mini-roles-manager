@@ -10,6 +10,7 @@ import (
 	sharedError "mini-roles-backend/source/domains/shared/error"
 	sharedMock "mini-roles-backend/source/domains/shared/mock"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
+	sharedRoleRepository "mini-roles-backend/source/domains/shared/repositories/role"
 	sharedSpec "mini-roles-backend/source/domains/shared/spec"
 	"strings"
 	"testing"
@@ -47,7 +48,7 @@ func TestRepository_ListSuccess(t *testing.T) {
 	}
 	_, err := db.NamedExec(
 		`insert into role(role_id, version_id, title, permissions, extends, account_hash) values(:role_id, :version_id, :title, :permissions, :extends, :account_hash)`,
-		repository.mapFromRole(sharedMock.ExistsAccountId, someRole),
+		sharedRoleRepository.MapFromRole(sharedMock.ExistsAccountId, someRole),
 	)
 	assert.Nil(t, err)
 
@@ -111,7 +112,7 @@ func TestRepository_CreateDuplicateRoleId(t *testing.T) {
 
 	_, err := db.NamedExec(
 		`insert into role(role_id, version_id, title, permissions, extends, account_hash) values(:role_id, :version_id, :title, :permissions, :extends, :account_hash)`,
-		repository.mapFromRole(sharedMock.ExistsAccountId, someRole),
+		sharedRoleRepository.MapFromRole(sharedMock.ExistsAccountId, someRole),
 	)
 	assert.Nil(t, err)
 
@@ -139,7 +140,7 @@ func TestRepository_CreateDuplicateRoleIdButAnotherAccount(t *testing.T) {
 	db.MustExec(`insert into account(hash) values($1)`, "some-account-id")
 	_, err := db.NamedExec(
 		`insert into role(role_id, title, permissions, extends, account_hash) values(:role_id, :title, :permissions, :extends, :account_hash)`,
-		repository.mapFromRole("some-account-id", someRole),
+		sharedRoleRepository.MapFromRole("some-account-id", someRole),
 	)
 	assert.Nil(t, err)
 

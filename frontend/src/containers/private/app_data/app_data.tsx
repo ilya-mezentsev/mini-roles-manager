@@ -9,8 +9,8 @@ import Grid from '@material-ui/core/Grid';
 
 import { ListItemRoute } from '../../../components/shared/navigation/navigation.types';
 import { SharedListNavigation } from '../../../components/shared';
+import { Import } from '../connected';
 import { Export } from './export';
-import { Import } from './import';
 
 const fallbackPath = '/app-data/export';
 const routes: (ListItemRoute & { component: () => JSX.Element })[] = [

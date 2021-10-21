@@ -14,11 +14,14 @@ export async function GET<T>(
 export async function POST<T>(
     path: string,
     body: any,
+    isFile: boolean = false,
 ): Promise<T | null> {
     return await request({
         path: removeLeadingAndTrailingSlashes(path),
         method: RequestMethod.POST,
         body,
+        shouldEncode: !isFile,
+        shouldAddContentType: !isFile,
     });
 }
 
@@ -41,12 +44,18 @@ export async function DELETE<T>(path: string): Promise<T | null> {
 }
 
 async function request<T>(params: RequestParams): Promise<T | null> {
-    const options = {
+    const options: any = {
         method: params.method,
-        headers: {
+        body: params.body
+            ? params.shouldEncode
+                ? JSON.stringify(params.body)
+                : params.body
+            : null,
+    }
+    if (params.shouldAddContentType) {
+        options['headers'] = {
             'Content-Type': 'application/json',
-        },
-        body: params.body ? JSON.stringify(params.body) : null,
+        };
     }
 
     const res = await fetch(

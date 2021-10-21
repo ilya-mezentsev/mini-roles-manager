@@ -66,6 +66,12 @@ import {
 } from '../account/check_permissions';
 
 import {
+    Import as ImportContainer,
+    mapDispatchToProps as ImportContainerMapDispatchToProps,
+    mapStateToProps as ImportContainerMapStateToProps,
+} from '../app_data/import';
+
+import {
     SignOut as SignOutContainer,
     mapDispatchToProps as SignOutMapDispatchToProps,
     mapStateToProps as SignOutContainerMapStateToProps,
@@ -124,6 +130,11 @@ export const CheckPermissions = connect(
     CheckPermissionsContainerMapStateToProps(),
     CheckPermissionsContainerMapDispatchToProps(),
 )(CheckPermissionsContainer);
+
+export const Import = connect(
+    ImportContainerMapStateToProps(),
+    ImportContainerMapDispatchToProps(),
+)(ImportContainer);
 
 export const SignOut = connect(
     SignOutContainerMapStateToProps(),

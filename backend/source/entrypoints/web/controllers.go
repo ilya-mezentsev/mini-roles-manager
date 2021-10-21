@@ -7,6 +7,7 @@ import (
 	"mini-roles-backend/source/domains/account/services/session"
 	"mini-roles-backend/source/domains/account/services/session_check"
 	"mini-roles-backend/source/domains/files/services/export"
+	"mini-roles-backend/source/domains/files/services/import_file"
 	"mini-roles-backend/source/domains/permission/services/permission"
 	"mini-roles-backend/source/domains/resource/services/resource"
 	"mini-roles-backend/source/domains/role/services/role"
@@ -38,6 +39,7 @@ func FullInit(
 	roleService role.Service,
 
 	exportService export.Service,
+	importService import_file.Service,
 
 	sharedMiddlewares ...gin.HandlerFunc,
 ) {
@@ -49,7 +51,7 @@ func FullInit(
 	resourceController := resourceControllerConstructor.New(resourceService)
 	rolesVersionController := rolesVersionControllerConstructor.New(rolesVersionService)
 	roleController := roleControllerConstructor.New(roleService)
-	filesController := filesControllerConstructor.New(exportService)
+	filesController := filesControllerConstructor.New(exportService, importService)
 
 	webAppGroup := r.Group("/web-app")
 	webAppGroup.Use(sharedMiddlewares...)
@@ -84,6 +86,7 @@ func FullInit(
 		cookieTokenAuthorizedGroup.DELETE("/role/:roles_version_id/:role_id", roleController.DeleteRole)
 
 		cookieTokenAuthorizedGroup.GET("/app-data/export", filesController.Export)
+		cookieTokenAuthorizedGroup.POST("/app-data/import", filesController.Import)
 	}
 
 	headerTokenAuthorized := r.Group("/public")

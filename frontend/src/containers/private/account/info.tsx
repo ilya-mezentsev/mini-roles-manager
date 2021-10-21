@@ -17,6 +17,7 @@ import {
 } from './info.types';
 import { cleanFetchInfoError } from '../../../store/account_info/actions';
 import { Alert } from '../../../components/shared';
+import { Role } from '../../../services/api';
 
 
 export const Info = (props: AccountInfoProps) => {
@@ -39,7 +40,7 @@ export const Info = (props: AccountInfoProps) => {
                         Created: <b>{makeCreated(props.accountInfoResult?.info.created)}</b>
                     </Typography>
                     <Typography variant="body2" component="p">
-                        Roles count: <b>{props.rolesResult?.list?.length ?? 'Unknown'}</b>
+                        Roles count: <b>{uniqueRoleCount(props.rolesResult?.list || []) || 'Unknown'}</b>
                     </Typography>
                     <Typography variant="body2" component="p">
                         Resources count: <b>{props.resourcesResult?.list?.length ?? 'Unknown'}</b>
@@ -58,6 +59,8 @@ export const Info = (props: AccountInfoProps) => {
 }
 
 const makeCreated = (created?: string) => created ? (new Date(created)).toLocaleString() : 'Unknown';
+// Count roles with unique role id
+const uniqueRoleCount = (roles: Role[]) => (new Set(roles.map(r => r.id))).size;
 
 export const mapStateToProps: StateToPropsFn<AccountInfoState> = () => state => ({
     accountInfoResult: state.accountInfoResult,

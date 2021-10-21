@@ -5,6 +5,7 @@ import (
 	"github.com/lib/pq"
 	sharedError "mini-roles-backend/source/domains/shared/error"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
+	sharedResourceRepository "mini-roles-backend/source/domains/shared/repositories/resource"
 	sharedSpec "mini-roles-backend/source/domains/shared/spec"
 )
 
@@ -21,10 +22,6 @@ const (
 		trim(resource_id) resource_id
 	from permission
 	where resource_id = any($1) and account_hash = $2`
-
-	createResourceQuery = `
-	insert into resource(account_hash, resource_id, title, links_to)
-	values(:account_hash, :resource_id, :title, :links_to)`
 
 	updateResourceQuery = `
 	update resource
@@ -49,24 +46,12 @@ func New(db *sqlx.DB) Repository {
 }
 
 func (r Repository) Create(accountId sharedModels.AccountId, resource sharedModels.Resource) error {
-	_, err := r.db.NamedExec(createResourceQuery, r.mapFromResource(accountId, resource))
+	_, err := r.db.NamedExec(sharedResourceRepository.CreateResourceQuery, sharedResourceRepository.MapFromResource(accountId, resource))
 	if sharedError.IsDuplicateKey(err) {
 		err = sharedError.DuplicateUniqueKey{}
 	}
 
 	return err
-}
-
-func (r Repository) mapFromResource(
-	accountId sharedModels.AccountId,
-	resource sharedModels.Resource,
-) map[string]interface{} {
-	return map[string]interface{}{
-		"account_hash": accountId,
-		"resource_id":  resource.Id,
-		"title":        resource.Title,
-		"links_to":     pq.Array(resource.LinksTo),
-	}
 }
 
 func (r Repository) List(spec sharedSpec.AccountWithId) ([]sharedModels.Resource, error) {
@@ -130,7 +115,7 @@ func (r Repository) makePermissionsMap(
 }
 
 func (r Repository) Update(accountId sharedModels.AccountId, resource sharedModels.Resource) error {
-	_, err := r.db.NamedExec(updateResourceQuery, r.mapFromResource(accountId, resource))
+	_, err := r.db.NamedExec(updateResourceQuery, sharedResourceRepository.MapFromResource(accountId, resource))
 
 	return err
 }

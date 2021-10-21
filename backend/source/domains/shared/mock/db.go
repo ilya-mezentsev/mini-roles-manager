@@ -83,3 +83,7 @@ func MustDropResourceTable(db *sqlx.DB) {
 func MustDropRoleTable(db *sqlx.DB) {
 	db.MustExec(fmt.Sprintf("drop table if exists %s cascade", roleTable))
 }
+
+func MustDropRolesVersionTable(db *sqlx.DB) {
+	db.MustExec(fmt.Sprintf("drop table if exists %s cascade", versionTable))
+}
