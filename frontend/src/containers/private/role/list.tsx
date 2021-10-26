@@ -1,23 +1,19 @@
 import { useState } from 'react';
-import { bindActionCreators } from 'redux';
+import { observer } from 'mobx-react-lite';
 import EventEmitter from 'events';
 
 import { Alert } from '../../../components/shared';
 import { Prompter } from '../../../components/private/shared';
 import { EditRole } from '../../../components/private/role';
-import { RolesListActions, RolesListState, RolesListProps } from './list.types';
-import { DispatchToPropsFn, StateToPropsFn } from '../../../shared/types';
 import { RolesList as RolesListComponent } from '../../../components/private/role';
-import {
-    cleanDeleteRoleError,
-    cleanFetchRolesError,
-    cleanUpdateRoleError,
-    deleteRole,
-    updateRole,
-} from '../../../store/role/actions';
 import { Role } from '../../../services/api';
+import {
+    rolesVersionStore,
+    resourceStore,
+    roleStore,
+} from '../../../store';
 
-export const RolesList = (props: RolesListProps) => {
+export const RolesList = observer(() => {
     const [deletingRole, setDeletingRole] = useState<Role | null>(null);
     const [editingRole, setEditingRole] = useState<Role | null>(null);
 
@@ -27,33 +23,28 @@ export const RolesList = (props: RolesListProps) => {
 
     const deleteRole = () => {
         if (deletingRole) {
-            props.deleteRoleAction(
-                props.rolesVersionResult.currentRolesVersion!.id,
-                deletingRole.id,
-            );
-            setDeletingRole(null);
+            roleStore.deleteRole(
+                rolesVersionStore.current!.id,
+                deletingRole.id
+            ).finally(() => setDeletingRole(null));
         }
     };
 
     const hasAnyError: () => boolean = () => {
         return (
-            !!props.rolesResult?.fetchError ||
-            !!props.rolesResult?.updateError ||
-            !!props.rolesResult?.deleteError
+            !!roleStore.fetchRoleError ||
+            !!roleStore.updateRoleError ||
+            !!roleStore.deleteRoleError
         );
     };
 
-    const cleanErrors = () => {
-        props.cleanFetchRolesErrorAction();
-        props.cleanUpdateRoleErrorAction();
-        props.cleanDeleteRoleErrorAction();
-    };
+    const cleanErrors = () => roleStore.cleanRoleActionErrors();
 
     const errorMessage: () => string = () => {
         return (
-            props.rolesResult?.fetchError?.description ||
-            props.rolesResult?.updateError?.description ||
-            props.rolesResult?.deleteError?.description ||
+            roleStore.fetchRoleError?.description ||
+            roleStore.updateRoleError?.description ||
+            roleStore.deleteRoleError?.description ||
             'Unknown error'
         );
     };
@@ -62,8 +53,8 @@ export const RolesList = (props: RolesListProps) => {
         <>
             <RolesListComponent
                 roles={
-                    (props.rolesResult.list || [])
-                        .filter(r => r.versionId === props.rolesVersionResult.currentRolesVersion?.id)
+                    roleStore.list
+                        .filter(r => r.versionId === rolesVersionStore.current?.id)
                 }
                 tryEdit={r => {
                     setEditingRole(r);
@@ -78,10 +69,10 @@ export const RolesList = (props: RolesListProps) => {
             <EditRole
                 eventEmitter={e}
                 openDialogueEventName={openEditResourceEventName}
-                existRoles={props.rolesResult.list || []}
-                existsResources={props.resourcesResult.list || []}
-                roleVersionId={props.rolesVersionResult.currentRolesVersion?.id || ''}
-                save={r => props.updateRoleAction(r)}
+                existRoles={roleStore.list}
+                existsResources={resourceStore.list}
+                roleVersionId={rolesVersionStore.current?.id || ''}
+                save={r => roleStore.updateRole(r)}
                 initialRole={editingRole}
             />
 
@@ -102,20 +93,4 @@ export const RolesList = (props: RolesListProps) => {
             />
         </>
     );
-};
-
-export const mapDispatchToProps: DispatchToPropsFn<RolesListActions> = () => dispatch => ({
-    cleanFetchRolesErrorAction: bindActionCreators(cleanFetchRolesError, dispatch),
-
-    updateRoleAction: bindActionCreators(updateRole, dispatch),
-    cleanUpdateRoleErrorAction: bindActionCreators(cleanUpdateRoleError, dispatch),
-
-    deleteRoleAction: bindActionCreators(deleteRole, dispatch),
-    cleanDeleteRoleErrorAction: bindActionCreators(cleanDeleteRoleError, dispatch),
-});
-
-export const mapStateToProps: StateToPropsFn<RolesListState> = () => state => ({
-    rolesVersionResult: state.rolesVersionResult,
-    rolesResult: state.rolesResult,
-    resourcesResult: state.resourcesResult,
 });

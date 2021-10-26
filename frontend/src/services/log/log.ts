@@ -6,3 +6,7 @@ export function warning(message: string): void {
 export function error(message: string): void {
     console.error(`[ERROR]: ${message}`);
 }
+
+export function info(message: string): void {
+    console.info(`[INFO]: ${message}`);
+}

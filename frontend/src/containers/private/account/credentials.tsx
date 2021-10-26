@@ -1,31 +1,26 @@
 import { useState, useEffect } from 'react';
-import { bindActionCreators } from 'redux';
+import { observer } from 'mobx-react-lite';
 import {
     Button,
     TextField,
 } from '@material-ui/core';
 
 import { Alert } from '../../../components/shared';
-import { DispatchToPropsFn, StateToPropsFn } from '../../../shared/types';
-import { CredentialsProps, CredentialsState, CredentialsActions } from './credentials.types';
-import {
-    cleanUpdateCredentialsResult,
-    updateCredentials,
-} from '../../../store/account_info/actions';
+import { accountInfoStore } from '../../../store';
 
-export const Credentials = (props: CredentialsProps) => {
-    const [login, setLogin] = useState('');
+export const Credentials = observer(() => {
+    const [login, setLogin] = useState(accountInfoStore.info?.login || '');
     const [password, setPassword] = useState('');
 
-    useEffect(() => {
-        setLogin(props.accountInfoResult?.info?.login || '');
-    }, [props.accountInfoResult?.info?.login]);
+    // useEffect(() => {
+    //     setLogin(props.accountInfoResult?.info?.login || '');
+    // }, [props.accountInfoResult?.info?.login]);
 
     // eslint-disable-next-line
-    useEffect(() => () => props.cleanUpdateCredentialsErrorAction(), []);
+    useEffect(() => () => accountInfoStore.cleanAccountInfoActionErrors(), []);
 
     const updateCredentials = () => {
-        props.updateCredentialsAction({
+        return accountInfoStore.updateCredentials({
             login,
             password: password || '',
         });
@@ -52,7 +47,7 @@ export const Credentials = (props: CredentialsProps) => {
             />
 
             <Button
-                disabled={login === props.accountInfoResult?.info?.login && !password}
+                disabled={login === accountInfoStore.info?.login && !password}
                 variant="contained"
                 color="primary"
                 onClick={updateCredentials}
@@ -61,30 +56,21 @@ export const Credentials = (props: CredentialsProps) => {
             </Button>
 
             <Alert
-                shouldShow={!!props.accountInfoResult?.credentials}
+                shouldShow={!!accountInfoStore.credentials}
                 severity="success"
                 message="Credentials are updated successfully"
                 onCloseCb={() => {
-                    props.cleanUpdateCredentialsErrorAction();
+                    accountInfoStore.cleanAccountInfoActionErrors();
                     setPassword('');
                 }}
             />
 
             <Alert
-                shouldShow={!!props.accountInfoResult?.updateCredentialsError}
+                shouldShow={!!accountInfoStore.updateCredentialsError}
                 severity="error"
-                message={props.accountInfoResult?.updateCredentialsError?.description || 'Unknown error'}
-                onCloseCb={() => props.cleanUpdateCredentialsErrorAction()}
+                message={accountInfoStore.updateCredentialsError?.description || 'Unknown error'}
+                onCloseCb={() => accountInfoStore.cleanAccountInfoActionErrors()}
             />
         </>
     );
-}
-
-export const mapDispatchToProps: DispatchToPropsFn<CredentialsActions> = () => dispatch => ({
-    updateCredentialsAction: bindActionCreators(updateCredentials, dispatch),
-    cleanUpdateCredentialsErrorAction: bindActionCreators(cleanUpdateCredentialsResult, dispatch),
-});
-
-export const mapStateToProps: StateToPropsFn<CredentialsState> = () => state => ({
-    accountInfoResult: state.accountInfoResult,
 });

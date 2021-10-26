@@ -1,5 +1,6 @@
-import { SignUp, SignIn } from '../connected';
 import { About, SharedAppNavigation } from '../../../components/shared';
+import { SignIn } from '../sign_in/sign_in';
+import { SignUp } from '../sign_up/sign_up';
 
 const routes = [
     {

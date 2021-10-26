@@ -171,7 +171,7 @@ export const Permissions = (props: PermissionsProps) => {
                                 disabled={props.resources.length < 1}
                                 options={props.resources.map(r => r.id).filter(resourceId => !Array.from(existsRolePermissions.keys()).includes(resourceId))}
                                 value={newResourcePermissionsId}
-                                onChange={(_, newValue) => onNewResourceIdChanged(newValue)}
+                                onChange={(_, newValue) => onNewResourceIdChanged(newValue as string)}
                                 fullWidth
                                 getOptionLabel={option => option}
                                 renderInput={(params) => (

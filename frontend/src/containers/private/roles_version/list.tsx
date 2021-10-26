@@ -1,23 +1,7 @@
-import {
-    useState,
-    useEffect,
-    useRef,
-} from 'react';
-import { bindActionCreators } from 'redux';
+import { useState } from 'react';
+import { observer } from 'mobx-react-lite';
 import EventEmitter from 'events';
 
-import { DispatchToPropsFn, StateToPropsFn } from '../../../shared/types';
-import {
-    RolesVersionListActions,
-    RolesVersionListState,
-    RolesVersionListProps,
-} from './list.types';
-import {
-    cleanDeleteRolesVersionError,
-    cleanFetchRolesVersionError,
-    cleanUpdateRolesVersionError, deleteRolesVersion,
-    updateRolesVersion
-} from '../../../store/roles_version/actions';
 import { RolesVersion } from '../../../services/api';
 import {
     EditRolesVersion,
@@ -25,24 +9,9 @@ import {
 } from '../../../components/private/roles_version';
 import { Prompter } from '../../../components/private/shared';
 import { Alert } from '../../../components/shared';
-import { cleanFetchRolesError, fetchRoles } from '../../../store/role/actions';
+import { rolesVersionStore, roleStore } from '../../../store';
 
-export const RolesVersionList = (props: RolesVersionListProps) => {
-    const rolesVersionsListRef = useRef(props.rolesVersionResult.list);
-    useEffect(() => {
-        const currentCount = rolesVersionsListRef.current?.length || 0;
-        const updatedCount = props.rolesVersionResult.list?.length || 0;
-
-        // if some roles version was deleted we need to reload roles => so store will not contain irrelevant roles
-        if (currentCount > updatedCount) {
-            props.loadRolesAction();
-        }
-
-        rolesVersionsListRef.current = props.rolesVersionResult.list;
-
-        // eslint-disable-next-line
-    }, [props.rolesVersionResult.list]);
-
+export const RolesVersionList = observer(() => {
     const [deletingRolesVersion, setDeletingRolesVersion] = useState<RolesVersion | null>(null);
     const [editingRolesVersion, setEditingRolesVersion] = useState<RolesVersion | null>(null);
 
@@ -52,32 +21,31 @@ export const RolesVersionList = (props: RolesVersionListProps) => {
 
     const deleteRolesVersion = () => {
         if (deletingRolesVersion) {
-            props.deleteRolesVersionAction(deletingRolesVersion.id);
-            setDeletingRolesVersion(null);
+            rolesVersionStore
+                .deleteRolesVersion(deletingRolesVersion.id)
+                .finally(() => setDeletingRolesVersion(null));
         }
     };
 
     const hasAnyError = () => {
         return (
-            !!props.rolesVersionResult?.fetchError ||
-            !!props.rolesVersionResult?.updateError ||
-            !!props.rolesVersionResult?.deleteError ||
-            !!props.rolesResult?.fetchError
+            !!rolesVersionStore.fetchRolesVersionError ||
+            !!rolesVersionStore.updateRolesVersionError ||
+            !!rolesVersionStore.deleteRolesVersionError ||
+            !!roleStore.fetchRoleError
         );
     };
 
     const cleanErrors = () => {
-        props.cleanFetchRolesVersionsErrorAction();
-        props.cleanUpdateRolesVersionErrorAction();
-        props.cleanDeleteRolesVersionErrorAction();
-        props.cleanFetchRolesErrorAction();
+        rolesVersionStore.cleanRolesVersionActionErrors();
+        roleStore.cleanRoleActionErrors();
     };
 
     const errorMessage: () => string = () => {
         return (
-            props.rolesVersionResult?.fetchError?.description ||
-            props.rolesVersionResult?.updateError?.description ||
-            props.rolesVersionResult?.deleteError?.description ||
+            rolesVersionStore.fetchRolesVersionError?.description ||
+            rolesVersionStore.updateRolesVersionError?.description ||
+            rolesVersionStore.deleteRolesVersionError?.description ||
             'Unknown error'
         );
     };
@@ -85,7 +53,7 @@ export const RolesVersionList = (props: RolesVersionListProps) => {
     return (
         <>
             <RolesVersionListComponent
-                rolesVersions={props.rolesVersionResult?.list || []}
+                rolesVersions={rolesVersionStore.list}
                 tryEdit={rv => {
                     setEditingRolesVersion(rv);
                     e.emit(openEditResourceEventName);
@@ -99,7 +67,7 @@ export const RolesVersionList = (props: RolesVersionListProps) => {
             <EditRolesVersion
                 openDialogueEventName={openEditResourceEventName}
                 eventEmitter={e}
-                save={rv => props.updateRolesVersionAction(rv)}
+                save={rv => rolesVersionStore.updateRolesVersion(rv)}
                 initialRolesVersion={editingRolesVersion}
             />
 
@@ -120,22 +88,4 @@ export const RolesVersionList = (props: RolesVersionListProps) => {
             />
         </>
     );
-};
-
-export const mapDispatchToProps: DispatchToPropsFn<RolesVersionListActions> = () => dispatch => ({
-    cleanFetchRolesVersionsErrorAction: bindActionCreators(cleanFetchRolesVersionError, dispatch),
-
-    updateRolesVersionAction: bindActionCreators(updateRolesVersion, dispatch),
-    cleanUpdateRolesVersionErrorAction: bindActionCreators(cleanUpdateRolesVersionError, dispatch),
-
-    deleteRolesVersionAction: bindActionCreators(deleteRolesVersion, dispatch),
-    cleanDeleteRolesVersionErrorAction: bindActionCreators(cleanDeleteRolesVersionError, dispatch),
-
-    loadRolesAction: bindActionCreators(fetchRoles, dispatch),
-    cleanFetchRolesErrorAction: bindActionCreators(cleanFetchRolesError, dispatch),
-});
-
-export const mapStateToProps: StateToPropsFn<RolesVersionListState> = () => state => ({
-    rolesVersionResult: state.rolesVersionResult,
-    rolesResult: state.rolesResult,
 });

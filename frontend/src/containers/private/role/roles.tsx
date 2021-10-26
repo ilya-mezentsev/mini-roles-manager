@@ -1,4 +1,4 @@
-import { bindActionCreators } from 'redux';
+import { observer } from 'mobx-react-lite';
 import {
     Box,
     Input,
@@ -11,16 +11,14 @@ import EventEmitter from 'events';
 
 import { Alert } from '../../../components/shared';
 import { EditRole as CreateRole } from '../../../components/private/role';
-import { DispatchToPropsFn, StateToPropsFn } from '../../../shared/types';
+import { RolesList } from './list';
 import {
-    cleanCreateRoleError,
-    createRole,
-} from '../../../store/role/actions';
-import { RoleActions, RoleState, RoleProps } from './roles.types';
-import { RolesList } from '../connected';
-import { selectCurrentRolesVersion } from '../../../store/roles_version/actions';
+    rolesVersionStore,
+    resourceStore,
+    roleStore,
+} from '../../../store';
 
-export const Roles = (props: RoleProps) => {
+export const Roles = observer(() => {
     const e = new EventEmitter();
     const openDialogueEventName = 'new-role-dialogue:open';
 
@@ -44,13 +42,13 @@ export const Roles = (props: RoleProps) => {
                 <Select
                     margin="dense"
                     fullWidth
-                    value={props.rolesVersionResult.currentRolesVersion?.id || ''}
-                    onChange={e => props.selectCurrentRolesVersionAction(
-                        props.rolesVersionResult.list!.find(rv => rv.id === (e.target as HTMLSelectElement).value)!
+                    value={rolesVersionStore.current?.id || ''}
+                    onChange={e => rolesVersionStore.setCurrentRolesVersion(
+                        rolesVersionStore.list!.find(rv => rv.id === (e.target as HTMLSelectElement).value)!
                     )}
                     input={<Input />}
                 >
-                    {(props.rolesVersionResult.list || []).map(rv => (
+                    {rolesVersionStore.list.map(rv => (
                         <MenuItem key={`operation_${rv.id}`} value={rv.id}>
                             {rv.id}
                         </MenuItem>
@@ -65,31 +63,18 @@ export const Roles = (props: RoleProps) => {
             <CreateRole
                 eventEmitter={e}
                 openDialogueEventName={openDialogueEventName}
-                existRoles={props.rolesResult.list || []}
-                existsResources={props.resourcesResult.list || []}
-                roleVersionId={props.rolesVersionResult.currentRolesVersion?.id || ''}
-                save={r => props.createRoleAction(r)}
+                existRoles={roleStore.list}
+                existsResources={resourceStore.list}
+                roleVersionId={rolesVersionStore.current?.id || ''}
+                save={r => roleStore.createRole(r)}
             />
 
             <Alert
-                shouldShow={!!props.rolesResult?.createError}
+                shouldShow={!!roleStore.createRoleError}
                 severity={'error'}
-                message={props.rolesResult?.createError?.description || 'Unknown error'}
-                onCloseCb={() => props.cleanCreateRoleErrorAction()}
+                message={roleStore.createRoleError?.description || 'Unknown error'}
+                onCloseCb={() => roleStore.cleanRoleActionErrors()}
             />
         </>
     )
-};
-
-export const mapDispatchToProps: DispatchToPropsFn<RoleActions> = () => dispatch => ({
-    createRoleAction: bindActionCreators(createRole, dispatch),
-    cleanCreateRoleErrorAction: bindActionCreators(cleanCreateRoleError, dispatch),
-
-    selectCurrentRolesVersionAction: bindActionCreators(selectCurrentRolesVersion, dispatch),
-});
-
-export const mapStateToProps: StateToPropsFn<RoleState> = () => state => ({
-    rolesVersionResult: state.rolesVersionResult,
-    rolesResult: state.rolesResult,
-    resourcesResult: state.resourcesResult,
 });

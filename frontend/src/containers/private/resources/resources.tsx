@@ -1,19 +1,14 @@
-import { bindActionCreators } from 'redux';
+import { observer } from 'mobx-react-lite';
 import { Box } from '@material-ui/core';
 import { Add } from '@material-ui/icons';
 import EventEmitter from 'events';
 
-import { DispatchToPropsFn, StateToPropsFn } from '../../../shared/types';
 import { Alert } from '../../../components/shared/';
-import {
-    cleanCreateResourceError,
-    createResource,
-} from '../../../store/resource/actions';
-import { ResourcesActions, ResourceState, ResourceProps } from './resources.types';
-import { ResourcesList } from '../connected';
+import { ResourcesList } from './list';
 import { EditResource as CreateResource } from '../../../components/private/resource';
+import { resourceStore } from '../../../store';
 
-export const Resources = (props: ResourceProps) => {
+export const Resources = observer(() => {
     const e = new EventEmitter();
     const openDialogueEventName = 'new-resource-dialogue:open';
 
@@ -38,24 +33,15 @@ export const Resources = (props: ResourceProps) => {
             <CreateResource
                 eventEmitter={e}
                 openDialogueEventName={openDialogueEventName}
-                save={r => props.createResourceAction(r)}
+                save={r => resourceStore.createResource(r)}
             />
 
             <Alert
-                shouldShow={!!props.resourcesResult?.createError}
+                shouldShow={!!resourceStore.createResourceError}
                 severity={'error'}
-                message={props.resourcesResult?.createError?.description || 'Unknown error'}
-                onCloseCb={() => props.cleanCreateResourceErrorAction()}
+                message={resourceStore.createResourceError?.description || 'Unknown error'}
+                onCloseCb={() => resourceStore.cleanResourceActionError()}
             />
         </>
     );
-}
-
-export const mapDispatchToProps: DispatchToPropsFn<ResourcesActions> = () => dispatch => ({
-    createResourceAction: bindActionCreators(createResource, dispatch),
-    cleanCreateResourceErrorAction: bindActionCreators(cleanCreateResourceError, dispatch),
-});
-
-export const mapStateToProps: StateToPropsFn<ResourceState> = () => state => ({
-    resourcesResult: state.resourcesResult,
 });

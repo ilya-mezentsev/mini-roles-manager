@@ -1,15 +1,15 @@
 import { useState } from 'react';
+import { observer } from 'mobx-react-lite';
 import { TextField } from '@material-ui/core';
 
 import { Alert } from '../../../components/shared';
-import { StateToPropsFn } from '../../../shared/types';
-import { ApiKeyProps, ApiKeyState } from './api_key.types';
+import { accountInfoStore } from '../../../store';
 
-export const ApiKey = (props: ApiKeyProps) => {
+export const ApiKey = observer(() => {
     const [shouldShowCopiedNotification, setShouldShowCopiedNotification] = useState(false);
     const tryCopy = () => {
-        if (props.accountInfoResult?.info?.apiKey) {
-            navigator.clipboard.writeText(props.accountInfoResult.info.apiKey)
+        if (accountInfoStore.info?.apiKey) {
+            navigator.clipboard.writeText(accountInfoStore.info.apiKey)
                 .then(() => notifyCopied());
         }
     };
@@ -22,7 +22,7 @@ export const ApiKey = (props: ApiKeyProps) => {
                 margin="dense"
                 fullWidth
                 disabled
-                value={props.accountInfoResult?.info?.apiKey}
+                value={accountInfoStore.info?.apiKey}
                 onClick={tryCopy}
             />
 
@@ -34,8 +34,4 @@ export const ApiKey = (props: ApiKeyProps) => {
             />
         </>
     );
-}
-
-export const mapStateToProps: StateToPropsFn<ApiKeyState> = () => state => ({
-    accountInfoResult: state.accountInfoResult,
 });

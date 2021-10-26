@@ -1,30 +1,24 @@
 import { useEffect } from 'react';
-import { bindActionCreators } from 'redux';
+import { observer } from 'mobx-react-lite';
 import {
     Card,
     CardContent,
     Typography,
 } from '@material-ui/core';
 
-import {
-    DispatchToPropsFn,
-    StateToPropsFn,
-} from '../../../shared/types';
-import {
-    AccountInfoActions,
-    AccountInfoProps,
-    AccountInfoState,
-} from './info.types';
-import { cleanFetchInfoError } from '../../../store/account_info/actions';
 import { Alert } from '../../../components/shared';
 import { Role } from '../../../services/api';
+import {
+    accountInfoStore,
+    roleStore,
+    resourceStore,
+} from '../../../store';
 
-
-export const Info = (props: AccountInfoProps) => {
+export const Info = observer(() => {
     useEffect(() => {
-        props.cleanFetchInfoErrorAction();
+        accountInfoStore.cleanAccountInfoActionErrors();
 
-        return () => props.cleanFetchInfoErrorAction();
+        return () => accountInfoStore.cleanAccountInfoActionErrors();
         // eslint-disable-next-line
     }, []);
 
@@ -34,40 +28,30 @@ export const Info = (props: AccountInfoProps) => {
             <Card>
                 <CardContent>
                     <Typography variant="body2" component="p">
-                        Login: <b>{props.accountInfoResult?.info.login || 'Unknown'}</b>
+                        Login: <b>{accountInfoStore.info?.login || 'Unknown'}</b>
                     </Typography>
                     <Typography variant="body2" component="p">
-                        Created: <b>{makeCreated(props.accountInfoResult?.info.created)}</b>
+                        Created: <b>{makeCreated(accountInfoStore.info?.created)}</b>
                     </Typography>
                     <Typography variant="body2" component="p">
-                        Roles count: <b>{uniqueRoleCount(props.rolesResult?.list || []) || 'Unknown'}</b>
+                        Roles count: <b>{uniqueRoleCount(roleStore.list)}</b>
                     </Typography>
                     <Typography variant="body2" component="p">
-                        Resources count: <b>{props.resourcesResult?.list?.length ?? 'Unknown'}</b>
+                        Resources count: <b>{resourceStore.list.length}</b>
                     </Typography>
                 </CardContent>
             </Card>
 
             <Alert
-                shouldShow={!!props.accountInfoResult?.fetchInfoError}
+                shouldShow={!!accountInfoStore.fetchInfoError}
                 severity="error"
-                message={props.accountInfoResult?.fetchInfoError?.description || 'Unknown error'}
-                onCloseCb={() => props.cleanFetchInfoErrorAction()}
+                message={accountInfoStore.fetchInfoError?.description || 'Unknown error'}
+                onCloseCb={() => accountInfoStore.cleanAccountInfoActionErrors()}
             />
         </>
     );
-}
+});
 
 const makeCreated = (created?: string) => created ? (new Date(created)).toLocaleString() : 'Unknown';
 // Count roles with unique role id
 const uniqueRoleCount = (roles: Role[]) => (new Set(roles.map(r => r.id))).size;
-
-export const mapStateToProps: StateToPropsFn<AccountInfoState> = () => state => ({
-    accountInfoResult: state.accountInfoResult,
-    rolesResult: state.rolesResult,
-    resourcesResult: state.resourcesResult,
-});
-
-export const mapDispatchToProps: DispatchToPropsFn<AccountInfoActions> = () => dispatch => ({
-    cleanFetchInfoErrorAction: bindActionCreators(cleanFetchInfoError, dispatch),
-});

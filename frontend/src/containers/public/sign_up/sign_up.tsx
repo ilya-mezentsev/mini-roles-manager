@@ -1,42 +1,35 @@
 import { useState, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
 import {
     Button, Container,
     TextField,
 } from '@material-ui/core';
-import { bindActionCreators } from 'redux';
-import { signUp, cleanSignUp } from '../../../store/registration/actions';
-import { SignUpActions, SignUpProps, SignUpState } from './sign_up.types';
-import { Alert } from '../../../components/shared/';
-import { DispatchToPropsFn, StateToPropsFn } from '../../../shared/types';
+import { observer } from 'mobx-react-lite';
 
-export const SignUp = (props: SignUpProps) => {
+import { Alert } from '../../../components/shared/';
+import { registrationStore } from '../../../store';
+
+export const SignUp = observer(() => {
     const [login, setLogin] = useState('');
     const [password, setPassword] = useState('');
-    const history = useHistory();
 
     // eslint-disable-next-line
-    useEffect(() => () => props.cleanSignUpAction(), []);
+    useEffect(() => () => registrationStore.cleanRegistrationAction(), []);
 
     const onCLoseAlert = () => {
-        props.cleanSignUpAction();
-
-        if (!props.registrationResult?.error) {
-            history.push('/sign-in');
-        }
+        registrationStore.cleanRegistrationAction();
     };
 
     const alertMessage = () => {
-        if (props.registrationResult?.error) {
-            return props.registrationResult.error.description || 'Unknown error';
+        if (registrationStore.registrationError) {
+            return registrationStore.registrationError.description || 'Unknown error';
         } else {
             return 'Registration performed successfully';
         }
     };
 
     const trySignUp = () => {
-        props.cleanSignUpAction();
-        props.signUpAction({ login, password });
+        registrationStore.cleanRegistrationAction();
+        return registrationStore.signUp({ login, password });
     };
 
     return (
@@ -70,20 +63,12 @@ export const SignUp = (props: SignUpProps) => {
             </Button>
 
             <Alert
-                shouldShow={!!props.registrationResult}
-                severity={!props.registrationResult?.error ? 'success' : 'error'}
+                shouldShow={!!registrationStore.registrationError || registrationStore.registeredOk}
+                severity={!registrationStore.registrationError ? 'success' : 'error'}
                 message={alertMessage()}
                 onCloseCb={() => onCLoseAlert()}
             />
         </Container>
     )
-}
-
-export const mapDispatchToProps: DispatchToPropsFn<SignUpActions> = () => dispatch => ({
-    signUpAction: bindActionCreators(signUp, dispatch),
-    cleanSignUpAction: bindActionCreators(cleanSignUp, dispatch),
 });
 
-export const mapStateToProps: StateToPropsFn<SignUpState> = () => state => ({
-    registrationResult: state.registrationResult,
-});

@@ -1,47 +1,22 @@
 import { useEffect } from 'react';
-import { bindActionCreators } from 'redux';
+import { observer } from 'mobx-react-lite';
 import {
     Box,
     Button,
 } from '@material-ui/core';
 import { Alert as MaterialAlert } from '@material-ui/lab';
 
-import {
-    DispatchToPropsFn,
-    StateToPropsFn,
-} from '../../../shared/types';
 import { Alert } from '../../../components/shared';
-import {
-    ImportActions,
-    ImportProps,
-    ImportState,
-} from './import.types';
-import {
-    importFromFile,
-    cleanAppDataResult,
-} from '../../../store/app_data/actions';
-import { fetchResources } from '../../../store/resource/actions';
-import { fetchRolesVersion } from '../../../store/roles_version/actions';
-import { fetchRoles } from '../../../store/role/actions';
+import { appDataStore } from '../../../store';
 
-export const Import = (props: ImportProps) => {
-    useEffect(
-        () => {
-            if (props.appDataResult.importedOk) {
-                props.loadRolesVersion();
-                props.loadResources();
-                props.loadRoles();
-            }
-        },
-        [props.appDataResult.importedOk],
-    );
+export const Import = observer(() => {
+    // eslint-disable-next-line
+    useEffect(() => () => appDataStore.cleanImportResult(), []);
 
     const handleFileSelected = (e: any): void => {
-        props.importAppDataAction({
+        appDataStore.importFromFile({
             file: e.target.files[0],
-        });
-
-        e.target.value = null;
+        }).finally(() => e.target.value = null);
     }
 
     return (
@@ -65,8 +40,8 @@ export const Import = (props: ImportProps) => {
             </Box>
 
             {
-                props.appDataResult.appDataResult?.importFileValidationErrors?.length &&
-                props.appDataResult.appDataResult?.importFileValidationErrors.map((e, index) => (
+                appDataStore.validationErrors.length > 0 &&
+                appDataStore.validationErrors.map((e, index) => (
                     <MaterialAlert
                         key={`validation_error_${index}`}
                         severity="error"
@@ -76,33 +51,19 @@ export const Import = (props: ImportProps) => {
                 ))
             }
 
-            {/*todo importedOk does not work (state structure mistake?)*/}
             <Alert
-                shouldShow={!!props.appDataResult.importedOk}
+                shouldShow={appDataStore.importedOk}
                 severity={'success'}
                 message={'Imported successfully'}
-                onCloseCb={() => props.cleanAppDataResult()}
+                onCloseCb={() => appDataStore.cleanImportResult()}
             />
 
             <Alert
-                shouldShow={!!props.appDataResult.appDataResult?.importError}
+                shouldShow={!!appDataStore.importError}
                 severity={'error'}
-                message={props.appDataResult.appDataResult?.importError?.description || 'Unknown error'}
-                onCloseCb={() => props.cleanAppDataResult()}
+                message={appDataStore.importError?.description || 'Unknown error'}
+                onCloseCb={() => appDataStore.cleanImportResult()}
             />
         </>
     );
-};
-
-export const mapDispatchToProps: DispatchToPropsFn<ImportActions> = () => dispatch => ({
-    importAppDataAction: bindActionCreators(importFromFile, dispatch),
-    cleanAppDataResult: bindActionCreators(cleanAppDataResult, dispatch),
-
-    loadRolesVersion: bindActionCreators(fetchRolesVersion, dispatch),
-    loadResources: bindActionCreators(fetchResources, dispatch),
-    loadRoles: bindActionCreators(fetchRoles, dispatch),
-});
-
-export const mapStateToProps: StateToPropsFn<ImportState> = () => state => ({
-    appDataResult: state.appDataResult,
 });

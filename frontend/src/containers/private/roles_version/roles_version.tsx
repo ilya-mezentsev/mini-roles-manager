@@ -1,28 +1,16 @@
-import { bindActionCreators } from 'redux';
+import { observer } from 'mobx-react-lite';
 import { Box } from '@material-ui/core';
 import { Add } from '@material-ui/icons';
 import EventEmitter from 'events';
 
-import {
-    DispatchToPropsFn,
-    StateToPropsFn,
-} from '../../../shared/types';
-import {
-    RolesVersionActions,
-    RolesVersionState,
-    RolesVersionProps,
-} from './roles_version.types';
-import {
-    cleanCreateRolesVersionError,
-    createRolesVersion,
-} from '../../../store/roles_version/actions';
-import { RolesVersionList } from '../connected';
+import { RolesVersionList } from './list';
 import {
     EditRolesVersion as CreateRolesVersion,
 } from '../../../components/private/roles_version';
 import { Alert } from '../../../components/shared';
+import { rolesVersionStore } from '../../../store';
 
-export const RolesVersion = (props: RolesVersionProps) => {
+export const RolesVersion = observer(() => {
     const e = new EventEmitter();
     const openDialogueEventName = 'new-roles-version-dialogue:open';
 
@@ -48,24 +36,15 @@ export const RolesVersion = (props: RolesVersionProps) => {
             <CreateRolesVersion
                 openDialogueEventName={openDialogueEventName}
                 eventEmitter={e}
-                save={rv => props.createRolesVersionAction(rv)}
+                save={rv => rolesVersionStore.createRolesVersion(rv)}
             />
 
             <Alert
-                shouldShow={!!props.rolesVersionResult?.createError}
+                shouldShow={!!rolesVersionStore.createRolesVersionError}
                 severity={'error'}
-                message={props.rolesVersionResult?.createError?.description || 'Unknown error'}
-                onCloseCb={() => props.cleanCreateRolesVersionErrorAction()}
+                message={rolesVersionStore.createRolesVersionError?.description || 'Unknown error'}
+                onCloseCb={() => rolesVersionStore.cleanRolesVersionActionErrors()}
             />
         </>
     );
-};
-
-export const mapDispatchToProps: DispatchToPropsFn<RolesVersionActions> = () => dispatch => ({
-    createRolesVersionAction: bindActionCreators(createRolesVersion, dispatch),
-    cleanCreateRolesVersionErrorAction: bindActionCreators(cleanCreateRolesVersionError, dispatch),
-});
-
-export const mapStateToProps: StateToPropsFn<RolesVersionState> = () => state => ({
-    rolesVersionResult: state.rolesVersionResult,
 });

@@ -3,23 +3,21 @@ import {
     TextField,
     Button, Container,
 } from '@material-ui/core';
-import { bindActionCreators } from 'redux';
+import { observer } from 'mobx-react-lite';
 
-import { SignInActions, SignInProps, SignInState } from './sign_in.types';
-import { cleanSignInError, signIn } from '../../../store/session/actions';
 import { Alert } from '../../../components/shared';
-import { DispatchToPropsFn, StateToPropsFn } from '../../../shared/types';
+import { sessionStore } from '../../../store';
 
-export const SignIn = (props: SignInProps) => {
+export const SignIn = observer(() => {
     const [login, setLogin] = useState('');
     const [password, setPassword] = useState('');
 
     // eslint-disable-next-line
-    useEffect(() => () => props.cleanSignInAction(), [])
+    useEffect(() => () => sessionStore.cleanSessionActionErrors(), [])
 
     const trySignIn = () => {
-        props.cleanSignInAction();
-        props.signInAction({ login, password });
+        sessionStore.cleanSessionActionErrors();
+        return sessionStore.signIn({ login, password });
     };
 
     return (
@@ -53,20 +51,11 @@ export const SignIn = (props: SignInProps) => {
             </Button>
 
             <Alert
-                shouldShow={!!props.userSession?.error}
+                shouldShow={!!sessionStore.signInError}
                 severity={'error'}
-                message={props.userSession?.error?.description || 'Unknown error'}
-                onCloseCb={() => props.cleanSignInAction()}
+                message={sessionStore.signInError?.description || 'Unknown error'}
+                onCloseCb={() => sessionStore.cleanSessionActionErrors()}
             />
         </Container>
     );
-}
-
-export const mapDispatchToProps: DispatchToPropsFn<SignInActions> = () => dispatch => ({
-    signInAction: bindActionCreators(signIn, dispatch),
-    cleanSignInAction: bindActionCreators(cleanSignInError, dispatch),
-});
-
-export const mapStateToProps: StateToPropsFn<SignInState> = () => state => ({
-    userSession: state.userSession,
 });

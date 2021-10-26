@@ -1,6 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
-import { bindActionCreators } from 'redux';
-import * as _ from 'lodash';
+import { useState } from 'react';
+import { observer } from 'mobx-react-lite';
 import EventEmitter from 'events';
 
 import { Alert } from '../../../components/shared';
@@ -9,49 +8,10 @@ import {
     EditResource,
     ResourcesList as ResourcesListComponent,
 } from '../../../components/private/resource';
-import { DispatchToPropsFn, StateToPropsFn } from '../../../shared/types';
-import {
-    cleanDeletedResourceId,
-    cleanDeleteResourceError,
-    cleanLoadResourcesError,
-    cleanUpdateResourceError,
-    deleteResource,
-    fetchResources,
-    updateResource,
-} from '../../../store/resource/actions';
-import { fetchRoles, cleanFetchRolesError } from '../../../store/role/actions';
-import { ResourcesListActions, ResourcesListState, ResourcesListProps } from './list.types';
 import { Resource } from '../../../services/api';
+import { resourceStore, roleStore } from '../../../store';
 
-export const ResourcesList = (props: ResourcesListProps) => {
-    const resourcesListRef = useRef(props.resourcesResult.list);
-    useEffect(() => {
-        const differentResources = _.differenceWith(
-            props.resourcesResult.list,
-            resourcesListRef.current as any,
-            _.isEqual,
-        );
-
-        if (differentResources.length > 0) {
-            const gotNewResource = differentResources.some(d => !d.permissions);
-
-            if (gotNewResource) {
-                props.loadResourcesAction();
-            }
-
-            resourcesListRef.current = props.resourcesResult.list;
-        }
-        // eslint-disable-next-line
-    }, [props.resourcesResult.list]);
-
-    useEffect(() => {
-        if (props.resourcesResult?.deletedResourceId) {
-            props.loadRolesAction();
-            props.cleanDeletedResourceIdAction();
-        }
-        // eslint-disable-next-line
-    }, [props.resourcesResult?.deletedResourceId]);
-
+export const ResourcesList = observer(() => {
     const [deletingResource, setDeletingResource] = useState<Resource | null>(null);
     const [editingResource, setEditingResource] = useState<Resource | null>(null);
 
@@ -61,33 +21,32 @@ export const ResourcesList = (props: ResourcesListProps) => {
 
     const deleteResource = () => {
         if (deletingResource) {
-            props.deleteResourceAction(deletingResource.id);
-            setDeletingResource(null);
+            resourceStore
+                .deleteResource(deletingResource.id)
+                .finally(() => setDeletingResource(null));
         }
     };
 
     const hasAnyError: () => boolean = () => {
         return (
-            !!props.resourcesResult?.fetchError ||
-            !!props.resourcesResult?.updateError ||
-            !!props.resourcesResult?.deleteError ||
-            !!props.rolesResult?.fetchError
+            !!resourceStore.fetchResourceError ||
+            !!resourceStore.updateResourceError ||
+            !!resourceStore.deleteResourceError ||
+            !!roleStore.fetchRoleError
         );
     };
 
     const cleanErrors = () => {
-        props.cleanLoadResourcesError();
-        props.cleanUpdateResourceErrorAction();
-        props.cleanDeleteResourceErrorAction();
-        props.cleanFetchRolesErrorAction();
+        resourceStore.cleanResourceActionError();
+        roleStore.cleanRoleActionErrors();
     };
 
     const errorMessage: () => string = () => {
         return (
-            props.resourcesResult?.fetchError?.description ||
-            props.resourcesResult?.updateError?.description ||
-            props.resourcesResult?.deleteError?.description ||
-            props.rolesResult?.fetchError?.description ||
+            resourceStore.fetchResourceError?.description ||
+            resourceStore.updateResourceError?.description ||
+            resourceStore.deleteResourceError?.description ||
+            roleStore.fetchRoleError?.description ||
             'Unknown error'
         );
     };
@@ -95,7 +54,7 @@ export const ResourcesList = (props: ResourcesListProps) => {
     return (
         <>
             <ResourcesListComponent
-                resources={props.resourcesResult.list || []}
+                resources={resourceStore.list || []}
                 tryEdit={r => {
                     setEditingResource(r);
                     e.emit(openEditResourceEventName);
@@ -109,7 +68,7 @@ export const ResourcesList = (props: ResourcesListProps) => {
             <EditResource
                 openDialogueEventName={openEditResourceEventName}
                 eventEmitter={e}
-                save={r => props.updateResourceAction(r)}
+                save={r => resourceStore.updateResource(r)}
                 initialResource={editingResource}
             />
 
@@ -130,24 +89,4 @@ export const ResourcesList = (props: ResourcesListProps) => {
             />
         </>
     );
-}
-
-export const mapDispatchToProps: DispatchToPropsFn<ResourcesListActions> = () => dispatch => ({
-    updateResourceAction: bindActionCreators(updateResource, dispatch),
-    cleanUpdateResourceErrorAction: bindActionCreators(cleanUpdateResourceError, dispatch),
-
-    deleteResourceAction: bindActionCreators(deleteResource, dispatch),
-    cleanDeleteResourceErrorAction: bindActionCreators(cleanDeleteResourceError, dispatch),
-    cleanDeletedResourceIdAction: bindActionCreators(cleanDeletedResourceId, dispatch),
-
-    loadResourcesAction: bindActionCreators(fetchResources, dispatch),
-    cleanLoadResourcesError: bindActionCreators(cleanLoadResourcesError, dispatch),
-
-    loadRolesAction: bindActionCreators(fetchRoles, dispatch),
-    cleanFetchRolesErrorAction: bindActionCreators(cleanFetchRolesError, dispatch),
-});
-
-export const mapStateToProps: StateToPropsFn<ResourcesListState> = () => state => ({
-    resourcesResult: state.resourcesResult,
-    rolesResult: state.rolesResult,
 });
