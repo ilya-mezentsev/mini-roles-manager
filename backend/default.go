@@ -13,7 +13,11 @@ import (
 	"mini-roles-backend/source/domains/account/services/registration"
 	"mini-roles-backend/source/domains/account/services/session"
 	"mini-roles-backend/source/domains/account/services/session_check"
+	resetResourcesRepositoryConstructor "mini-roles-backend/source/domains/files/repositories/reset_resources"
+	resetRolesRepositoryConstructor "mini-roles-backend/source/domains/files/repositories/reset_roles"
+	resetRolesVersionRepositoryConstructor "mini-roles-backend/source/domains/files/repositories/reset_roles_version"
 	"mini-roles-backend/source/domains/files/services/export"
+	"mini-roles-backend/source/domains/files/services/import_file"
 	permissionCacheConstructor "mini-roles-backend/source/domains/permission/cache/permission"
 	defaultRolesVersionRepositoryConstructor "mini-roles-backend/source/domains/permission/repositories/db/default_roles_version"
 	permissionRepositoryConstructor "mini-roles-backend/source/domains/permission/repositories/db/permission"
@@ -48,6 +52,9 @@ func fullInit(
 	rolesVersionRepository := rolesVersionRepositoryConstructor.New(db)
 	defaultRolesVersionRepository := defaultRolesVersionRepositoryConstructor.New(db)
 	roleRepository := roleRepositoryConstructor.New(db)
+	resetRolesVersionRepository := resetRolesVersionRepositoryConstructor.New(db)
+	resetResourcesRepository := resetResourcesRepositoryConstructor.New(db)
+	resetRolesRepository := resetRolesRepositoryConstructor.New(db)
 
 	permissionCache := permissionCacheConstructor.New(
 		configsRepository.CachePermissionLifetime(),
@@ -71,6 +78,11 @@ func fullInit(
 		resourceRepository,
 		defaultRolesVersionRepository,
 	)
+	importService := import_file.New(
+		resetRolesVersionRepository,
+		resetResourcesRepository,
+		resetRolesRepository,
+	)
 
 	web.FullInit(
 		r,
@@ -89,6 +101,7 @@ func fullInit(
 		roleService,
 
 		exportService,
+		importService,
 
 		sharedMiddlewares...,
 	)

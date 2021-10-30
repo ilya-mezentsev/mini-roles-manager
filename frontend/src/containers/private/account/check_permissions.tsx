@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { bindActionCreators } from 'redux';
+import { observer } from 'mobx-react-lite';
 import {
     Button,
     Input,
@@ -12,14 +12,13 @@ import {
 import { Autocomplete } from '@material-ui/lab';
 
 import { Alert } from '../../../components/shared';
-import {
-    CheckPermissionsProps,
-    CheckPermissionsActions,
-    CheckPermissionsState,
-} from './check_permissions.types';
-import { DispatchToPropsFn, StateToPropsFn } from '../../../shared/types';
-import { cleanFetchPermissionResult, fetchPermission } from '../../../store/permission/actions';
 import { Operation } from '../../../services/api/shared/types';
+import {
+    resourceStore,
+    roleStore,
+    rolesVersionStore,
+    permissionStore,
+} from '../../../store';
 
 const operations = [
     Operation.CREATE,
@@ -28,24 +27,24 @@ const operations = [
     Operation.DELETE,
 ];
 
-export const CheckPermissions = (props: CheckPermissionsProps) => {
+export const CheckPermissions = observer(() => {
     const [rolesVersionId, setRolesVersionId] = useState('');
     const [roleId, setRoleId] = useState('');
     const [resourceId, setResourceId] = useState('');
     const [operation, setOperation] = useState(Operation.CREATE);
 
     // eslint-disable-next-line
-    useEffect(() => () => props.cleanFetchPermissionResult(), []);
+    useEffect(() => () => permissionStore.cleanFetchPermissionAction(), []);
 
     return (
         <>
             <h3>Check permissions:</h3>
 
             <Autocomplete
-                disabled={(props.resourcesResult.list?.length || 0) < 1}
-                options={(props.resourcesResult.list || []).map(r => r.id)}
+                disabled={resourceStore.list.length < 1}
+                options={resourceStore.list.map(r => r.id)}
                 value={resourceId}
-                onChange={(_, newValue) => setResourceId(newValue || '')}
+                onChange={(_, newValue) => setResourceId((newValue as string) || '')}
                 fullWidth
                 getOptionLabel={option => option}
                 renderInput={(params) => (
@@ -54,14 +53,14 @@ export const CheckPermissions = (props: CheckPermissionsProps) => {
             />
 
             <Autocomplete
-                disabled={(props.rolesResult.list?.length || 0) < 1}
+                disabled={roleStore.list.length < 1}
                 options={
-                    (props.rolesResult.list || [])
-                        .filter(r => r.versionId === props.rolesVersionResult.currentRolesVersion?.id)
+                    roleStore.list
+                        .filter(r => r.versionId === rolesVersionStore.current?.id)
                         .map(r => r.id)
                 }
                 value={roleId}
-                onChange={(_, newValue) => setRoleId(newValue || '')}
+                onChange={(_, newValue) => setRoleId((newValue as string) || '')}
                 fullWidth
                 getOptionLabel={option => option}
                 renderInput={(params) => (
@@ -73,11 +72,11 @@ export const CheckPermissions = (props: CheckPermissionsProps) => {
             <Select
                 margin="dense"
                 fullWidth
-                value={rolesVersionId || props.rolesVersionResult.currentRolesVersion?.id || ''}
+                value={rolesVersionId || rolesVersionStore.current?.id || ''}
                 onChange={e => setRolesVersionId((e.target as HTMLSelectElement).value)}
                 input={<Input />}
             >
-                {(props.rolesVersionResult.list || []).map(rv => (
+                {rolesVersionStore.list.map(rv => (
                     <MenuItem key={`operation_${rv.id}`} value={rv.id}>
                         {rv.id}
                     </MenuItem>
@@ -105,12 +104,12 @@ export const CheckPermissions = (props: CheckPermissionsProps) => {
                     variant="contained"
                     color="primary"
                     onClick={() => {
-                        props.cleanFetchPermissionResult();
-                        props.fetchPermissionAction({
+                        permissionStore.cleanFetchPermissionAction();
+                        return permissionStore.fetchPermission({
                             roleId,
                             resourceId,
                             operation,
-                            rolesVersionId: rolesVersionId || props.rolesVersionResult.currentRolesVersion?.id || '',
+                            rolesVersionId: rolesVersionId || rolesVersionStore.current?.id || '',
                         });
                     }}
                 >
@@ -119,30 +118,18 @@ export const CheckPermissions = (props: CheckPermissionsProps) => {
             </Box>
 
             <Alert
-                message={`Effect is ${(props.fetchPermissionResult?.effect || 'Unknown').toUpperCase()}`}
+                message={`Effect is ${(permissionStore.permission?.effect || 'Unknown').toUpperCase()}`}
                 severity="info"
-                shouldShow={!!props.fetchPermissionResult?.effect}
-                onCloseCb={() => props.cleanFetchPermissionResult()}
+                shouldShow={!!permissionStore.permission?.effect}
+                onCloseCb={() => permissionStore.cleanFetchPermissionAction()}
             />
 
             <Alert
-                message={props.fetchPermissionResult?.error?.description || 'Unknown error'}
+                message={permissionStore.fetchPermissionError?.description || 'Unknown error'}
                 severity="error"
-                shouldShow={!!props.fetchPermissionResult?.error}
-                onCloseCb={() => props.cleanFetchPermissionResult()}
+                shouldShow={!!permissionStore.fetchPermissionError}
+                onCloseCb={() => permissionStore.cleanFetchPermissionAction()}
             />
         </>
     );
-}
-
-export const mapDispatchToProps: DispatchToPropsFn<CheckPermissionsActions> = () => dispatch => ({
-    fetchPermissionAction: bindActionCreators(fetchPermission, dispatch),
-    cleanFetchPermissionResult: bindActionCreators(cleanFetchPermissionResult, dispatch),
-});
-
-export const mapStateToProps: StateToPropsFn<CheckPermissionsState> = () => state => ({
-    fetchPermissionResult: state.fetchPermissionResult,
-    rolesVersionResult: state.rolesVersionResult,
-    resourcesResult: state.resourcesResult,
-    rolesResult: state.rolesResult,
 });

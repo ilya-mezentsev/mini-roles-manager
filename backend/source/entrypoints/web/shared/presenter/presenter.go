@@ -28,6 +28,14 @@ func MakeInvalidJsonResponse(c *gin.Context) {
 	c.String(http.StatusBadRequest, "Invalid JSON format")
 }
 
+func MakeBadRequestResponse(c *gin.Context) {
+	c.String(http.StatusBadRequest, "Bad request")
+}
+
+func MakeInternalErrorResponse(c *gin.Context) {
+	c.String(http.StatusInternalServerError, "Internal server error")
+}
+
 func MakeFileResponse(c *gin.Context, r responseFactory.Response) {
 	c.Status(r.HttpStatus())
 	if r.HasData() {

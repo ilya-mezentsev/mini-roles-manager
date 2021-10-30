@@ -4,6 +4,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	sharedError "mini-roles-backend/source/domains/shared/error"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
+	sharedRolesVersionRepository "mini-roles-backend/source/domains/shared/repositories/roles_version"
 	sharedSpec "mini-roles-backend/source/domains/shared/spec"
 )
 
@@ -11,8 +12,6 @@ const (
 	selectRolesVersionQuery = `
 	select trim(version_id) version_id, trim(title) title
 	from roles_version where account_hash = $1 order by created_at`
-
-	addRolesVersionQuery = `insert into roles_version(version_id, title, account_hash) values(:version_id, :title, :account_hash)`
 
 	updateRolesVersionQuery = `
 	update roles_version set title = :title
@@ -33,23 +32,15 @@ func (r Repository) Create(
 	accountId sharedModels.AccountId,
 	rolesVersion sharedModels.RolesVersion,
 ) error {
-	_, err := r.db.NamedExec(addRolesVersionQuery, r.mapFromRolesVersion(accountId, rolesVersion))
+	_, err := r.db.NamedExec(
+		sharedRolesVersionRepository.AddRolesVersionQuery,
+		sharedRolesVersionRepository.MapFromRolesVersion(accountId, rolesVersion),
+	)
 	if sharedError.IsDuplicateKey(err) {
 		err = sharedError.DuplicateUniqueKey{}
 	}
 
 	return err
-}
-
-func (r Repository) mapFromRolesVersion(
-	accountId sharedModels.AccountId,
-	rolesVersion sharedModels.RolesVersion,
-) map[string]interface{} {
-	return map[string]interface{}{
-		"account_hash": accountId,
-		"version_id":   rolesVersion.Id,
-		"title":        rolesVersion.Title,
-	}
 }
 
 func (r Repository) List(spec sharedSpec.AccountWithId) ([]sharedModels.RolesVersion, error) {
@@ -63,7 +54,10 @@ func (r Repository) Update(
 	accountId sharedModels.AccountId,
 	rolesVersion sharedModels.RolesVersion,
 ) error {
-	_, err := r.db.NamedExec(updateRolesVersionQuery, r.mapFromRolesVersion(accountId, rolesVersion))
+	_, err := r.db.NamedExec(
+		updateRolesVersionQuery,
+		sharedRolesVersionRepository.MapFromRolesVersion(accountId, rolesVersion),
+	)
 
 	return err
 }

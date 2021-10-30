@@ -175,6 +175,7 @@ describe('account api tests', () => {
             roleId: 'role-1',
             operation: Operation.CREATE,
             resourceId: 'resource-1',
+            rolesVersionId: 'version-id',
         }
         // @ts-ignore
         request.GET = jest.fn().mockResolvedValue({

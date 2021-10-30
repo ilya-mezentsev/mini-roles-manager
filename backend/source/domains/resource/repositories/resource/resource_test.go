@@ -11,6 +11,7 @@ import (
 	sharedError "mini-roles-backend/source/domains/shared/error"
 	sharedMock "mini-roles-backend/source/domains/shared/mock"
 	sharedModels "mini-roles-backend/source/domains/shared/models"
+	sharedResourceRepository "mini-roles-backend/source/domains/shared/repositories/resource"
 	sharedResource "mini-roles-backend/source/domains/shared/resource"
 	sharedSpec "mini-roles-backend/source/domains/shared/spec"
 	"strings"
@@ -41,7 +42,7 @@ func TestRepository_ListSuccess(t *testing.T) {
 	}
 	_, err := db.NamedExec(
 		`insert into resource(account_hash, resource_id, title, links_to) values(:account_hash, :resource_id, :title, :links_to)`,
-		repository.mapFromResource(sharedMock.ExistsAccountId, someResource),
+		sharedResourceRepository.MapFromResource(sharedMock.ExistsAccountId, someResource),
 	)
 	assert.Nil(t, err)
 
@@ -74,7 +75,7 @@ func TestRepository_ListSuccessWithPermissions(t *testing.T) {
 	}
 	_, err := db.NamedExec(
 		`insert into resource(account_hash, resource_id, title, links_to) values(:account_hash, :resource_id, :title, :links_to)`,
-		repository.mapFromResource(sharedMock.ExistsAccountId, someResource),
+		sharedResourceRepository.MapFromResource(sharedMock.ExistsAccountId, someResource),
 	)
 	assert.Nil(t, err)
 	for _, permission := range someResource.Permissions {
@@ -151,7 +152,7 @@ func TestRepository_CreateDuplicateResourceId(t *testing.T) {
 	}
 	_, err := db.NamedExec(
 		`insert into resource(account_hash, resource_id, title, links_to) values(:account_hash, :resource_id, :title, :links_to)`,
-		repository.mapFromResource(sharedMock.ExistsAccountId, someResource),
+		sharedResourceRepository.MapFromResource(sharedMock.ExistsAccountId, someResource),
 	)
 	assert.Nil(t, err)
 
@@ -168,7 +169,7 @@ func TestRepository_UpdateSuccess(t *testing.T) {
 	}
 	_, err := db.NamedExec(
 		`insert into resource(account_hash, resource_id, title, links_to) values(:account_hash, :resource_id, :title, :links_to)`,
-		repository.mapFromResource(sharedMock.ExistsAccountId, someResource),
+		sharedResourceRepository.MapFromResource(sharedMock.ExistsAccountId, someResource),
 	)
 	assert.Nil(t, err)
 
@@ -194,7 +195,7 @@ func TestRepository_DeleteSuccess(t *testing.T) {
 	}
 	_, err := db.NamedExec(
 		`insert into resource(account_hash, resource_id, title, links_to) values(:account_hash, :resource_id, :title, :links_to)`,
-		repository.mapFromResource(sharedMock.ExistsAccountId, someResource),
+		sharedResourceRepository.MapFromResource(sharedMock.ExistsAccountId, someResource),
 	)
 	assert.Nil(t, err)
 
@@ -220,7 +221,7 @@ func TestRepository_DeleteSuccessFilterRolePermissions(t *testing.T) {
 	}
 	_, err := db.NamedExec(
 		`insert into resource(account_hash, resource_id, title, links_to) values(:account_hash, :resource_id, :title, :links_to)`,
-		repository.mapFromResource(sharedMock.ExistsAccountId, someResource),
+		sharedResourceRepository.MapFromResource(sharedMock.ExistsAccountId, someResource),
 	)
 	assert.Nil(t, err)
 	db.MustExec(

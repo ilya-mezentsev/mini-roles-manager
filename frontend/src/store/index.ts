@@ -1,32 +1,22 @@
-import { createStore, applyMiddleware, combineReducers } from 'redux';
-import thunk from 'redux-thunk';
 
-import { registrationReducer } from './registration/reducer';
-import { sessionReducer } from './session/reducer';
-import { resourceReducer } from './resource/reducer';
-import { rolesVersionReducer } from './roles_version/reducer';
-import { roleReducer } from './role/reducer';
-import { accountInfoReducer } from './account_info/reducer';
-import { fetchPermissionReducer } from './permission/reducer';
+import { AccountInfoStore } from './account_info/account_info.store';
+import { RolesVersionStore } from './roles_version/roles_version.store';
+import { ResourceStore } from './resource/resource.store';
+import { AppDataStore } from './app_data/app_data.store';
+import { RoleStore } from './role/role.store';
+import { SessionStore } from './session/session.store';
+import { RegistrationStore } from './registration/registration.store';
+import { PermissionStore } from './permission/permission.store';
 
-import { userSessionMiddleware, getPreloadedUserSessionId } from './middleware/user_session';
-
-const reducer = combineReducers({
-    registrationResult: registrationReducer,
-    userSession: sessionReducer,
-    resourcesResult: resourceReducer,
-    rolesVersionResult: rolesVersionReducer,
-    rolesResult: roleReducer,
-    accountInfoResult: accountInfoReducer,
-    fetchPermissionResult: fetchPermissionReducer,
-});
-
-const preloadedState = {
-    userSession: getPreloadedUserSessionId(),
-};
-
-export const store = createStore(
-    reducer,
-    preloadedState,
-    applyMiddleware(thunk, userSessionMiddleware),
+export const accountInfoStore = new AccountInfoStore();
+export const roleStore = new RoleStore();
+export const resourceStore = new ResourceStore(roleStore);
+export const rolesVersionStore = new RolesVersionStore(roleStore);
+export const appDataStore = new AppDataStore(
+    roleStore,
+    resourceStore,
+    rolesVersionStore,
 );
+export const sessionStore = new SessionStore();
+export const registrationStore = new RegistrationStore();
+export const permissionStore = new PermissionStore();

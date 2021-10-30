@@ -174,9 +174,10 @@ func TestValidateMissedPermissionId(t *testing.T) {
 		t,
 		errorsMessages,
 		fmt.Sprintf(
-			"Role with id %s has not exists permission id: %s",
+			"Role with id %s has not exists permission id: %s, for version %s",
 			representation.Roles[0].Id,
 			sharedMock.BadPermissionId,
+			representation.Roles[0].VersionId,
 		),
 	)
 }

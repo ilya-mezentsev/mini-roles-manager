@@ -887,6 +887,59 @@ paths:
               schema:
                 $ref: "#/components/schemas/ServerErrorResponse"
 
+  /app-data/import:
+    post:
+      summary: Import application data from file
+      tags:
+        - App-Data-File
+
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                app_data_file:
+                  type: string
+                  format: binary
+
+      responses:
+        204:
+          description: Application data is imported succeffully
+
+        400:
+          description: Bad request
+          content:
+            plain/text:
+              schema:
+                type: string
+                example: Bad request
+
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestResponse"
+
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedResponse"
+
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ForbiddenResponse"
+
+        500:
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServerErrorResponse"
+
 components:
   schemas:
     OkStatusCode:

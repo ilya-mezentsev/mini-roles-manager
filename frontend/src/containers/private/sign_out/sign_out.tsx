@@ -1,35 +1,24 @@
-import { bindActionCreators } from 'redux';
+import { observer } from 'mobx-react-lite';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 
 import { Alert } from '../../../components/shared';
-import { DispatchToPropsFn, StateToPropsFn } from '../../../shared/types';
-import { signOut, cleanSignOutError } from '../../../store/session/actions';
-import { SignOutActions, SignOutProps, SignOutState } from './sign_out.types';
+import { sessionStore } from '../../../store';
 
-export const SignOut = (props: SignOutProps) => {
+export const SignOut = observer(() => {
     return (
         <>
             <ExitToAppIcon
                 color="inherit"
                 cursor="pointer"
-                onClick={() => props.signOutAction()}
+                onClick={() => sessionStore.signOut()}
             />
 
             <Alert
-                shouldShow={!!props.userSession?.error}
+                shouldShow={!!sessionStore.signOutError}
                 severity={'error'}
-                message={props.userSession?.error?.description || 'Unknown error'}
-                onCloseCb={() => props.cleanSignOutErrorAction()}
+                message={sessionStore.signOutError?.description || 'Unknown error'}
+                onCloseCb={() => sessionStore.cleanSessionActionErrors()}
             />
         </>
     )
-};
-
-export const mapStateToProps: StateToPropsFn<SignOutState> = () => state => ({
-    userSession: state.userSession,
-});
-
-export const mapDispatchToProps: DispatchToPropsFn<SignOutActions> = () => dispatch => ({
-    signOutAction: bindActionCreators(signOut, dispatch),
-    cleanSignOutErrorAction: bindActionCreators(cleanSignOutError, dispatch)
 });

@@ -9,6 +9,7 @@ BACKEND_LIBS_PATH := $(BACKEND_DIR)/libs
 BACKEND_SOURCE_PATH := $(BACKEND_DIR)/source
 BACKEND_CONFIG_PATH := $(BACKEND_DIR)/config/main.json
 BACKEND_APP_DATA_PATH := $(BACKEND_DIR)/config/app-data.json
+INVALID_BACKEND_APP_DATA_PATH := $(BACKEND_DIR)/config/app-data.invalid.json
 
 BACKEND_VALIDATION_PKG_PATH := $(BACKEND_SOURCE_PATH)/domains/files/services/validation
 
@@ -43,7 +44,12 @@ backend-help:
 	unset GOPATH && cd $(BACKEND_DIR) && GOMODCACHE=$(BACKEND_LIBS_PATH) ./main -help
 
 backend-tests:
-	unset GOPATH && cd $(BACKEND_SOURCE_PATH) && GOMODCACHE=$(BACKEND_LIBS_PATH) go test -cover -p 1 ./... | { grep -v "no test files"; true; }
+	unset GOPATH && \
+	cd $(BACKEND_SOURCE_PATH) && \
+	GOMODCACHE=$(BACKEND_LIBS_PATH) \
+	VALID_PERMISSIONS_FILE=$(BACKEND_APP_DATA_PATH) \
+	INVALID_PERMISSIONS_FILE=$(INVALID_BACKEND_APP_DATA_PATH) \
+	go test -cover -p 1 ./... | { grep -v "no test files"; true; }
 
 backend-benchmark-file-validation:
 	unset GOPATH && cd $(BACKEND_VALIDATION_PKG_PATH) && GOMODCACHE=$(BACKEND_LIBS_PATH) go test -bench . -benchmem -run=^$

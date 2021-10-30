@@ -9,14 +9,12 @@ import {
     Switch,
 } from 'react-router-dom';
 
-import {
-    AccountApiKey,
-    AccountInfo,
-    AccountCredentials,
-    CheckPermissions,
-} from '../connected';
 import { ListItemRoute } from '../../../components/shared/navigation/navigation.types';
 import { SharedListNavigation } from '../../../components/shared';
+import { Credentials as AccountCredentials } from './credentials';
+import { Info as AccountInfo } from './info';
+import { ApiKey as AccountApiKey } from './api_key';
+import { CheckPermissions } from './check_permissions';
 
 const fallbackPath = '/account/info';
 const routes: (ListItemRoute & { component: () => JSX.Element })[] = [

@@ -1,2 +1,2 @@
 
-export { Entrypoint as PrivateEntrypoint } from './connected';
+export { Entrypoint as PrivateEntrypoint } from './entrypoint';

@@ -3,15 +3,14 @@ import {
     SharedAppNavigation,
     NavigationRoute,
 } from '../../../components/shared';
-import {
-    Resources,
-    RolesVersion,
-    Roles,
-    SignOut,
-} from '../connected';
 import { SecondaryButton } from '../../../components/shared/navigation/navigation.types';
+
 import { AppData } from '../app_data/app_data';
 import { Account } from '../account/account';
+import { Resources } from '../resources/resources';
+import { RolesVersion } from '../roles_version/roles_version';
+import { Roles } from '../role/roles';
+import { SignOut } from '../sign_out/sign_out';
 
 const routes: NavigationRoute[] = [
     {

@@ -285,9 +285,10 @@ func permissionsAreExist(appData sharedModels.AppData) []string {
 			_, permissionExists := permissionsIds[permissionId]
 			if !permissionExists {
 				messages = append(messages, fmt.Sprintf(
-					"Role with id %s has not exists permission id: %s",
+					"Role with id %s has not exists permission id: %s, for version %s",
 					role.Id,
 					permissionId,
+					role.VersionId,
 				))
 			}
 		}
