@@ -55,9 +55,9 @@ export const CheckPermissions = observer(() => {
             <Autocomplete
                 disabled={roleStore.list.length < 1}
                 options={
-                    roleStore.list
-                        .filter(r => r.versionId === rolesVersionStore.current?.id)
-                        .map(r => r.id)
+                    Array.from(new Set(
+                        roleStore.list.map(r => r.id),
+                    ))
                 }
                 value={roleId}
                 onChange={(_, newValue) => setRoleId((newValue as string) || '')}

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import EventEmitter from 'events';
+import _ from 'lodash';
 
 import { Alert } from '../../../components/shared';
 import { Prompter } from '../../../components/private/shared';
@@ -54,7 +55,9 @@ export const ResourcesList = observer(() => {
     return (
         <>
             <ResourcesListComponent
-                resources={resourceStore.list || []}
+                // here we need to copy array,
+                // so ResourcesListComponent is going to be re-rendered after list update
+                resources={_.slice(resourceStore.list)}
                 tryEdit={r => {
                     setEditingResource(r);
                     e.emit(openEditResourceEventName);
