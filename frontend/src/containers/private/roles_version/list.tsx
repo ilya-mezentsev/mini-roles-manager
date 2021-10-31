@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import EventEmitter from 'events';
+import _ from 'lodash';
 
 import { RolesVersion } from '../../../services/api';
 import {
@@ -53,7 +54,9 @@ export const RolesVersionList = observer(() => {
     return (
         <>
             <RolesVersionListComponent
-                rolesVersions={rolesVersionStore.list}
+                // here we need to copy array,
+                // so RolesVersionListComponent is going to be re-rendered after list update
+                rolesVersions={_.slice(rolesVersionStore.list)}
                 tryEdit={rv => {
                     setEditingRolesVersion(rv);
                     e.emit(openEditResourceEventName);

@@ -33,6 +33,8 @@ export async function PATCH<T>(
         path: removeLeadingAndTrailingSlashes(path),
         method: RequestMethod.PATCH,
         body,
+        shouldEncode: true,
+        shouldAddContentType: true,
     });
 }
 
